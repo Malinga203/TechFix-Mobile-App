@@ -1,5 +1,6 @@
 package com.techfix.app.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -18,12 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LONGITUDE = "longitude";
 
     public DatabaseHelper(Context context) {
-        super(
-                context,
-                DATABASE_NAME,
-                null,
-                DATABASE_VERSION
-        );
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -39,6 +35,68 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         ")";
 
         db.execSQL(createBranchTable);
+
+        insertInitialBranches(db);
+    }
+
+    private void insertInitialBranches(SQLiteDatabase db) {
+
+        ContentValues colomboValues = new ContentValues();
+
+        colomboValues.put(
+                COLUMN_BRANCH_NAME,
+                "TechFix Colombo"
+        );
+
+        colomboValues.put(
+                COLUMN_ADDRESS,
+                "Colombo, Sri Lanka"
+        );
+
+        colomboValues.put(
+                COLUMN_LATITUDE,
+                6.9271
+        );
+
+        colomboValues.put(
+                COLUMN_LONGITUDE,
+                79.8612
+        );
+
+        db.insert(
+                TABLE_BRANCH,
+                null,
+                colomboValues
+        );
+
+
+        ContentValues galleValues = new ContentValues();
+
+        galleValues.put(
+                COLUMN_BRANCH_NAME,
+                "TechFix Galle"
+        );
+
+        galleValues.put(
+                COLUMN_ADDRESS,
+                "Galle, Sri Lanka"
+        );
+
+        galleValues.put(
+                COLUMN_LATITUDE,
+                6.0329
+        );
+
+        galleValues.put(
+                COLUMN_LONGITUDE,
+                80.2168
+        );
+
+        db.insert(
+                TABLE_BRANCH,
+                null,
+                galleValues
+        );
     }
 
     @Override

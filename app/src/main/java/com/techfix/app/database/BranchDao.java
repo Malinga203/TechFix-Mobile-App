@@ -10,11 +10,11 @@ import com.techfix.app.models.Branch;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BranchDAO {
+public class BranchDao {
 
     private final DatabaseHelper databaseHelper;
 
-    public BranchDAO(Context context) {
+    public BranchDao(Context context) {
         databaseHelper =
                 new DatabaseHelper(context);
     }
