@@ -145,12 +145,6 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                             + result
             );
 
-            Log.d(
-                    TAG,
-                    "Saved name: "
-                            + user.getName()
-            );
-
             return result;
 
         } catch (Exception e) {
@@ -167,10 +161,10 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
     }
 
     // =========================================================
-    // CHECK EMAIL
+    // GET USER BY ID
     // =========================================================
 
-    public boolean isEmailRegistered(String email) {
+    public User getUserById(int userId) {
 
         SQLiteDatabase db =
                 getReadableDatabase();
@@ -181,15 +175,22 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
 
             cursor = db.query(
                     TABLE_USERS,
-                    new String[]{COLUMN_ID},
-                    COLUMN_EMAIL + " = ?",
-                    new String[]{email.trim()},
+                    null,
+                    COLUMN_ID + " = ?",
+                    new String[]{
+                            String.valueOf(userId)
+                    },
                     null,
                     null,
                     null
             );
 
-            return cursor.moveToFirst();
+            if (cursor.moveToFirst()) {
+
+                return createUserFromCursor(cursor);
+            }
+
+            return null;
 
         } finally {
 
@@ -216,7 +217,9 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                     TABLE_USERS,
                     null,
                     COLUMN_EMAIL + " = ?",
-                    new String[]{email.trim()},
+                    new String[]{
+                            email.trim()
+                    },
                     null,
                     null,
                     null
@@ -254,7 +257,9 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                     TABLE_USERS,
                     null,
                     "LOWER(" + COLUMN_NAME + ") = LOWER(?)",
-                    new String[]{name.trim()},
+                    new String[]{
+                            name.trim()
+                    },
                     null,
                     null,
                     null
@@ -262,23 +267,8 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
 
             if (cursor.moveToFirst()) {
 
-                User user =
-                        createUserFromCursor(cursor);
-
-                Log.d(
-                        TAG,
-                        "User found by name: "
-                                + user.getName()
-                );
-
-                return user;
+                return createUserFromCursor(cursor);
             }
-
-            Log.d(
-                    TAG,
-                    "No user found with name: "
-                            + name
-            );
 
             return null;
 
@@ -291,7 +281,42 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
     }
 
     // =========================================================
-    // AUTHENTICATE USING NAME + PASSWORD
+    // CHECK EMAIL
+    // =========================================================
+
+    public boolean isEmailRegistered(String email) {
+
+        SQLiteDatabase db =
+                getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor = db.query(
+                    TABLE_USERS,
+                    new String[]{COLUMN_ID},
+                    COLUMN_EMAIL + " = ?",
+                    new String[]{
+                            email.trim()
+                    },
+                    null,
+                    null,
+                    null
+            );
+
+            return cursor.moveToFirst();
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    // =========================================================
+    // AUTHENTICATE BY NAME + PASSWORD
     // =========================================================
 
     public User authenticateUserByName(
@@ -303,92 +328,29 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
 
         Cursor cursor = null;
 
-        String cleanName = name.trim();
-
         try {
 
-            // First find the user by name.
             cursor = db.query(
                     TABLE_USERS,
                     null,
-                    "LOWER(" + COLUMN_NAME + ") = LOWER(?)",
-                    new String[]{cleanName},
+                    "LOWER(" + COLUMN_NAME + ") = LOWER(?)"
+                            + " AND "
+                            + COLUMN_PASSWORD + " = ?",
+                    new String[]{
+                            name.trim(),
+                            password
+                    },
                     null,
                     null,
                     null
             );
 
-            if (!cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
 
-                Log.e(
-                        TAG,
-                        "LOGIN FAILED: Name not found: "
-                                + cleanName
-                );
-
-                return null;
+                return createUserFromCursor(cursor);
             }
 
-            // Read stored password.
-            String storedPassword =
-                    cursor.getString(
-                            cursor.getColumnIndexOrThrow(
-                                    COLUMN_PASSWORD
-                            )
-                    );
-
-            String storedName =
-                    cursor.getString(
-                            cursor.getColumnIndexOrThrow(
-                                    COLUMN_NAME
-                            )
-                    );
-
-            Log.d(
-                    TAG,
-                    "Login name entered: "
-                            + cleanName
-            );
-
-            Log.d(
-                    TAG,
-                    "Login name stored: "
-                            + storedName
-            );
-
-            Log.d(
-                    TAG,
-                    "Password entered length: "
-                            + password.length()
-            );
-
-            Log.d(
-                    TAG,
-                    "Password stored length: "
-                            + storedPassword.length()
-            );
-
-            // Compare password.
-            if (!storedPassword.equals(password)) {
-
-                Log.e(
-                        TAG,
-                        "LOGIN FAILED: Password does not match."
-                );
-
-                return null;
-            }
-
-            User user =
-                    createUserFromCursor(cursor);
-
-            Log.d(
-                    TAG,
-                    "LOGIN SUCCESS: "
-                            + user.getName()
-            );
-
-            return user;
+            return null;
 
         } finally {
 
@@ -399,7 +361,7 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
     }
 
     // =========================================================
-    // EMAIL + PASSWORD AUTHENTICATION
+    // AUTHENTICATE BY EMAIL + PASSWORD
     // =========================================================
 
     public User authenticateUser(
@@ -440,6 +402,86 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                 cursor.close();
             }
         }
+    }
+
+    // =========================================================
+    // UPDATE PROFILE
+    // =========================================================
+
+    public boolean updateUserProfile(
+            int userId,
+            String name,
+            String phone) {
+
+        SQLiteDatabase db =
+                getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                COLUMN_NAME,
+                name.trim()
+        );
+
+        values.put(
+                COLUMN_PHONE,
+                phone.trim()
+        );
+
+        int rowsUpdated = db.update(
+                TABLE_USERS,
+                values,
+                COLUMN_ID + " = ?",
+                new String[]{
+                        String.valueOf(userId)
+                }
+        );
+
+        Log.d(
+                TAG,
+                "Profile update rows: "
+                        + rowsUpdated
+        );
+
+        return rowsUpdated > 0;
+    }
+
+    // =========================================================
+    // CHANGE PASSWORD
+    // =========================================================
+
+    public boolean updatePassword(
+            int userId,
+            String newPassword) {
+
+        SQLiteDatabase db =
+                getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                COLUMN_PASSWORD,
+                newPassword
+        );
+
+        int rowsUpdated = db.update(
+                TABLE_USERS,
+                values,
+                COLUMN_ID + " = ?",
+                new String[]{
+                        String.valueOf(userId)
+                }
+        );
+
+        Log.d(
+                TAG,
+                "Password update rows: "
+                        + rowsUpdated
+        );
+
+        return rowsUpdated > 0;
     }
 
     // =========================================================

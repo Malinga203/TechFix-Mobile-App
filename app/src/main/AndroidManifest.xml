@@ -33,6 +33,10 @@
             android:name=".userauthentication.activities.LogoutTestActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".userauthentication.activities.CustomerProfileActivity"
+            android:exported="true" />
+
         <!-- Main application Activity -->
         <activity
             android:name=".MainActivity"
