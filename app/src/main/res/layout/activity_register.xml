@@ -1,95 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="32dp"
+        android:gravity="center_horizontal">
 
         <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:gravity="center"
             android:text="TechFix"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            android:textSize="42sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tvSubtitle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:gravity="center"
-            android:text="Create Customer Account"
-            android:textSize="18sp" />
+            android:text="Customer Registration"
+            android:textSize="26sp"
+            android:layout_marginTop="20dp" />
 
         <EditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name"
+            android:layout_marginTop="40dp"
+            android:hint="Name"
             android:inputType="textPersonName"
-            android:padding="12dp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="18dp"
             android:hint="Email"
             android:inputType="textEmailAddress"
-            android:padding="12dp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/etPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Phone Number"
+            android:layout_marginTop="18dp"
+            android:hint="Phone"
             android:inputType="phone"
-            android:maxLength="10"
-            android:padding="12dp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="18dp"
             android:hint="Password"
             android:inputType="textPassword"
-            android:padding="12dp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/etConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="18dp"
             android:hint="Confirm Password"
             android:inputType="textPassword"
-            android:padding="12dp" />
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="32dp"
             android:text="REGISTER"
+            android:textSize="18sp"
             android:textAllCaps="false" />
 
-        <TextView
-            android:id="@+id/tvLogin"
+        <Button
+            android:id="@+id/btnBackToLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="Already have an account? Login"
-            android:textSize="16sp" />
+            android:layout_marginTop="16dp"
+            android:text="Back to Login Page"
+            android:textSize="16sp"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 

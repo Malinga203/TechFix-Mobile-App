@@ -2,6 +2,7 @@ package com.techfix.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +12,7 @@ import com.techfix.app.userauthentication.utils.SessionManager;
 public class MainActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
+    private Button btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,23 +20,41 @@ public class MainActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        // Check whether a user is already logged in
+        // User is not logged in
         if (!sessionManager.isLoggedIn()) {
 
-            // No active session → open Login screen
-            Intent intent = new Intent(
-                    this,
-                    LoginActivity.class
-            );
-
-            startActivity(intent);
-
-            finish();
-
+            openLogin();
             return;
         }
 
-        // User is already logged in
         setContentView(R.layout.activity_main);
+
+        btnLogout = findViewById(R.id.btnLogout);
+
+        btnLogout.setOnClickListener(
+                v -> logoutUser()
+        );
+    }
+
+    private void logoutUser() {
+
+        // Remove login session
+        sessionManager.logout();
+
+        // Return to login
+        openLogin();
+    }
+
+    private void openLogin() {
+
+        Intent intent = new Intent(
+                MainActivity.this,
+                LoginActivity.class
+        );
+
+        startActivity(intent);
+
+        // Prevent returning to MainActivity
+        finish();
     }
 }

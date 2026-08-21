@@ -1,5 +1,6 @@
 package com.techfix.app.userauthentication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +17,7 @@ import com.techfix.app.userauthentication.utils.ValidationUtils;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText etEmail;
+    private EditText etName;
     private EditText etPassword;
 
     private Button btnLogin;
@@ -36,14 +37,24 @@ public class LoginActivity extends AppCompatActivity {
         databaseHelper = new AuthDatabaseHelper(this);
         sessionManager = new SessionManager(this);
 
+        // Login button
         btnLogin.setOnClickListener(v -> loginUser());
 
-        tvRegister.setOnClickListener(v -> finish());
+        // Register link
+        tvRegister.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    RegisterActivity.class
+            );
+
+            startActivity(intent);
+        });
     }
 
     private void initializeViews() {
 
-        etEmail = findViewById(R.id.etEmail);
+        etName = findViewById(R.id.etName);
         etPassword = findViewById(R.id.etPassword);
 
         btnLogin = findViewById(R.id.btnLogin);
@@ -52,25 +63,18 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginUser() {
 
-        String email = etEmail.getText()
+        String name = etName.getText()
                 .toString()
                 .trim();
 
         String password = etPassword.getText()
                 .toString();
 
-        // Validate email
-        if (ValidationUtils.isEmpty(email)) {
+        // Validate name
+        if (ValidationUtils.isEmpty(name)) {
 
-            etEmail.setError("Enter your email");
-            etEmail.requestFocus();
-            return;
-        }
-
-        if (!ValidationUtils.isValidEmail(email)) {
-
-            etEmail.setError("Enter a valid email");
-            etEmail.requestFocus();
+            etName.setError("Enter your name");
+            etName.requestFocus();
             return;
         }
 
@@ -82,15 +86,15 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Authenticate against SQLite
+        // Authenticate using name and password
         User user = databaseHelper.authenticateUser(
-                email,
+                name,
                 password
         );
 
         if (user != null) {
 
-            // Create login session
+            // Save login session
             sessionManager.createLoginSession(user);
 
             Toast.makeText(
@@ -100,11 +104,22 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
+            // Open MainActivity
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    com.techfix.app.MainActivity.class
+            );
+
+            startActivity(intent);
+
+            // Prevent returning to login with Back
+            finish();
+
         } else {
 
             Toast.makeText(
                     this,
-                    "Invalid email or password",
+                    "Invalid name or password",
                     Toast.LENGTH_SHORT
             ).show();
         }

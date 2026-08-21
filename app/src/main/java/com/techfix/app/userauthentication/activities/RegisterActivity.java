@@ -22,7 +22,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etConfirmPassword;
 
     private Button btnRegister;
-    private TextView tvLogin;
+    private Button btnBackToLogin;
 
     private AuthDatabaseHelper databaseHelper;
 
@@ -36,9 +36,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         databaseHelper = new AuthDatabaseHelper(this);
 
+        // Register
         btnRegister.setOnClickListener(v -> registerUser());
 
-        tvLogin.setOnClickListener(v -> finish());
+        // Back to Login
+        btnBackToLogin.setOnClickListener(v -> finish());
     }
 
     private void initializeViews() {
@@ -50,19 +52,30 @@ public class RegisterActivity extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
 
         btnRegister = findViewById(R.id.btnRegister);
-        tvLogin = findViewById(R.id.tvLogin);
+        btnBackToLogin = findViewById(R.id.btnBackToLogin);
     }
 
     private void registerUser() {
 
-        String name = etName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
-        String password = etPassword.getText().toString();
-        String confirmPassword =
-                etConfirmPassword.getText().toString();
+        String name = etName.getText()
+                .toString()
+                .trim();
 
-        // Validate name
+        String email = etEmail.getText()
+                .toString()
+                .trim();
+
+        String phone = etPhone.getText()
+                .toString()
+                .trim();
+
+        String password = etPassword.getText()
+                .toString();
+
+        String confirmPassword = etConfirmPassword.getText()
+                .toString();
+
+        // Name validation
         if (ValidationUtils.isEmpty(name)) {
 
             etName.setError("Enter your name");
@@ -70,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Validate email
+        // Email validation
         if (ValidationUtils.isEmpty(email)) {
 
             etEmail.setError("Enter your email");
@@ -85,7 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Validate phone
+        // Phone validation
         if (ValidationUtils.isEmpty(phone)) {
 
             etPhone.setError("Enter your phone number");
@@ -95,15 +108,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!ValidationUtils.isValidPhone(phone)) {
 
-            etPhone.setError(
-                    "Phone number must contain 10 digits"
-            );
-
+            etPhone.setError("Phone number must contain 10 digits");
             etPhone.requestFocus();
             return;
         }
 
-        // Validate password
+        // Password validation
         if (ValidationUtils.isEmpty(password)) {
 
             etPassword.setError("Enter a password");
@@ -121,7 +131,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Validate confirm password
+        // Confirm password
         if (!ValidationUtils.passwordsMatch(
                 password,
                 confirmPassword)) {
@@ -134,7 +144,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Check whether email already exists
+        // Check existing email
         if (databaseHelper.isEmailRegistered(email)) {
 
             etEmail.setError(
@@ -152,7 +162,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Create User object
+        // Create User
         User user = new User(
                 name,
                 email,
@@ -160,7 +170,7 @@ public class RegisterActivity extends AppCompatActivity {
                 password
         );
 
-        // Insert user into SQLite
+        // Save user
         long userId = databaseHelper.insertUser(user);
 
         if (userId != -1) {
@@ -173,8 +183,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             clearFields();
 
-            // For now, return to previous screen.
-            // Later this will navigate to LoginActivity.
+            // Return to LoginActivity
             finish();
 
         } else {
