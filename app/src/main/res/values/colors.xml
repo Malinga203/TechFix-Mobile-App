@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="techfix_primary">#FF1565C0</color>
+    <color name="techfix_primary_dark">#FF0D47A1</color>
+    <color name="techfix_accent">#FFFF6F00</color>
+    <color name="techfix_background">#FFF5F7FA</color>
+    <color name="techfix_text_secondary">#FF607D8B</color>
+    <color name="status_pending">#FFF57C00</color>
+    <color name="status_in_progress">#FF1976D2</color>
+    <color name="status_completed">#FF388E3C</color>
 </resources>
