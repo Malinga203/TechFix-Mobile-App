@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String TABLE_BRANCH = "branches";
 
@@ -17,6 +17,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ADDRESS = "address";
     public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_LONGITUDE = "longitude";
+
+    public static final String TABLE_TECHNICIAN = "technicians";
+
+    public static final String COLUMN_TECHNICIAN_ID = "technician_id";
+    public static final String COLUMN_TECHNICIAN_NAME = "technician_name";
+    public static final String COLUMN_TECHNICIAN_PHONE = "phone";
+    public static final String COLUMN_SPECIALIZATION = "specialization";
+    public static final String COLUMN_AVAILABLE = "available";
+    public static final String COLUMN_TECHNICIAN_BRANCH_ID = "branch_id";
 
     public DatabaseHelper(Context context) {
         super(
@@ -40,6 +49,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         ")";
 
         db.execSQL(createBranchTable);
+
+        String createTechnicianTable =
+                "CREATE TABLE " + TABLE_TECHNICIAN + " (" +
+                        COLUMN_TECHNICIAN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_TECHNICIAN_NAME + " TEXT NOT NULL, " +
+                        COLUMN_TECHNICIAN_PHONE + " TEXT NOT NULL, " +
+                        COLUMN_SPECIALIZATION + " TEXT NOT NULL, " +
+                        COLUMN_AVAILABLE + " INTEGER NOT NULL DEFAULT 1, " +
+                        COLUMN_TECHNICIAN_BRANCH_ID + " INTEGER NOT NULL, " +
+
+                        "FOREIGN KEY(" + COLUMN_TECHNICIAN_BRANCH_ID + ") " +
+                        "REFERENCES " + TABLE_BRANCH +
+                        "(" + COLUMN_BRANCH_ID + ")" +
+
+                        ")";
+
+        db.execSQL(createTechnicianTable);
 
         insertInitialBranches(db);
     }
@@ -103,13 +129,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 galle
         );
     }
-
     @Override
     public void onUpgrade(
             SQLiteDatabase db,
             int oldVersion,
             int newVersion
     ) {
+
+        db.execSQL(
+                "DROP TABLE IF EXISTS " + TABLE_TECHNICIAN
+        );
 
         db.execSQL(
                 "DROP TABLE IF EXISTS " + TABLE_BRANCH
