@@ -1,20 +1,26 @@
 package com.techfix.app.activities;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.techfix.app.R;
 import com.techfix.app.database.BranchDao;
 import com.techfix.app.models.Branch;
 
-public class AddEditBranchActivity
-        extends AppCompatActivity {
+public class AddEditBranchActivity extends AppCompatActivity {
 
     private TextView txtBranchFormTitle;
 
@@ -23,20 +29,40 @@ public class AddEditBranchActivity
     private EditText edtLatitude;
     private EditText edtLongitude;
 
+    private Button btnUseCurrentLocation;
+    private Button btnSelectOnMap;
     private Button btnSaveBranch;
 
     private BranchDao branchDao;
 
+    private FusedLocationProviderClient fusedLocationClient;
+
     private int branchId = -1;
 
-    @Override
-    protected void onCreate(
-            Bundle savedInstanceState
-    ) {
+    private final ActivityResultLauncher<String> locationPermissionLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
 
-        super.onCreate(
-                savedInstanceState
-        );
+                        if (isGranted) {
+
+                            getCurrentLocation();
+
+                        } else {
+
+                            Toast.makeText(
+                                    this,
+                                    "Location permission is required",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+            );
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
 
         setContentView(
                 R.layout.activity_add_edit_branch
@@ -67,6 +93,16 @@ public class AddEditBranchActivity
                         R.id.edtLongitude
                 );
 
+        btnUseCurrentLocation =
+                findViewById(
+                        R.id.btnUseCurrentLocation
+                );
+
+        btnSelectOnMap =
+                findViewById(
+                        R.id.btnSelectOnMap
+                );
+
         btnSaveBranch =
                 findViewById(
                         R.id.btnSaveBranch
@@ -75,11 +111,37 @@ public class AddEditBranchActivity
         branchDao =
                 new BranchDao(this);
 
+        fusedLocationClient =
+                LocationServices
+                        .getFusedLocationProviderClient(
+                                this
+                        );
+
         loadExistingBranch();
 
-        btnSaveBranch.setOnClickListener(
-                view -> validateAndSave()
-        );
+        btnUseCurrentLocation
+                .setOnClickListener(
+                        view ->
+                                checkLocationPermission()
+                );
+
+        btnSelectOnMap
+                .setOnClickListener(
+                        view -> {
+
+                            Toast.makeText(
+                                    this,
+                                    "Map selection will be implemented next",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                );
+
+        btnSaveBranch
+                .setOnClickListener(
+                        view ->
+                                validateAndSave()
+                );
     }
 
     private void loadExistingBranch() {
@@ -154,6 +216,80 @@ public class AddEditBranchActivity
         }
     }
 
+    private void checkLocationPermission() {
+
+        if (
+                ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                        ==
+                        PackageManager.PERMISSION_GRANTED
+        ) {
+
+            getCurrentLocation();
+
+        } else {
+
+            locationPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            );
+        }
+    }
+
+    private void getCurrentLocation() {
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+
+        fusedLocationClient.getCurrentLocation(
+                com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY,
+                null
+        ).addOnSuccessListener(location -> {
+
+            if (location != null) {
+
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+                edtLatitude.setText(
+                        String.valueOf(latitude)
+                );
+
+                edtLongitude.setText(
+                        String.valueOf(longitude)
+                );
+
+                Toast.makeText(
+                        this,
+                        "Current location selected",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+            } else {
+
+                Toast.makeText(
+                        this,
+                        "Could not detect your location",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+
+        }).addOnFailureListener(e -> {
+
+            Toast.makeText(
+                    this,
+                    "Location error: " + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        });
+    }
+
     private void validateAndSave() {
 
         String branchName =
@@ -204,22 +340,22 @@ public class AddEditBranchActivity
 
         if (latitudeText.isEmpty()) {
 
-            edtLatitude.setError(
-                    "Latitude is required"
-            );
-
-            edtLatitude.requestFocus();
+            Toast.makeText(
+                    this,
+                    "Please select a branch location",
+                    Toast.LENGTH_SHORT
+            ).show();
 
             return;
         }
 
         if (longitudeText.isEmpty()) {
 
-            edtLongitude.setError(
-                    "Longitude is required"
-            );
-
-            edtLongitude.requestFocus();
+            Toast.makeText(
+                    this,
+                    "Please select a branch location",
+                    Toast.LENGTH_SHORT
+            ).show();
 
             return;
         }
@@ -239,13 +375,11 @@ public class AddEditBranchActivity
                             longitudeText
                     );
 
-        } catch (
-                NumberFormatException e
-        ) {
+        } catch (NumberFormatException e) {
 
             Toast.makeText(
                     this,
-                    "Enter valid latitude and longitude",
+                    "Invalid location coordinates",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -257,9 +391,11 @@ public class AddEditBranchActivity
                         latitude > 90
         ) {
 
-            edtLatitude.setError(
-                    "Latitude must be between -90 and 90"
-            );
+            Toast.makeText(
+                    this,
+                    "Invalid latitude",
+                    Toast.LENGTH_SHORT
+            ).show();
 
             return;
         }
@@ -269,9 +405,11 @@ public class AddEditBranchActivity
                         longitude > 180
         ) {
 
-            edtLongitude.setError(
-                    "Longitude must be between -180 and 180"
-            );
+            Toast.makeText(
+                    this,
+                    "Invalid longitude",
+                    Toast.LENGTH_SHORT
+            ).show();
 
             return;
         }

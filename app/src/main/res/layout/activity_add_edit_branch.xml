@@ -31,9 +31,18 @@
             android:id="@+id/edtBranchAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address"
+            android:hint="Branch Address"
             android:inputType="textPostalAddress"
             android:layout_marginTop="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Branch Location"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
 
         <EditText
             android:id="@+id/edtLatitude"
@@ -49,14 +58,29 @@
             android:layout_height="wrap_content"
             android:hint="Longitude"
             android:focusable="false"
-            android:clickable="false" />
+            android:clickable="false"
+            android:layout_marginTop="8dp" />
 
         <Button
             android:id="@+id/btnUseCurrentLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Use Current Location" />
+            android:text="Use Current Location"
+            android:layout_marginTop="16dp" />
 
+        <Button
+            android:id="@+id/btnSelectOnMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Location on Map"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnSaveBranch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Branch"
+            android:layout_marginTop="24dp" />
 
     </LinearLayout>
 
