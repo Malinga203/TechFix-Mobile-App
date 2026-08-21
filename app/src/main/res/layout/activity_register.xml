@@ -4,91 +4,186 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_auth"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="32dp"
-        android:gravity="center_horizontal">
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp">
 
+        <!-- Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TechFix"
-            android:textSize="42sp"
+            android:text="TECHFIX"
+            android:textColor="#2563EB"
+            android:textSize="30sp"
             android:textStyle="bold"
-            android:layout_marginTop="16dp" />
+            android:letterSpacing="0.08" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Customer Registration"
-            android:textSize="26sp"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="32dp"
+            android:text="Create your account"
+            android:textColor="#111827"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Join TechFix and manage your services with ease."
+            android:textColor="#6B7280"
+            android:textSize="15sp"
+            android:lineSpacingExtra="3dp" />
+
+        <!-- Name -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="Full name"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:hint="Name"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Enter your full name"
             android:inputType="textPersonName"
-            android:textSize="18sp" />
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
+
+        <!-- Email -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Email address"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="you@example.com"
+            android:inputType="textEmailAddress"
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
+
+        <!-- Phone -->
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:textSize="18sp" />
+            android:text="Phone number"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etPhone"
             android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Enter your phone number"
+            android:inputType="phone"
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
+
+        <!-- Password -->
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:hint="Phone"
-            android:inputType="phone"
-            android:textSize="18sp" />
+            android:text="Password"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Create a password"
+            android:inputType="textPassword"
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
+
+        <!-- Confirm password -->
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:textSize="18sp" />
+            android:text="Confirm password"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etConfirmPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:hint="Confirm Password"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Re-enter your password"
             android:inputType="textPassword"
-            android:textSize="18sp" />
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
 
+        <!-- Register -->
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="REGISTER"
-            android:textSize="18sp"
-            android:textAllCaps="false" />
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_button_primary"
+            android:text="Create Account"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:elevation="2dp" />
 
+        <!-- Back -->
         <Button
             android:id="@+id/btnBackToLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Back to Login Page"
-            android:textSize="16sp"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:background="@android:color/transparent"
+            android:text="Back to Login"
+            android:textColor="#2563EB"
+            android:textSize="15sp"
+            android:textStyle="bold"
             android:textAllCaps="false" />
 
     </LinearLayout>

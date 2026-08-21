@@ -11,10 +11,6 @@ import com.techfix.app.userauthentication.models.User;
 
 public class AuthDatabaseHelper extends SQLiteOpenHelper {
 
-    // =========================================================
-    // DATABASE INFORMATION
-    // =========================================================
-
     private static final String DATABASE_NAME =
             "techfix_auth_sample.db";
 
@@ -22,13 +18,11 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "AUTH_DB_TEST";
 
-
     // =========================================================
     // TABLE
     // =========================================================
 
     public static final String TABLE_USERS = "users";
-
 
     // =========================================================
     // COLUMNS
@@ -40,13 +34,11 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PHONE = "phone";
     public static final String COLUMN_PASSWORD = "password";
 
-
     // =========================================================
     // CONSTRUCTOR
     // =========================================================
 
     public AuthDatabaseHelper(Context context) {
-
         super(
                 context,
                 DATABASE_NAME,
@@ -55,9 +47,8 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-
     // =========================================================
-    // CREATE DATABASE TABLE
+    // CREATE TABLE
     // =========================================================
 
     @Override
@@ -84,8 +75,12 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                         ")";
 
         db.execSQL(createUsersTable);
-    }
 
+        Log.d(
+                TAG,
+                "Users table created."
+        );
+    }
 
     // =========================================================
     // DATABASE UPGRADE
@@ -104,7 +99,6 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-
     // =========================================================
     // INSERT USER
     // =========================================================
@@ -112,24 +106,24 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
     public long insertUser(User user) {
 
         SQLiteDatabase db =
-                this.getWritableDatabase();
+                getWritableDatabase();
 
         ContentValues values =
                 new ContentValues();
 
         values.put(
                 COLUMN_NAME,
-                user.getName()
+                user.getName().trim()
         );
 
         values.put(
                 COLUMN_EMAIL,
-                user.getEmail()
+                user.getEmail().trim()
         );
 
         values.put(
                 COLUMN_PHONE,
-                user.getPhone()
+                user.getPhone().trim()
         );
 
         values.put(
@@ -139,11 +133,25 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
 
         try {
 
-            return db.insertOrThrow(
+            long result = db.insertOrThrow(
                     TABLE_USERS,
                     null,
                     values
             );
+
+            Log.d(
+                    TAG,
+                    "User inserted successfully. ID: "
+                            + result
+            );
+
+            Log.d(
+                    TAG,
+                    "Saved name: "
+                            + user.getName()
+            );
+
+            return result;
 
         } catch (Exception e) {
 
@@ -158,54 +166,14 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-
     // =========================================================
-    // GET USER BY EMAIL
-    // =========================================================
-
-    public User getUserByEmail(String email) {
-
-        SQLiteDatabase db =
-                this.getReadableDatabase();
-
-        Cursor cursor = null;
-
-        try {
-
-            cursor = db.query(
-                    TABLE_USERS,
-                    null,
-                    COLUMN_EMAIL + " = ?",
-                    new String[]{email},
-                    null,
-                    null,
-                    null
-            );
-
-            if (cursor.moveToFirst()) {
-
-                return createUserFromCursor(cursor);
-            }
-
-            return null;
-
-        } finally {
-
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-
-    // =========================================================
-    // CHECK IF EMAIL IS REGISTERED
+    // CHECK EMAIL
     // =========================================================
 
     public boolean isEmailRegistered(String email) {
 
         SQLiteDatabase db =
-                this.getReadableDatabase();
+                getReadableDatabase();
 
         Cursor cursor = null;
 
@@ -215,7 +183,7 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                     TABLE_USERS,
                     new String[]{COLUMN_ID},
                     COLUMN_EMAIL + " = ?",
-                    new String[]{email},
+                    new String[]{email.trim()},
                     null,
                     null,
                     null
@@ -231,9 +199,207 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    // =========================================================
+    // GET USER BY EMAIL
+    // =========================================================
+
+    public User getUserByEmail(String email) {
+
+        SQLiteDatabase db =
+                getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor = db.query(
+                    TABLE_USERS,
+                    null,
+                    COLUMN_EMAIL + " = ?",
+                    new String[]{email.trim()},
+                    null,
+                    null,
+                    null
+            );
+
+            if (cursor.moveToFirst()) {
+
+                return createUserFromCursor(cursor);
+            }
+
+            return null;
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
 
     // =========================================================
-    // AUTHENTICATE USER USING EMAIL + PASSWORD
+    // GET USER BY NAME
+    // =========================================================
+
+    public User getUserByName(String name) {
+
+        SQLiteDatabase db =
+                getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor = db.query(
+                    TABLE_USERS,
+                    null,
+                    "LOWER(" + COLUMN_NAME + ") = LOWER(?)",
+                    new String[]{name.trim()},
+                    null,
+                    null,
+                    null
+            );
+
+            if (cursor.moveToFirst()) {
+
+                User user =
+                        createUserFromCursor(cursor);
+
+                Log.d(
+                        TAG,
+                        "User found by name: "
+                                + user.getName()
+                );
+
+                return user;
+            }
+
+            Log.d(
+                    TAG,
+                    "No user found with name: "
+                            + name
+            );
+
+            return null;
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    // =========================================================
+    // AUTHENTICATE USING NAME + PASSWORD
+    // =========================================================
+
+    public User authenticateUserByName(
+            String name,
+            String password) {
+
+        SQLiteDatabase db =
+                getReadableDatabase();
+
+        Cursor cursor = null;
+
+        String cleanName = name.trim();
+
+        try {
+
+            // First find the user by name.
+            cursor = db.query(
+                    TABLE_USERS,
+                    null,
+                    "LOWER(" + COLUMN_NAME + ") = LOWER(?)",
+                    new String[]{cleanName},
+                    null,
+                    null,
+                    null
+            );
+
+            if (!cursor.moveToFirst()) {
+
+                Log.e(
+                        TAG,
+                        "LOGIN FAILED: Name not found: "
+                                + cleanName
+                );
+
+                return null;
+            }
+
+            // Read stored password.
+            String storedPassword =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    COLUMN_PASSWORD
+                            )
+                    );
+
+            String storedName =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    COLUMN_NAME
+                            )
+                    );
+
+            Log.d(
+                    TAG,
+                    "Login name entered: "
+                            + cleanName
+            );
+
+            Log.d(
+                    TAG,
+                    "Login name stored: "
+                            + storedName
+            );
+
+            Log.d(
+                    TAG,
+                    "Password entered length: "
+                            + password.length()
+            );
+
+            Log.d(
+                    TAG,
+                    "Password stored length: "
+                            + storedPassword.length()
+            );
+
+            // Compare password.
+            if (!storedPassword.equals(password)) {
+
+                Log.e(
+                        TAG,
+                        "LOGIN FAILED: Password does not match."
+                );
+
+                return null;
+            }
+
+            User user =
+                    createUserFromCursor(cursor);
+
+            Log.d(
+                    TAG,
+                    "LOGIN SUCCESS: "
+                            + user.getName()
+            );
+
+            return user;
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    // =========================================================
+    // EMAIL + PASSWORD AUTHENTICATION
     // =========================================================
 
     public User authenticateUser(
@@ -241,7 +407,7 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
             String password) {
 
         SQLiteDatabase db =
-                this.getReadableDatabase();
+                getReadableDatabase();
 
         Cursor cursor = null;
 
@@ -253,7 +419,7 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_EMAIL + " = ? AND "
                             + COLUMN_PASSWORD + " = ?",
                     new String[]{
-                            email,
+                            email.trim(),
                             password
                     },
                     null,
@@ -276,88 +442,47 @@ public class AuthDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-
     // =========================================================
-    // AUTHENTICATE USER USING NAME + PASSWORD
-    // =========================================================
-
-    public User authenticateUserByName(
-            String name,
-            String password) {
-
-        SQLiteDatabase db =
-                this.getReadableDatabase();
-
-        Cursor cursor = null;
-
-        try {
-
-            cursor = db.query(
-                    TABLE_USERS,
-                    null,
-                    COLUMN_NAME + " = ? AND "
-                            + COLUMN_PASSWORD + " = ?",
-                    new String[]{
-                            name,
-                            password
-                    },
-                    null,
-                    null,
-                    null
-            );
-
-            if (cursor.moveToFirst()) {
-
-                return createUserFromCursor(cursor);
-            }
-
-            return null;
-
-        } finally {
-
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-
-    // =========================================================
-    // CREATE USER OBJECT FROM CURSOR
+    // CREATE USER FROM CURSOR
     // =========================================================
 
     private User createUserFromCursor(
             Cursor cursor) {
 
-        int id = cursor.getInt(
-                cursor.getColumnIndexOrThrow(
-                        COLUMN_ID
-                )
-        );
+        int id =
+                cursor.getInt(
+                        cursor.getColumnIndexOrThrow(
+                                COLUMN_ID
+                        )
+                );
 
-        String name = cursor.getString(
-                cursor.getColumnIndexOrThrow(
-                        COLUMN_NAME
-                )
-        );
+        String name =
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                                COLUMN_NAME
+                        )
+                );
 
-        String email = cursor.getString(
-                cursor.getColumnIndexOrThrow(
-                        COLUMN_EMAIL
-                )
-        );
+        String email =
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                                COLUMN_EMAIL
+                        )
+                );
 
-        String phone = cursor.getString(
-                cursor.getColumnIndexOrThrow(
-                        COLUMN_PHONE
-                )
-        );
+        String phone =
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                                COLUMN_PHONE
+                        )
+                );
 
-        String password = cursor.getString(
-                cursor.getColumnIndexOrThrow(
-                        COLUMN_PASSWORD
-                )
-        );
+        String password =
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                                COLUMN_PASSWORD
+                        )
+                );
 
         return new User(
                 id,

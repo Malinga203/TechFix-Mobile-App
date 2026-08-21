@@ -13,7 +13,6 @@ import com.techfix.app.R;
 import com.techfix.app.userauthentication.database.AuthDatabaseHelper;
 import com.techfix.app.userauthentication.models.User;
 import com.techfix.app.userauthentication.utils.SessionManager;
-import com.techfix.app.userauthentication.utils.ValidationUtils;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -34,67 +33,104 @@ public class LoginActivity extends AppCompatActivity {
 
         initializeViews();
 
-        databaseHelper = new AuthDatabaseHelper(this);
-        sessionManager = new SessionManager(this);
+        databaseHelper =
+                new AuthDatabaseHelper(this);
 
-        // Login button
-        btnLogin.setOnClickListener(v -> loginUser());
+        sessionManager =
+                new SessionManager(this);
 
-        // Register link
-        tvRegister.setOnClickListener(v -> {
+        // LOGIN BUTTON
+        btnLogin.setOnClickListener(
+                v -> loginUser()
+        );
 
-            Intent intent = new Intent(
-                    LoginActivity.this,
-                    RegisterActivity.class
-            );
-
-            startActivity(intent);
-        });
+        // REGISTER LINK
+        tvRegister.setOnClickListener(
+                v -> openRegister()
+        );
     }
+
+    // =========================================================
+    // INITIALIZE VIEWS
+    // =========================================================
 
     private void initializeViews() {
 
-        etName = findViewById(R.id.etName);
-        etPassword = findViewById(R.id.etPassword);
+        etName =
+                findViewById(R.id.etName);
 
-        btnLogin = findViewById(R.id.btnLogin);
-        tvRegister = findViewById(R.id.tvRegister);
+        etPassword =
+                findViewById(R.id.etPassword);
+
+        btnLogin =
+                findViewById(R.id.btnLogin);
+
+        tvRegister =
+                findViewById(R.id.tvRegister);
     }
+
+    // =========================================================
+    // LOGIN
+    // =========================================================
 
     private void loginUser() {
 
-        String name = etName.getText()
-                .toString()
-                .trim();
+        String name =
+                etName.getText()
+                        .toString()
+                        .trim();
 
-        String password = etPassword.getText()
-                .toString();
+        String password =
+                etPassword.getText()
+                        .toString();
 
-        // Validate name
-        if (ValidationUtils.isEmpty(name)) {
+        // -----------------------------------------------------
+        // VALIDATE NAME
+        // -----------------------------------------------------
 
-            etName.setError("Enter your name");
+        if (name.isEmpty()) {
+
+            etName.setError(
+                    "Enter your name"
+            );
+
             etName.requestFocus();
+
             return;
         }
 
-        // Validate password
-        if (ValidationUtils.isEmpty(password)) {
+        // -----------------------------------------------------
+        // VALIDATE PASSWORD
+        // -----------------------------------------------------
 
-            etPassword.setError("Enter your password");
+        if (password.isEmpty()) {
+
+            etPassword.setError(
+                    "Enter your password"
+            );
+
             etPassword.requestFocus();
+
             return;
         }
 
-        // Authenticate using name and password
-        User user = databaseHelper.authenticateUser(
-                name,
-                password
-        );
+        // -----------------------------------------------------
+        // AUTHENTICATE
+        // -----------------------------------------------------
+
+        User user =
+                databaseHelper.authenticateUserByName(
+                        name,
+                        password
+                );
+
+        // -----------------------------------------------------
+        // LOGIN SUCCESS
+        // -----------------------------------------------------
 
         if (user != null) {
 
-            // Save login session
+            // Save session
             sessionManager.createLoginSession(user);
 
             Toast.makeText(
@@ -104,18 +140,25 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
-            // Open MainActivity
-            Intent intent = new Intent(
-                    LoginActivity.this,
-                    com.techfix.app.MainActivity.class
-            );
+            // Open main/customer page
+            Intent intent =
+                    new Intent(
+                            LoginActivity.this,
+                            com.techfix.app.MainActivity.class
+                    );
 
             startActivity(intent);
 
-            // Prevent returning to login with Back
+            // Prevent returning to login
             finish();
 
-        } else {
+        }
+
+        // -----------------------------------------------------
+        // LOGIN FAILED
+        // -----------------------------------------------------
+
+        else {
 
             Toast.makeText(
                     this,
@@ -124,6 +167,25 @@ public class LoginActivity extends AppCompatActivity {
             ).show();
         }
     }
+
+    // =========================================================
+    // OPEN REGISTER PAGE
+    // =========================================================
+
+    private void openRegister() {
+
+        Intent intent =
+                new Intent(
+                        LoginActivity.this,
+                        RegisterActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+    // =========================================================
+    // DESTROY
+    // =========================================================
 
     @Override
     protected void onDestroy() {

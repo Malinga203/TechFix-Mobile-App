@@ -4,68 +4,138 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_auth"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="32dp"
-        android:gravity="center_horizontal">
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="36dp"
+        android:paddingBottom="32dp">
 
+        <!-- Brand -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TechFix"
-            android:textSize="48sp"
+            android:text="TECHFIX"
+            android:textColor="#2563EB"
+            android:textSize="30sp"
             android:textStyle="bold"
-            android:layout_marginTop="16dp" />
+            android:letterSpacing="0.08"
+            android:layout_marginTop="12dp" />
+
+        <!-- Welcome -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="42dp"
+            android:text="Welcome back"
+            android:textColor="#111827"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Customer Login"
-            android:textSize="28sp"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="8dp"
+            android:text="Sign in to continue to your TechFix account."
+            android:textColor="#6B7280"
+            android:textSize="16sp"
+            android:lineSpacingExtra="3dp" />
 
+        <!-- Name label -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="Name"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Name -->
         <EditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
-            android:hint="Name"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Enter your name"
             android:inputType="textPersonName"
-            android:textSize="20sp" />
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
 
+        <!-- Password label -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Password"
+            android:textColor="#374151"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Password -->
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:hint="Password"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input"
+            android:hint="Enter your password"
             android:inputType="textPassword"
-            android:textSize="20sp" />
+            android:textColor="#111827"
+            android:textColorHint="#9CA3AF"
+            android:textSize="16sp"
+            android:singleLine="true" />
 
+        <!-- Login button -->
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:text="LOGIN"
-            android:textSize="18sp"
-            android:textAllCaps="false" />
-
-        <TextView
-            android:id="@+id/tvRegister"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Don't have an account? Register here"
-            android:textSize="17sp"
+            android:layout_height="56dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/bg_button_primary"
+            android:text="Login"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true"
-            android:textColor="?attr/colorPrimary" />
+            android:textAllCaps="false"
+            android:elevation="2dp" />
+
+        <!-- Register section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't have an account? "
+                android:textColor="#6B7280"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Register here"
+                android:textColor="#2563EB"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
