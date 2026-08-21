@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.techfix.app.R;
 import com.techfix.app.userauthentication.database.AuthDatabaseHelper;
 import com.techfix.app.userauthentication.models.User;
+import com.techfix.app.userauthentication.utils.SessionManager;
 import com.techfix.app.userauthentication.utils.ValidationUtils;
 
 public class LoginActivity extends AppCompatActivity {
@@ -22,6 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvRegister;
 
     private AuthDatabaseHelper databaseHelper;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         initializeViews();
 
         databaseHelper = new AuthDatabaseHelper(this);
+        sessionManager = new SessionManager(this);
 
         btnLogin.setOnClickListener(v -> loginUser());
 
@@ -86,6 +89,9 @@ public class LoginActivity extends AppCompatActivity {
         );
 
         if (user != null) {
+
+            // Create login session
+            sessionManager.createLoginSession(user);
 
             Toast.makeText(
                     this,
