@@ -1,5 +1,10 @@
 package com.techfix.app.activities;
 
+import android.content.Intent;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -125,17 +130,20 @@ public class AddEditBranchActivity extends AppCompatActivity {
                                 checkLocationPermission()
                 );
 
-        btnSelectOnMap
-                .setOnClickListener(
-                        view -> {
+        btnSelectOnMap.setOnClickListener(
+                view -> {
 
-                            Toast.makeText(
-                                    this,
-                                    "Map selection will be implemented next",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        }
-                );
+                    Intent intent =
+                            new Intent(
+                                    AddEditBranchActivity.this,
+                                    MapPickerActivity.class
+                            );
+
+                    mapPickerLauncher.launch(
+                            intent
+                    );
+                }
+        );
 
         btnSaveBranch
                 .setOnClickListener(
@@ -515,4 +523,50 @@ public class AddEditBranchActivity extends AppCompatActivity {
             ).show();
         }
     }
+
+    private final ActivityResultLauncher<Intent> mapPickerLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+
+                        if (
+                                result.getResultCode() == RESULT_OK &&
+                                        result.getData() != null
+                        ) {
+
+                            Intent data =
+                                    result.getData();
+
+                            double latitude =
+                                    data.getDoubleExtra(
+                                            "selected_latitude",
+                                            0
+                                    );
+
+                            double longitude =
+                                    data.getDoubleExtra(
+                                            "selected_longitude",
+                                            0
+                                    );
+
+                            edtLatitude.setText(
+                                    String.valueOf(
+                                            latitude
+                                    )
+                            );
+
+                            edtLongitude.setText(
+                                    String.valueOf(
+                                            longitude
+                                    )
+                            );
+
+                            Toast.makeText(
+                                    this,
+                                    "Map location selected",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+            );
 }
