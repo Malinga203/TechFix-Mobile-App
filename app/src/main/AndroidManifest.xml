@@ -27,6 +27,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.ServiceListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.BookRepairActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.SparePartActivity"
         <activity
             android:name=".activities.MapPickerActivity"
             android:exported="false" />
