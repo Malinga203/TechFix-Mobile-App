@@ -21,6 +21,10 @@
             android:name=".userauthentication.activities.RegisterActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".userauthentication.activities.LoginActivity"
+            android:exported="true" />
+
         <!-- Main application Activity -->
         <activity
             android:name=".MainActivity"
