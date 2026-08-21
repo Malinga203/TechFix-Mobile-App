@@ -1,5 +1,6 @@
 package com.techfix.app.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -121,6 +122,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createAppointmentTable);
 
         seedDefaultData(db);
+        insertInitialBranches(db);
+    }
+
+    private void insertInitialBranches(SQLiteDatabase db) {
+
+        ContentValues colombo = new ContentValues();
+
+        colombo.put(
+                COLUMN_BRANCH_NAME,
+                "TechFix Colombo"
+        );
+
+        colombo.put(
+                COLUMN_ADDRESS,
+                "Colombo, Sri Lanka"
+        );
+
+        colombo.put(
+                COLUMN_LATITUDE,
+                6.9271
+        );
+
+        colombo.put(
+                COLUMN_LONGITUDE,
+                79.8612
+        );
+
+        db.insert(
+                TABLE_BRANCH,
+                null,
+                colombo
+        );
+
+
+        ContentValues galle = new ContentValues();
+
+        galle.put(
+                COLUMN_BRANCH_NAME,
+                "TechFix Galle"
+        );
+
+        galle.put(
+                COLUMN_ADDRESS,
+                "Galle, Sri Lanka"
+        );
+
+        galle.put(
+                COLUMN_LATITUDE,
+                6.0329
+        );
+
+        galle.put(
+                COLUMN_LONGITUDE,
+                80.2168
+        );
+
+        db.insert(
+                TABLE_BRANCH,
+                null,
+                galle
+        );
     }
 
     @Override
