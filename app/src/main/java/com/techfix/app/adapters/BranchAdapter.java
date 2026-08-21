@@ -3,6 +3,7 @@ package com.techfix.app.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,10 +17,23 @@ import java.util.List;
 public class BranchAdapter
         extends RecyclerView.Adapter<BranchAdapter.BranchViewHolder> {
 
-    private final List<Branch> branchList;
+    public interface OnBranchActionListener {
 
-    public BranchAdapter(List<Branch> branchList) {
+        void onEdit(Branch branch);
+
+        void onDelete(Branch branch);
+    }
+
+    private final List<Branch> branchList;
+    private final OnBranchActionListener listener;
+
+    public BranchAdapter(
+            List<Branch> branchList,
+            OnBranchActionListener listener
+    ) {
+
         this.branchList = branchList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -29,13 +43,14 @@ public class BranchAdapter
             int viewType
     ) {
 
-        View view = LayoutInflater
-                .from(parent.getContext())
-                .inflate(
-                        R.layout.item_branch,
-                        parent,
-                        false
-                );
+        View view =
+                LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(
+                                R.layout.item_branch,
+                                parent,
+                                false
+                        );
 
         return new BranchViewHolder(view);
     }
@@ -46,7 +61,8 @@ public class BranchAdapter
             int position
     ) {
 
-        Branch branch = branchList.get(position);
+        Branch branch =
+                branchList.get(position);
 
         holder.txtBranchName.setText(
                 branch.getBranchName()
@@ -55,6 +71,18 @@ public class BranchAdapter
         holder.txtBranchAddress.setText(
                 branch.getAddress()
         );
+
+        holder.btnEditBranch
+                .setOnClickListener(
+                        view ->
+                                listener.onEdit(branch)
+                );
+
+        holder.btnDeleteBranch
+                .setOnClickListener(
+                        view ->
+                                listener.onDelete(branch)
+                );
     }
 
     @Override
@@ -68,9 +96,13 @@ public class BranchAdapter
         private final TextView txtBranchName;
         private final TextView txtBranchAddress;
 
+        private final ImageButton btnEditBranch;
+        private final ImageButton btnDeleteBranch;
+
         public BranchViewHolder(
                 @NonNull View itemView
         ) {
+
             super(itemView);
 
             txtBranchName =
@@ -81,6 +113,16 @@ public class BranchAdapter
             txtBranchAddress =
                     itemView.findViewById(
                             R.id.txtBranchAddress
+                    );
+
+            btnEditBranch =
+                    itemView.findViewById(
+                            R.id.btnEditBranch
+                    );
+
+            btnDeleteBranch =
+                    itemView.findViewById(
+                            R.id.btnDeleteBranch
                     );
         }
     }

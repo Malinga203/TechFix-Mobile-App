@@ -4,25 +4,51 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:padding="16dp"
-    android:layout_margin="8dp"
-    android:background="#EEEEEE">
+    android:layout_margin="8dp">
 
-    <TextView
-        android:id="@+id/txtBranchName"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Branch Name"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/txtBranchAddress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Branch Address"
-        android:textSize="16sp"
-        android:layout_marginTop="6dp" />
+        <TextView
+            android:id="@+id/txtBranchName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Branch Name"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtBranchAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Branch Address"
+            android:textSize="15sp"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnEditBranch"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:src="@android:drawable/ic_menu_edit"
+        android:contentDescription="Edit Branch"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp" />
+
+    <ImageButton
+        android:id="@+id/btnDeleteBranch"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="Delete Branch"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp" />
 
 </LinearLayout>

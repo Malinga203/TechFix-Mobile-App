@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

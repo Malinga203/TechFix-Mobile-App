@@ -69,21 +69,21 @@ public class BranchDao {
                 null,
                 null,
                 null,
-                null
+                DatabaseHelper.COLUMN_BRANCH_NAME + " ASC"
         );
 
         if (cursor.moveToFirst()) {
 
             do {
 
-                int id =
+                int branchId =
                         cursor.getInt(
                                 cursor.getColumnIndexOrThrow(
                                         DatabaseHelper.COLUMN_BRANCH_ID
                                 )
                         );
 
-                String name =
+                String branchName =
                         cursor.getString(
                                 cursor.getColumnIndexOrThrow(
                                         DatabaseHelper.COLUMN_BRANCH_NAME
@@ -113,8 +113,8 @@ public class BranchDao {
 
                 Branch branch =
                         new Branch(
-                                id,
-                                name,
+                                branchId,
+                                branchName,
                                 address,
                                 latitude,
                                 longitude
@@ -128,5 +128,59 @@ public class BranchDao {
         cursor.close();
 
         return branches;
+    }
+
+    public int updateBranch(Branch branch) {
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_BRANCH_NAME,
+                branch.getBranchName()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_ADDRESS,
+                branch.getAddress()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_LATITUDE,
+                branch.getLatitude()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_LONGITUDE,
+                branch.getLongitude()
+        );
+
+        return db.update(
+                DatabaseHelper.TABLE_BRANCH,
+                values,
+                DatabaseHelper.COLUMN_BRANCH_ID + " = ?",
+                new String[]{
+                        String.valueOf(
+                                branch.getBranchId()
+                        )
+                }
+        );
+    }
+
+    public int deleteBranch(int branchId) {
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        return db.delete(
+                DatabaseHelper.TABLE_BRANCH,
+                DatabaseHelper.COLUMN_BRANCH_ID + " = ?",
+                new String[]{
+                        String.valueOf(branchId)
+                }
+        );
     }
 }
