@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/techfix_background"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payments"
+        android:textColor="@color/techfix_text_primary"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Repairs ready for collection will appear here."
+        android:textColor="@color/techfix_text_secondary"
+        android:textSize="14sp" />
+
+
+    <!-- Empty state -->
+
+    <TextView
+        android:id="@+id/txtNoPayments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:padding="30dp"
+        android:text="No payments are currently due."
+        android:textColor="@color/techfix_text_secondary"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
+
+    <!-- Repair payment list -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerPaymentRepairs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="22dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

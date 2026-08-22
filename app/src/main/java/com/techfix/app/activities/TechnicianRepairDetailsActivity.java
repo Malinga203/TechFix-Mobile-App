@@ -1,8 +1,10 @@
 package com.techfix.app.activities;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +14,8 @@ import com.techfix.app.R;
 import com.techfix.app.database.RepairDAO;
 import com.techfix.app.models.Repair;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public class TechnicianRepairDetailsActivity
@@ -20,23 +24,25 @@ public class TechnicianRepairDetailsActivity
     public static final String EXTRA_REPAIR_ID =
             "extra_repair_id";
 
-    private TextView txtRepairTitle;
+    private TextView txtRepairId;
     private TextView txtRepairDevice;
     private TextView txtRepairService;
-    private TextView txtRepairIssue;
-    private TextView txtRepairCurrentStatus;
+    private TextView txtRepairProblem;
+    private TextView txtCurrentStatus;
+    private TextView txtEstimatedCost;
 
-    private EditText edtEstimatedCost;
+    private Spinner spinnerRepairStatus;
+
     private EditText edtFinalCost;
 
-    private Button btnSaveRepairCosts;
-    private Button btnNextRepairStatus;
+    private Button btnUpdateRepair;
 
     private RepairDAO repairDAO;
 
     private Repair repair;
 
     private long repairId;
+
 
     @Override
     protected void onCreate(
@@ -49,70 +55,127 @@ public class TechnicianRepairDetailsActivity
                 R.layout.activity_technician_repair_details
         );
 
+        repairDAO =
+                new RepairDAO(this);
+
         repairId =
                 getIntent().getLongExtra(
                         EXTRA_REPAIR_ID,
                         -1
                 );
 
-        repairDAO =
-                new RepairDAO(this);
+        if (repairId <= 0) {
 
-        txtRepairTitle =
+            Toast.makeText(
+                    this,
+                    "Invalid repair",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            finish();
+
+            return;
+        }
+
+        bindViews();
+
+        setupStatusSpinner();
+
+        loadRepair();
+
+        btnUpdateRepair.setOnClickListener(
+                view -> updateRepair()
+        );
+    }
+
+
+    // =========================================================
+    // BIND
+    // =========================================================
+
+    private void bindViews() {
+
+        txtRepairId =
                 findViewById(
-                        R.id.txtRepairTitle
+                        R.id.txtTechnicianRepairId
                 );
 
         txtRepairDevice =
                 findViewById(
-                        R.id.txtRepairDevice
+                        R.id.txtTechnicianRepairDevice
                 );
 
         txtRepairService =
                 findViewById(
-                        R.id.txtRepairService
+                        R.id.txtTechnicianRepairService
                 );
 
-        txtRepairIssue =
+        txtRepairProblem =
                 findViewById(
-                        R.id.txtRepairIssue
+                        R.id.txtTechnicianRepairProblem
                 );
 
-        txtRepairCurrentStatus =
+        txtCurrentStatus =
                 findViewById(
-                        R.id.txtRepairCurrentStatus
+                        R.id.txtTechnicianRepairCurrentStatus
                 );
 
-        edtEstimatedCost =
+        txtEstimatedCost =
                 findViewById(
-                        R.id.edtEstimatedCost
+                        R.id.txtTechnicianRepairEstimatedCost
+                );
+
+        spinnerRepairStatus =
+                findViewById(
+                        R.id.spinnerTechnicianRepairStatus
                 );
 
         edtFinalCost =
                 findViewById(
-                        R.id.edtFinalCost
+                        R.id.edtTechnicianFinalCost
                 );
 
-        btnSaveRepairCosts =
+        btnUpdateRepair =
                 findViewById(
-                        R.id.btnSaveRepairCosts
+                        R.id.btnUpdateTechnicianRepair
                 );
-
-        btnNextRepairStatus =
-                findViewById(
-                        R.id.btnNextRepairStatus
-                );
-
-        btnSaveRepairCosts.setOnClickListener(
-                view -> saveCosts()
-        );
-
-        btnNextRepairStatus.setOnClickListener(
-                view -> moveToNextStatus()
-        );
-
-        loadRepair();
     }
+
+
+    // =========================================================
+    // STATUS OPTIONS
+    // =========================================================
+
+    private void setupStatusSpinner() {
+
+        List<String> statuses =
+                Arrays.asList(
+                        Repair.STATUS_PENDING,
+                        Repair.STATUS_DIAGNOSING,
+                        Repair.STATUS_REPAIRING,
+                        Repair.STATUS_READY_FOR_COLLECTION
+                );
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        statuses
+                );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerRepairStatus.setAdapter(
+                adapter
+        );
+    }
+
+
+    // =========================================================
+    // LOAD
+    // =========================================================
 
     private void loadRepair() {
 
@@ -134,12 +197,9 @@ public class TechnicianRepairDetailsActivity
             return;
         }
 
-        txtRepairTitle.setText(
-                String.format(
-                        Locale.US,
-                        "Repair #%d",
+        txtRepairId.setText(
+                "Repair #" +
                         repair.getRepairId()
-                )
         );
 
         txtRepairDevice.setText(
@@ -152,18 +212,20 @@ public class TechnicianRepairDetailsActivity
                         repair.getServiceName()
         );
 
-        txtRepairIssue.setText(
+        txtRepairProblem.setText(
                 "Issue: " +
                         repair.getProblemDescription()
         );
 
-        txtRepairCurrentStatus.setText(
-                "Status: " +
+        txtCurrentStatus.setText(
+                "Current Status: " +
                         repair.getReadableStatus()
         );
 
-        edtEstimatedCost.setText(
-                String.valueOf(
+        txtEstimatedCost.setText(
+                String.format(
+                        Locale.getDefault(),
+                        "Estimated Cost: LKR %,.2f",
                         repair.getEstimatedCost()
                 )
         );
@@ -177,211 +239,270 @@ public class TechnicianRepairDetailsActivity
             );
         }
 
-        updateStatusButton();
-    }
+        selectCurrentStatus();
 
-    private void saveCosts() {
+        /*
+         * Once payment completes the repair, technician
+         * should no longer modify it.
+         */
+        if (
+                Repair.STATUS_COMPLETED.equals(
+                        repair.getStatus()
+                )
+        ) {
 
-        double estimatedCost;
-        double finalCost;
+            spinnerRepairStatus.setEnabled(
+                    false
+            );
 
-        try {
+            edtFinalCost.setEnabled(
+                    false
+            );
 
-            estimatedCost =
-                    Double.parseDouble(
-                            edtEstimatedCost
-                                    .getText()
-                                    .toString()
-                                    .trim()
-                    );
+            btnUpdateRepair.setEnabled(
+                    false
+            );
 
-        } catch (Exception exception) {
-
-            estimatedCost = 0.0;
-        }
-
-        try {
-
-            String finalValue =
-                    edtFinalCost
-                            .getText()
-                            .toString()
-                            .trim();
-
-            finalCost =
-                    finalValue.isEmpty()
-                            ?
-                            0.0
-                            :
-                            Double.parseDouble(
-                                    finalValue
-                            );
-
-        } catch (Exception exception) {
-
-            finalCost = 0.0;
-        }
-
-        boolean updated =
-                repairDAO.updateRepairCosts(
-                        repairId,
-                        estimatedCost,
-                        finalCost
-                );
-
-        if (updated) {
-
-            Toast.makeText(
-                    this,
-                    "Repair cost updated",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            loadRepair();
-
-        } else {
-
-            Toast.makeText(
-                    this,
-                    "Unable to update cost",
-                    Toast.LENGTH_SHORT
-            ).show();
+            btnUpdateRepair.setText(
+                    "Repair Completed"
+            );
         }
     }
 
-    private void moveToNextStatus() {
+
+    // =========================================================
+    // SELECT CURRENT STATUS
+    // =========================================================
+
+    private void selectCurrentStatus() {
+
+        String status =
+                repair.getStatus();
+
+        int position;
+
+        switch (status) {
+
+            case Repair.STATUS_DIAGNOSING:
+
+                position = 1;
+                break;
+
+            case Repair.STATUS_REPAIRING:
+
+                position = 2;
+                break;
+
+            case Repair.STATUS_READY_FOR_COLLECTION:
+
+                position = 3;
+                break;
+
+            case Repair.STATUS_PENDING:
+            default:
+
+                position = 0;
+                break;
+        }
+
+        spinnerRepairStatus.setSelection(
+                position
+        );
+    }
+
+
+    // =========================================================
+    // UPDATE
+    // =========================================================
+
+    private void updateRepair() {
 
         if (repair == null) {
             return;
         }
 
-        String nextStatus;
+        String selectedStatus =
+                spinnerRepairStatus
+                        .getSelectedItem()
+                        .toString();
 
-        switch (repair.getStatus()) {
+        String finalCostText =
+                edtFinalCost
+                        .getText()
+                        .toString()
+                        .trim();
 
-            case Repair.STATUS_PENDING:
 
-                nextStatus =
-                        Repair.STATUS_DIAGNOSING;
+        // -----------------------------------------------------
+        // FINAL COST
+        // -----------------------------------------------------
 
-                break;
+        double finalCost =
+                repair.getFinalCost();
 
-            case Repair.STATUS_DIAGNOSING:
+        if (!finalCostText.isEmpty()) {
 
-                nextStatus =
-                        Repair.STATUS_REPAIRING;
+            try {
 
-                break;
+                finalCost =
+                        Double.parseDouble(
+                                finalCostText
+                        );
 
-            case Repair.STATUS_REPAIRING:
+            } catch (
+                    NumberFormatException exception
+            ) {
 
-                nextStatus =
-                        Repair.STATUS_READY_FOR_COLLECTION;
-
-                break;
-
-            case Repair.STATUS_READY_FOR_COLLECTION:
-
-                if (repair.getFinalCost() <= 0) {
-
-                    Toast.makeText(
-                            this,
-                            "Set the final repair cost before completing the repair",
-                            Toast.LENGTH_LONG
-                    ).show();
-
-                    return;
-                }
-
-                nextStatus =
-                        Repair.STATUS_COMPLETED;
-
-                break;
-
-            default:
-
-                Toast.makeText(
-                        this,
-                        "Repair is already completed",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                return;
-        }
-
-        boolean updated =
-                repairDAO.updateRepairStatus(
-                        repairId,
-                        nextStatus
+                edtFinalCost.setError(
+                        "Enter a valid amount"
                 );
 
-        if (updated) {
+                return;
+            }
+
+            if (finalCost < 0) {
+
+                edtFinalCost.setError(
+                        "Final cost cannot be negative"
+                );
+
+                return;
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // READY FOR COLLECTION VALIDATION
+        // -----------------------------------------------------
+
+        if (
+                Repair.STATUS_READY_FOR_COLLECTION.equals(
+                        selectedStatus
+                )
+        ) {
+
+            if (finalCost <= 0) {
+
+                edtFinalCost.setError(
+                        "Enter the final cost before marking the repair ready for collection"
+                );
+
+                edtFinalCost.requestFocus();
+
+                return;
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // CHECK STATUS TRANSITION
+        // -----------------------------------------------------
+
+        if (
+                !Repair.canTransition(
+                        repair.getStatus(),
+                        selectedStatus
+                )
+        ) {
 
             Toast.makeText(
                     this,
-                    "Repair status updated",
+                    "You cannot move the repair back to a previous status",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            selectCurrentStatus();
+
+            return;
+        }
+
+
+        // -----------------------------------------------------
+        // SAVE FINAL COST
+        // -----------------------------------------------------
+
+        boolean costUpdated =
+                repairDAO.updateRepairCosts(
+                        repairId,
+                        repair.getEstimatedCost(),
+                        finalCost
+                );
+
+        if (!costUpdated) {
+
+            Toast.makeText(
+                    this,
+                    "Unable to update repair cost",
                     Toast.LENGTH_SHORT
             ).show();
 
-            loadRepair();
+            return;
+        }
 
-        } else {
+
+        // -----------------------------------------------------
+        // SAVE STATUS
+        // -----------------------------------------------------
+
+        boolean statusUpdated =
+                repairDAO.updateRepairStatus(
+                        repairId,
+                        selectedStatus
+                );
+
+        if (!statusUpdated) {
 
             Toast.makeText(
                     this,
                     "Unable to update repair status",
                     Toast.LENGTH_SHORT
             ).show();
+
+            return;
         }
+
+
+        // -----------------------------------------------------
+        // SUCCESS
+        // -----------------------------------------------------
+
+        if (
+                Repair.STATUS_READY_FOR_COLLECTION.equals(
+                        selectedStatus
+                )
+        ) {
+
+            Toast.makeText(
+                    this,
+                    "Repair is ready for collection. Customer can now make payment.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Repair updated successfully",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+
+        loadRepair();
     }
 
-    private void updateStatusButton() {
 
-        switch (repair.getStatus()) {
+    // =========================================================
+    // CLOSE
+    // =========================================================
 
-            case Repair.STATUS_PENDING:
+    @Override
+    protected void onDestroy() {
 
-                btnNextRepairStatus.setText(
-                        "Start Diagnosis"
-                );
+        super.onDestroy();
 
-                break;
+        if (repairDAO != null) {
 
-            case Repair.STATUS_DIAGNOSING:
-
-                btnNextRepairStatus.setText(
-                        "Start Repair"
-                );
-
-                break;
-
-            case Repair.STATUS_REPAIRING:
-
-                btnNextRepairStatus.setText(
-                        "Mark Ready for Collection"
-                );
-
-                break;
-
-            case Repair.STATUS_READY_FOR_COLLECTION:
-
-                btnNextRepairStatus.setText(
-                        "Complete Repair"
-                );
-
-                break;
-
-            case Repair.STATUS_COMPLETED:
-
-                btnNextRepairStatus.setText(
-                        "Repair Completed"
-                );
-
-                btnNextRepairStatus.setEnabled(
-                        false
-                );
-
-                break;
+            repairDAO.close();
         }
     }
 }

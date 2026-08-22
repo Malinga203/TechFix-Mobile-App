@@ -34,4 +34,5 @@
     <string name="msg_no_parts">No spare parts available right now.</string>
 
     <string name="payhere_merchant_id">1237646</string>
+    <string name="payhere_merchant_secret">NDAzMzE4MDkxMTgxNDY5NDY0MDM4MDc4OTkzODkyMjM3NTg3OTk3</string>
 </resources>

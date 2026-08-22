@@ -36,13 +36,19 @@ public class RepairDAO {
     // INSERT REPAIR
     // =========================================================
 
-    public long insertRepair(Repair repair) {
+    public long insertRepair(
+            Repair repair
+    ) {
 
         if (!isValidRepair(repair)) {
             return -1;
         }
 
-        if (TextUtils.isEmpty(repair.getStatus())) {
+        if (
+                TextUtils.isEmpty(
+                        repair.getStatus()
+                )
+        ) {
 
             repair.setStatus(
                     Repair.STATUS_PENDING
@@ -52,18 +58,26 @@ public class RepairDAO {
         String now =
                 getCurrentTimestamp();
 
-        if (TextUtils.isEmpty(
-                repair.getCreatedAt()
-        )) {
+        if (
+                TextUtils.isEmpty(
+                        repair.getCreatedAt()
+                )
+        ) {
 
-            repair.setCreatedAt(now);
+            repair.setCreatedAt(
+                    now
+            );
         }
 
-        if (TextUtils.isEmpty(
-                repair.getUpdatedAt()
-        )) {
+        if (
+                TextUtils.isEmpty(
+                        repair.getUpdatedAt()
+                )
+        ) {
 
-            repair.setUpdatedAt(now);
+            repair.setUpdatedAt(
+                    now
+            );
         }
 
         if (
@@ -76,7 +90,9 @@ public class RepairDAO {
                         )
         ) {
 
-            repair.setCompletedAt(now);
+            repair.setCompletedAt(
+                    now
+            );
         }
 
 
@@ -87,7 +103,7 @@ public class RepairDAO {
                 new ContentValues();
 
 
-        // Appointment ID
+        // Appointment
         putOptionalLong(
                 values,
                 DatabaseHelper.COLUMN_REPAIR_APPOINTMENT_ID,
@@ -95,7 +111,7 @@ public class RepairDAO {
         );
 
 
-        // Customer ID
+        // Customer
         putOptionalLong(
                 values,
                 DatabaseHelper.COLUMN_REPAIR_CUSTOMER_ID,
@@ -103,7 +119,7 @@ public class RepairDAO {
         );
 
 
-        // Branch ID
+        // Branch
         putOptionalLong(
                 values,
                 DatabaseHelper.COLUMN_REPAIR_BRANCH_ID,
@@ -111,7 +127,7 @@ public class RepairDAO {
         );
 
 
-        // Technician ID
+        // Technician
         putOptionalLong(
                 values,
                 DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID,
@@ -133,7 +149,7 @@ public class RepairDAO {
         );
 
 
-        // Problem description
+        // Problem
         values.put(
                 DatabaseHelper.COLUMN_REPAIR_PROBLEM_DESCRIPTION,
                 safeTrim(
@@ -150,9 +166,11 @@ public class RepairDAO {
 
 
         // Image
-        if (!TextUtils.isEmpty(
-                repair.getImageUri()
-        )) {
+        if (
+                !TextUtils.isEmpty(
+                        repair.getImageUri()
+                )
+        ) {
 
             values.put(
                     DatabaseHelper.COLUMN_REPAIR_IMAGE_URI,
@@ -190,9 +208,11 @@ public class RepairDAO {
 
 
         // Completed
-        if (!TextUtils.isEmpty(
-                repair.getCompletedAt()
-        )) {
+        if (
+                !TextUtils.isEmpty(
+                        repair.getCompletedAt()
+                )
+        ) {
 
             values.put(
                     DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT,
@@ -210,7 +230,7 @@ public class RepairDAO {
 
 
     // =========================================================
-    // GET ACTIVE REPAIRS
+    // GET ACTIVE REPAIRS - ALL CUSTOMERS
     // =========================================================
 
     public List<Repair> getActiveRepairs() {
@@ -242,10 +262,14 @@ public class RepairDAO {
 
         try {
 
-            while (cursor.moveToNext()) {
+            while (
+                    cursor.moveToNext()
+            ) {
 
                 repairs.add(
-                        cursorToRepair(cursor)
+                        cursorToRepair(
+                                cursor
+                        )
                 );
             }
 
@@ -259,7 +283,7 @@ public class RepairDAO {
 
 
     // =========================================================
-    // GET REPAIR HISTORY
+    // GET ALL REPAIR HISTORY
     // =========================================================
 
     public List<Repair> getRepairHistory() {
@@ -291,10 +315,221 @@ public class RepairDAO {
 
         try {
 
-            while (cursor.moveToNext()) {
+            while (
+                    cursor.moveToNext()
+            ) {
 
                 repairs.add(
-                        cursorToRepair(cursor)
+                        cursorToRepair(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return repairs;
+    }
+
+
+    // =========================================================
+    // GET CUSTOMER REPAIR HISTORY
+    // =========================================================
+
+    public List<Repair> getRepairHistoryByCustomer(
+            long customerId
+    ) {
+
+        List<Repair> repairs =
+                new ArrayList<>();
+
+        if (customerId <= 0) {
+            return repairs;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        String selection =
+                DatabaseHelper.COLUMN_REPAIR_CUSTOMER_ID +
+                        " = ? AND " +
+
+                        DatabaseHelper.COLUMN_REPAIR_STATUS +
+                        " = ?";
+
+        String[] selectionArgs = {
+
+                String.valueOf(
+                        customerId
+                ),
+
+                Repair.STATUS_COMPLETED
+        };
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT +
+                                " DESC"
+                );
+
+        try {
+
+            while (
+                    cursor.moveToNext()
+            ) {
+
+                repairs.add(
+                        cursorToRepair(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return repairs;
+    }
+
+
+    // =========================================================
+    // GET READY FOR COLLECTION BY CUSTOMER
+    // =========================================================
+
+    public List<Repair> getReadyForCollectionRepairsByCustomer(
+            long customerId
+    ) {
+
+        List<Repair> repairs =
+                new ArrayList<>();
+
+        if (customerId <= 0) {
+            return repairs;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        String selection =
+                DatabaseHelper.COLUMN_REPAIR_CUSTOMER_ID +
+                        " = ? AND " +
+
+                        DatabaseHelper.COLUMN_REPAIR_STATUS +
+                        " = ?";
+
+        String[] selectionArgs = {
+
+                String.valueOf(
+                        customerId
+                ),
+
+                Repair.STATUS_READY_FOR_COLLECTION
+        };
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_UPDATED_AT +
+                                " DESC"
+                );
+
+        try {
+
+            while (
+                    cursor.moveToNext()
+            ) {
+
+                repairs.add(
+                        cursorToRepair(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return repairs;
+    }
+
+
+    // =========================================================
+    // GET ACTIVE REPAIRS BY CUSTOMER
+    // =========================================================
+
+    public List<Repair> getActiveRepairsByCustomer(
+            long customerId
+    ) {
+
+        List<Repair> repairs =
+                new ArrayList<>();
+
+        if (customerId <= 0) {
+            return repairs;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        String selection =
+                DatabaseHelper.COLUMN_REPAIR_CUSTOMER_ID +
+                        " = ? AND " +
+
+                        DatabaseHelper.COLUMN_REPAIR_STATUS +
+                        " != ?";
+
+        String[] selectionArgs = {
+
+                String.valueOf(
+                        customerId
+                ),
+
+                Repair.STATUS_COMPLETED
+        };
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_UPDATED_AT +
+                                " DESC"
+                );
+
+        try {
+
+            while (
+                    cursor.moveToNext()
+            ) {
+
+                repairs.add(
+                        cursorToRepair(
+                                cursor
+                        )
                 );
             }
 
@@ -331,7 +566,9 @@ public class RepairDAO {
                                 " = ?",
 
                         new String[]{
-                                String.valueOf(repairId)
+                                String.valueOf(
+                                        repairId
+                                )
                         },
 
                         null,
@@ -342,7 +579,9 @@ public class RepairDAO {
 
         try {
 
-            if (cursor.moveToFirst()) {
+            if (
+                    cursor.moveToFirst()
+            ) {
 
                 return cursorToRepair(
                         cursor
@@ -359,6 +598,191 @@ public class RepairDAO {
 
 
     // =========================================================
+    // GET REPAIR BY APPOINTMENT
+    // =========================================================
+
+    public Repair getRepairByAppointmentId(
+            long appointmentId
+    ) {
+
+        if (appointmentId <= 0) {
+            return null;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_APPOINTMENT_ID +
+                                " = ?",
+
+                        new String[]{
+                                String.valueOf(
+                                        appointmentId
+                                )
+                        },
+
+                        null,
+                        null,
+                        null,
+                        "1"
+                );
+
+        try {
+
+            if (
+                    cursor.moveToFirst()
+            ) {
+
+                return cursorToRepair(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return null;
+    }
+
+
+    // =========================================================
+    // GET REPAIRS BY TECHNICIAN
+    // =========================================================
+
+    public List<Repair> getRepairsByTechnician(
+            long technicianId
+    ) {
+
+        List<Repair> repairs =
+                new ArrayList<>();
+
+        if (technicianId <= 0) {
+            return repairs;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID +
+                                " = ?",
+
+                        new String[]{
+                                String.valueOf(
+                                        technicianId
+                                )
+                        },
+
+                        null,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_UPDATED_AT +
+                                " DESC"
+                );
+
+        try {
+
+            while (
+                    cursor.moveToNext()
+            ) {
+
+                repairs.add(
+                        cursorToRepair(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return repairs;
+    }
+
+
+    // =========================================================
+    // GET ACTIVE REPAIRS BY TECHNICIAN
+    // =========================================================
+
+    public List<Repair> getActiveRepairsByTechnician(
+            long technicianId
+    ) {
+
+        List<Repair> repairs =
+                new ArrayList<>();
+
+        if (technicianId <= 0) {
+            return repairs;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        String selection =
+                DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID +
+                        " = ? AND " +
+
+                        DatabaseHelper.COLUMN_REPAIR_STATUS +
+                        " != ?";
+
+        String[] selectionArgs = {
+
+                String.valueOf(
+                        technicianId
+                ),
+
+                Repair.STATUS_COMPLETED
+        };
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+
+                        DatabaseHelper.COLUMN_REPAIR_UPDATED_AT +
+                                " DESC"
+                );
+
+        try {
+
+            while (
+                    cursor.moveToNext()
+            ) {
+
+                repairs.add(
+                        cursorToRepair(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return repairs;
+    }
+
+
+    // =========================================================
     // UPDATE REPAIR STATUS
     // =========================================================
 
@@ -368,8 +792,7 @@ public class RepairDAO {
     ) {
 
         if (
-                repairId <= 0
-                        ||
+                repairId <= 0 ||
                         !Repair.isValidStatus(
                                 newStatus
                         )
@@ -377,7 +800,6 @@ public class RepairDAO {
 
             return false;
         }
-
 
         Repair currentRepair =
                 getRepairById(
@@ -388,15 +810,15 @@ public class RepairDAO {
             return false;
         }
 
-
-        if (!Repair.canTransition(
-                currentRepair.getStatus(),
-                newStatus
-        )) {
+        if (
+                !Repair.canTransition(
+                        currentRepair.getStatus(),
+                        newStatus
+                )
+        ) {
 
             return false;
         }
-
 
         String now =
                 getCurrentTimestamp();
@@ -404,22 +826,21 @@ public class RepairDAO {
         ContentValues values =
                 new ContentValues();
 
-
         values.put(
                 DatabaseHelper.COLUMN_REPAIR_STATUS,
                 newStatus
         );
-
 
         values.put(
                 DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
                 now
         );
 
-
-        if (Repair.STATUS_COMPLETED.equals(
-                newStatus
-        )) {
+        if (
+                Repair.STATUS_COMPLETED.equals(
+                        newStatus
+                )
+        ) {
 
             values.put(
                     DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT,
@@ -427,10 +848,8 @@ public class RepairDAO {
             );
         }
 
-
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
-
 
         int rows =
                 db.update(
@@ -447,13 +866,123 @@ public class RepairDAO {
                         }
                 );
 
+        return rows > 0;
+    }
+
+
+    // =========================================================
+    // UPDATE REPAIR COSTS
+    // =========================================================
+
+    public boolean updateRepairCosts(
+            long repairId,
+            double estimatedCost,
+            double finalCost
+    ) {
+
+        if (
+                repairId <= 0 ||
+                        estimatedCost < 0 ||
+                        finalCost < 0
+        ) {
+
+            return false;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_ESTIMATED_COST,
+                estimatedCost
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_FINAL_COST,
+                finalCost
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
+                getCurrentTimestamp()
+        );
+
+        int rows =
+                db.update(
+                        DatabaseHelper.TABLE_REPAIR,
+                        values,
+
+                        DatabaseHelper.COLUMN_REPAIR_ID +
+                                " = ?",
+
+                        new String[]{
+                                String.valueOf(
+                                        repairId
+                                )
+                        }
+                );
 
         return rows > 0;
     }
 
 
     // =========================================================
-    // UPDATE REPAIR IMAGE
+    // UPDATE FINAL COST ONLY
+    // =========================================================
+
+    public boolean updateFinalCost(
+            long repairId,
+            double finalCost
+    ) {
+
+        if (
+                repairId <= 0 ||
+                        finalCost < 0
+        ) {
+
+            return false;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_FINAL_COST,
+                finalCost
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
+                getCurrentTimestamp()
+        );
+
+        int rows =
+                db.update(
+                        DatabaseHelper.TABLE_REPAIR,
+                        values,
+
+                        DatabaseHelper.COLUMN_REPAIR_ID +
+                                " = ?",
+
+                        new String[]{
+                                String.valueOf(
+                                        repairId
+                                )
+                        }
+                );
+
+        return rows > 0;
+    }
+
+
+    // =========================================================
+    // UPDATE IMAGE
     // =========================================================
 
     public boolean updateRepairImageUri(
@@ -462,8 +991,7 @@ public class RepairDAO {
     ) {
 
         if (
-                repairId <= 0
-                        ||
+                repairId <= 0 ||
                         TextUtils.isEmpty(
                                 imageUri
                         )
@@ -472,26 +1000,21 @@ public class RepairDAO {
             return false;
         }
 
-
         ContentValues values =
                 new ContentValues();
-
 
         values.put(
                 DatabaseHelper.COLUMN_REPAIR_IMAGE_URI,
                 imageUri.trim()
         );
 
-
         values.put(
                 DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
                 getCurrentTimestamp()
         );
 
-
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
-
 
         int rows =
                 db.update(
@@ -508,8 +1031,33 @@ public class RepairDAO {
                         }
                 );
 
-
         return rows > 0;
+    }
+
+
+    // =========================================================
+    // CHECK PAYMENT ELIGIBILITY
+    // =========================================================
+
+    public boolean isRepairReadyForPayment(
+            long repairId
+    ) {
+
+        Repair repair =
+                getRepairById(
+                        repairId
+                );
+
+        if (repair == null) {
+            return false;
+        }
+
+        return Repair.STATUS_READY_FOR_COLLECTION
+                .equals(
+                        repair.getStatus()
+                )
+                &&
+                repair.getFinalCost() > 0;
     }
 
 
@@ -525,7 +1073,6 @@ public class RepairDAO {
             return false;
         }
 
-
         if (
                 TextUtils.isEmpty(
                         repair.getDeviceName()
@@ -539,7 +1086,6 @@ public class RepairDAO {
             return false;
         }
 
-
         if (
                 TextUtils.isEmpty(
                         repair.getServiceName()
@@ -552,7 +1098,6 @@ public class RepairDAO {
 
             return false;
         }
-
 
         if (
                 !TextUtils.isEmpty(
@@ -567,7 +1112,6 @@ public class RepairDAO {
             return false;
         }
 
-
         if (
                 !TextUtils.isEmpty(
                         repair.getStatus()
@@ -580,7 +1124,6 @@ public class RepairDAO {
 
             return false;
         }
-
 
         return repair.getEstimatedCost() >= 0
                 &&
@@ -626,7 +1169,6 @@ public class RepairDAO {
                 new Repair();
 
 
-        // Repair ID
         repair.setRepairId(
                 cursor.getLong(
                         cursor.getColumnIndexOrThrow(
@@ -636,7 +1178,6 @@ public class RepairDAO {
         );
 
 
-        // Appointment
         repair.setAppointmentId(
                 getNullableLong(
                         cursor,
@@ -645,7 +1186,6 @@ public class RepairDAO {
         );
 
 
-        // Customer
         repair.setCustomerId(
                 getNullableLong(
                         cursor,
@@ -654,7 +1194,6 @@ public class RepairDAO {
         );
 
 
-        // Branch
         repair.setBranchId(
                 getNullableLong(
                         cursor,
@@ -663,7 +1202,6 @@ public class RepairDAO {
         );
 
 
-        // Technician
         repair.setTechnicianId(
                 getNullableLong(
                         cursor,
@@ -672,7 +1210,6 @@ public class RepairDAO {
         );
 
 
-        // Device
         repair.setDeviceName(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -682,7 +1219,6 @@ public class RepairDAO {
         );
 
 
-        // Service
         repair.setServiceName(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -692,7 +1228,6 @@ public class RepairDAO {
         );
 
 
-        // Problem
         repair.setProblemDescription(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -702,7 +1237,6 @@ public class RepairDAO {
         );
 
 
-        // Status
         repair.setStatus(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -712,7 +1246,6 @@ public class RepairDAO {
         );
 
 
-        // Image
         repair.setImageUri(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -722,7 +1255,6 @@ public class RepairDAO {
         );
 
 
-        // Estimated cost
         repair.setEstimatedCost(
                 cursor.getDouble(
                         cursor.getColumnIndexOrThrow(
@@ -732,7 +1264,6 @@ public class RepairDAO {
         );
 
 
-        // Final cost
         repair.setFinalCost(
                 cursor.getDouble(
                         cursor.getColumnIndexOrThrow(
@@ -742,7 +1273,6 @@ public class RepairDAO {
         );
 
 
-        // Created
         repair.setCreatedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -752,7 +1282,6 @@ public class RepairDAO {
         );
 
 
-        // Updated
         repair.setUpdatedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -762,7 +1291,6 @@ public class RepairDAO {
         );
 
 
-        // Completed
         repair.setCompletedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -790,11 +1318,14 @@ public class RepairDAO {
                         columnName
                 );
 
+        if (
+                cursor.isNull(
+                        index
+                )
+        ) {
 
-        if (cursor.isNull(index)) {
             return 0;
         }
-
 
         return cursor.getLong(
                 index
@@ -819,7 +1350,7 @@ public class RepairDAO {
 
 
     // =========================================================
-    // CURRENT TIMESTAMP
+    // TIMESTAMP
     // =========================================================
 
     private String getCurrentTimestamp() {
@@ -832,144 +1363,6 @@ public class RepairDAO {
         );
     }
 
-    public Repair getRepairByAppointmentId(
-            long appointmentId
-    ) {
-
-        SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
-
-        Cursor cursor =
-                db.query(
-                        DatabaseHelper.TABLE_REPAIR,
-                        null,
-                        DatabaseHelper.COLUMN_REPAIR_APPOINTMENT_ID +
-                                " = ?",
-                        new String[]{
-                                String.valueOf(
-                                        appointmentId
-                                )
-                        },
-                        null,
-                        null,
-                        null,
-                        "1"
-                );
-
-        try {
-
-            if (cursor.moveToFirst()) {
-
-                return cursorToRepair(
-                        cursor
-                );
-            }
-
-        } finally {
-
-            cursor.close();
-        }
-
-        return null;
-    }
-
-    public List<Repair> getRepairsByTechnician(
-            long technicianId
-    ) {
-
-        List<Repair> repairs =
-                new ArrayList<>();
-
-        SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
-
-        Cursor cursor =
-                db.query(
-                        DatabaseHelper.TABLE_REPAIR,
-                        null,
-                        DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID +
-                                " = ?",
-                        new String[]{
-                                String.valueOf(
-                                        technicianId
-                                )
-                        },
-                        null,
-                        null,
-                        DatabaseHelper.COLUMN_REPAIR_UPDATED_AT +
-                                " DESC"
-                );
-
-        try {
-
-            while (cursor.moveToNext()) {
-
-                repairs.add(
-                        cursorToRepair(
-                                cursor
-                        )
-                );
-            }
-
-        } finally {
-
-            cursor.close();
-        }
-
-        return repairs;
-    }
-
-    public boolean updateRepairCosts(
-            long repairId,
-            double estimatedCost,
-            double finalCost
-    ) {
-
-        if (
-                repairId <= 0 ||
-                        estimatedCost < 0 ||
-                        finalCost < 0
-        ) {
-
-            return false;
-        }
-
-        SQLiteDatabase db =
-                databaseHelper.getWritableDatabase();
-
-        ContentValues values =
-                new ContentValues();
-
-        values.put(
-                DatabaseHelper.COLUMN_REPAIR_ESTIMATED_COST,
-                estimatedCost
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_REPAIR_FINAL_COST,
-                finalCost
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
-                getCurrentTimestamp()
-        );
-
-        int rows =
-                db.update(
-                        DatabaseHelper.TABLE_REPAIR,
-                        values,
-                        DatabaseHelper.COLUMN_REPAIR_ID +
-                                " = ?",
-                        new String[]{
-                                String.valueOf(
-                                        repairId
-                                )
-                        }
-                );
-
-        return rows > 0;
-    }
 
     // =========================================================
     // CLOSE

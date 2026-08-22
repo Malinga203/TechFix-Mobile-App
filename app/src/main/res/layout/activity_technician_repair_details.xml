@@ -4,77 +4,117 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/techfix_background">
+    android:background="@color/techfix_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
         <TextView
-            android:id="@+id/txtRepairTitle"
-            android:layout_width="wrap_content"
+            android:id="@+id/txtTechnicianRepairId"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Repair"
+            android:text="Repair #1"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="26sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtRepairDevice"
+            android:id="@+id/txtTechnicianRepairDevice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="24dp"
+            android:text="Device:"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/txtRepairService"
+            android:id="@+id/txtTechnicianRepairService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="10dp"
+            android:text="Service:"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/txtRepairIssue"
+            android:id="@+id/txtTechnicianRepairProblem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="10dp"
+            android:text="Issue:"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/txtRepairCurrentStatus"
+            android:id="@+id/txtTechnicianRepairCurrentStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Current Status:"
+            android:textColor="@color/techfix_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtTechnicianRepairEstimatedCost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
+            android:text="Estimated Cost:"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:text="Update Repair Status"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerTechnicianRepairStatus"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Final Repair Cost"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/edtEstimatedCost"
+            android:id="@+id/edtTechnicianFinalCost"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="20dp"
-            android:hint="Estimated cost"
-            android:inputType="numberDecimal" />
+            android:layout_marginTop="8dp"
+            android:hint="Enter final cost"
+            android:inputType="numberDecimal"
+            android:singleLine="true" />
 
-        <EditText
-            android:id="@+id/edtFinalCost"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:hint="Final cost"
-            android:inputType="numberDecimal" />
-
-        <Button
-            android:id="@+id/btnSaveRepairCosts"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="14dp"
-            android:text="Save Costs"
-            android:textAllCaps="false" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="A final cost is required before marking the repair Ready for Collection."
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="12sp" />
 
         <Button
-            android:id="@+id/btnNextRepairStatus"
+            android:id="@+id/btnUpdateTechnicianRepair"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="18dp"
-            android:text="Update Repair Progress"
+            android:layout_marginTop="28dp"
+            android:text="Update Repair"
             android:textAllCaps="false" />
 
     </LinearLayout>

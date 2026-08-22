@@ -56,6 +56,14 @@
             android:text="Track Repairs"
             android:textAllCaps="false" />
 
+        <Button
+            android:id="@+id/btnPayments"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:text="Payments"
+            android:textAllCaps="false" />
+
 
         <Button
             android:id="@+id/btnRepairHistory"

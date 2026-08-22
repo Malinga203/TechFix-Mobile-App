@@ -6,6 +6,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.techfix.app.activities.CustomerPaymentsActivity;
 import com.techfix.app.activities.MyAppointmentsActivity;
 import com.techfix.app.activities.RepairHistoryActivity;
 import com.techfix.app.activities.RepairTrackingActivity;
@@ -23,8 +24,10 @@ public class MainActivity extends AppCompatActivity {
     private Button btnMyAppointments;
     private Button btnRepairTracking;
     private Button btnRepairHistory;
+    private Button btnPayments;
     private Button btnSeeProfile;
     private Button btnLogout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,18 +36,37 @@ public class MainActivity extends AppCompatActivity {
         sessionManager =
                 new SessionManager(this);
 
-        // User must be logged in
+        // =====================================================
+        // CHECK LOGIN
+        // =====================================================
+
         if (!sessionManager.isLoggedIn()) {
+
             openLogin();
+
             return;
         }
 
-        // Only customers should use MainActivity
-        if (!User.ROLE_CUSTOMER.equals(sessionManager.getRole())) {
+        // =====================================================
+        // CHECK CUSTOMER ROLE
+        // =====================================================
+
+        if (
+                !User.ROLE_CUSTOMER.equals(
+                        sessionManager.getRole()
+                )
+        ) {
+
             sessionManager.logout();
+
             openLogin();
+
             return;
         }
+
+        // =====================================================
+        // LOAD CUSTOMER DASHBOARD
+        // =====================================================
 
         setContentView(
                 R.layout.activity_main
@@ -82,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
                         R.id.btnRepairHistory
                 );
 
+        btnPayments =
+                findViewById(
+                        R.id.btnPayments
+                );
+
         btnSeeProfile =
                 findViewById(
                         R.id.btnSeeProfile
@@ -95,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =========================================================
-    // NAVIGATION
+    // SETUP NAVIGATION
     // =========================================================
 
     private void setupNavigation() {
@@ -114,6 +141,10 @@ public class MainActivity extends AppCompatActivity {
 
         btnRepairHistory.setOnClickListener(
                 view -> openRepairHistory()
+        );
+
+        btnPayments.setOnClickListener(
+                view -> openPayments()
         );
 
         btnSeeProfile.setOnClickListener(
@@ -191,6 +222,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =========================================================
+    // PAYMENTS
+    // =========================================================
+
+    private void openPayments() {
+
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        CustomerPaymentsActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+
+    // =========================================================
     // PROFILE
     // =========================================================
 
@@ -232,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =========================================================
-    // LOGIN
+    // OPEN LOGIN
     // =========================================================
 
     private void openLogin() {

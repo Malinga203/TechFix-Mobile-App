@@ -1,7 +1,9 @@
 package com.techfix.app.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,8 +14,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.techfix.app.R;
 import com.techfix.app.database.PaymentDAO;
+import com.techfix.app.database.RepairDAO;
 import com.techfix.app.models.Payment;
+import com.techfix.app.models.Repair;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -25,15 +38,43 @@ import lk.payhere.androidsdk.model.InitRequest;
 
 public class PaymentActivity extends AppCompatActivity {
 
+    // =========================================================
+    // LOG
+    // =========================================================
+
+    private static final String TAG =
+            "TECHFIX_PAYMENT";
+
+
+    // =========================================================
+    // BACKEND
+    // =========================================================
+
+    private static final String BACKEND_BASE_URL =
+            "http://192.168.8.193:3000";
+
+    private static final String HASH_URL =
+            BACKEND_BASE_URL +
+                    "/api/payment/hash";
+
+
+    // =========================================================
+    // INTENT EXTRAS
+    // =========================================================
+
     public static final String EXTRA_APPOINTMENT_ID =
             "extra_appointment_id";
+
+    public static final String EXTRA_REPAIR_ID =
+            "extra_repair_id";
 
     public static final String EXTRA_AMOUNT =
             "extra_amount";
 
-    // Sandbox Merchant ID
-    private static final String MERCHANT_ID =
-            "1237646";
+
+    // =========================================================
+    // UI
+    // =========================================================
 
     private TextView txtOrderId;
     private TextView txtPaymentAmount;
@@ -41,38 +82,109 @@ public class PaymentActivity extends AppCompatActivity {
 
     private Button btnPayNow;
 
-    private PaymentDAO paymentDAO;
 
-    // Temporary testing values
-    private int appointmentId = 1;
-    private double amount = 5000.00;
+    // =========================================================
+    // DAO
+    // =========================================================
+
+    private PaymentDAO paymentDAO;
+    private RepairDAO repairDAO;
+
+
+    // =========================================================
+    // PAYMENT VALUES
+    // =========================================================
+
+    private int appointmentId;
+
+    private long repairId;
+
+    private double amount;
 
     private String orderId;
+
+    private String merchantId;
+
+    private String merchantSecret;
+
+    private String backendHash;
 
 
     // =========================================================
     // PAYHERE RESULT
     // =========================================================
 
-    private final ActivityResultLauncher<Intent> payHereLauncher =
+    private final ActivityResultLauncher<Intent>
+            payHereLauncher =
             registerForActivityResult(
+
                     new ActivityResultContracts.StartActivityForResult(),
+
                     result -> {
 
-                        if (result.getResultCode() == RESULT_OK) {
+                        int resultCode =
+                                result.getResultCode();
 
-                            handlePaymentCompleted();
+                        Log.d(
+                                TAG,
+                                "PayHere result code = "
+                                        + resultCode
+                        );
 
-                        } else if (
-                                result.getResultCode() == RESULT_CANCELED
+
+                        // =================================================
+                        // SUCCESS
+                        // =================================================
+
+                        if (
+                                resultCode
+                                        ==
+                                        Activity.RESULT_OK
                         ) {
+
+                            Log.d(
+                                    TAG,
+                                    "PayHere payment successful"
+                            );
+
+                            handlePaymentSuccess();
+
+                            return;
+                        }
+
+
+                        // =================================================
+                        // CANCELLED
+                        // =================================================
+
+                        if (
+                                resultCode
+                                        ==
+                                        Activity.RESULT_CANCELED
+                        ) {
+
+                            Log.d(
+                                    TAG,
+                                    "PayHere payment cancelled"
+                            );
 
                             handlePaymentCancelled();
 
-                        } else {
-
-                            handlePaymentFailed();
+                            return;
                         }
+
+
+                        // =================================================
+                        // UNKNOWN
+                        // =================================================
+
+                        txtPaymentStatus.setText(
+                                "Payment was not completed"
+                        );
+
+                        btnPayNow.setEnabled(
+                                true
+                        );
                     }
             );
 
@@ -82,7 +194,9 @@ public class PaymentActivity extends AppCompatActivity {
     // =========================================================
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(
+            Bundle savedInstanceState
+    ) {
 
         super.onCreate(savedInstanceState);
 
@@ -90,43 +204,62 @@ public class PaymentActivity extends AppCompatActivity {
                 R.layout.activity_payment
         );
 
-        bindViews();
+
+        // =====================================================
+        // DAO
+        // =====================================================
 
         paymentDAO =
                 new PaymentDAO(this);
 
-        // Temporary values for direct testing
-        readTestData();
-
-        createOrderId();
-
-        displayPaymentInformation();
-
-        createPendingPayment();
-
-        // Force button enabled during testing
-        btnPayNow.setEnabled(true);
-
-        btnPayNow.setOnClickListener(
-                view -> {
-
-                    Toast.makeText(
-                            PaymentActivity.this,
-                            "Pay button clicked",
-                            Toast.LENGTH_SHORT
-                    ).show();
-
-                    launchPayHere();
-                }
-        );
-    }
+        repairDAO =
+                new RepairDAO(this);
 
 
-    // =========================================================
-    // BIND VIEWS
-    // =========================================================
+        // =====================================================
+        // PAYHERE CREDENTIALS
+        // =====================================================
 
-    private void bindViews() {
+        merchantId =
+                getString(
+                        R.string.payhere_merchant_id
+                ).trim();
+
+        merchantSecret =
+                getString(
+                        R.string.payhere_merchant_secret
+                ).trim();
+
+
+        // =====================================================
+        // GET INTENT VALUES
+        // =====================================================
+
+        appointmentId =
+                getIntent()
+                        .getIntExtra(
+                                EXTRA_APPOINTMENT_ID,
+                                -1
+                        );
+
+        repairId =
+                getIntent()
+                        .getLongExtra(
+                                EXTRA_REPAIR_ID,
+                                -1
+                        );
+
+        amount =
+                getIntent()
+                        .getDoubleExtra(
+                                EXTRA_AMOUNT,
+                                0
+                        );
+
+
+        // =====================================================
+        // BIND UI
+        // =====================================================
 
         txtOrderId =
                 findViewById(
@@ -147,142 +280,532 @@ public class PaymentActivity extends AppCompatActivity {
                 findViewById(
                         R.id.btnPayNow
                 );
-    }
 
 
-    // =========================================================
-    // TEMPORARY TEST DATA
-    // =========================================================
+        // =====================================================
+        // VALIDATE
+        // =====================================================
 
-    private void readTestData() {
+        if (appointmentId <= 0) {
 
-        appointmentId =
-                getIntent().getIntExtra(
-                        EXTRA_APPOINTMENT_ID,
-                        1
-                );
+            showFatalError(
+                    "Invalid appointment"
+            );
 
-        amount =
-                getIntent().getDoubleExtra(
-                        EXTRA_AMOUNT,
-                        5000.00
-                );
-    }
-
-
-    // =========================================================
-    // CREATE ORDER ID
-    // =========================================================
-
-    private void createOrderId() {
-
-        orderId =
-                "TECHFIX-" +
-                        appointmentId +
-                        "-" +
-                        System.currentTimeMillis();
-    }
-
-
-    // =========================================================
-    // DISPLAY PAYMENT DETAILS
-    // =========================================================
-
-    private void displayPaymentInformation() {
-
-        txtOrderId.setText(
-                "Order: " + orderId
-        );
-
-        txtPaymentAmount.setText(
-                String.format(
-                        Locale.US,
-                        "LKR %.2f",
-                        amount
-                )
-        );
-
-        txtPaymentStatus.setText(
-                "Ready for sandbox payment"
-        );
-    }
-
-
-    // =========================================================
-    // CREATE LOCAL PAYMENT
-    // =========================================================
-
-    private void createPendingPayment() {
-
-        String paymentDate =
-                new SimpleDateFormat(
-                        "yyyy-MM-dd HH:mm:ss",
-                        Locale.US
-                ).format(
-                        new Date()
-                );
-
-        Payment payment =
-                new Payment(
-                        0,
-                        appointmentId,
-                        orderId,
-                        amount,
-                        "LKR",
-                        "PENDING",
-                        null,
-                        paymentDate
-                );
-
-        long result =
-                paymentDAO.insertPayment(
-                        payment
-                );
-
-        if (result == -1) {
-
-            Toast.makeText(
-                    this,
-                    "Test payment record could not be saved locally",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            /*
-             * Do NOT disable the button.
-             *
-             * Appointment ID 1 might not exist in the database,
-             * but we still want to test PayHere.
-             */
+            return;
         }
-    }
 
 
-    // =========================================================
-    // OPEN PAYHERE SANDBOX
-    // =========================================================
+        if (repairId <= 0) {
 
-    private void launchPayHere() {
+            showFatalError(
+                    "Invalid repair"
+            );
 
-        Toast.makeText(
-                this,
-                "Preparing PayHere...",
-                Toast.LENGTH_SHORT
-        ).show();
+            return;
+        }
+
 
         if (amount <= 0) {
 
-            showError(
+            showFatalError(
                     "Invalid payment amount"
             );
 
             return;
         }
 
-        btnPayNow.setEnabled(false);
+
+        if (
+                merchantId.isEmpty()
+                        ||
+                        merchantSecret.isEmpty()
+        ) {
+
+            showFatalError(
+                    "PayHere credentials are missing"
+            );
+
+            return;
+        }
+
+
+        // =====================================================
+        // VERIFY REPAIR
+        // =====================================================
+
+        if (
+                !repairDAO.isRepairReadyForPayment(
+                        repairId
+                )
+        ) {
+
+            showFatalError(
+                    "This repair is not ready for payment"
+            );
+
+            return;
+        }
+
+
+        // =====================================================
+        // ORDER ID
+        // =====================================================
+
+        orderId =
+                "TECHFIX-"
+                        + repairId
+                        + "-"
+                        + System.currentTimeMillis();
+
+
+        // =====================================================
+        // DISPLAY
+        // =====================================================
+
+        txtOrderId.setText(
+                "Order: "
+                        + orderId
+        );
+
+
+        txtPaymentAmount.setText(
+                String.format(
+                        Locale.getDefault(),
+                        "LKR %,.2f",
+                        amount
+                )
+        );
+
+
+        txtPaymentStatus.setText(
+                "Ready for payment"
+        );
+
+
+        // =====================================================
+        // LOCAL PAYMENT RECORD
+        // =====================================================
+
+        createPendingPayment();
+
+
+        // =====================================================
+        // PAY BUTTON
+        // =====================================================
+
+        btnPayNow.setOnClickListener(
+                view ->
+                        requestBackendPayment()
+        );
+    }
+
+
+    // =========================================================
+    // CREATE LOCAL PENDING PAYMENT
+    // =========================================================
+
+    private void createPendingPayment() {
+
+        Payment payment =
+                new Payment();
+
+        payment.setAppointmentId(
+                appointmentId
+        );
+
+        payment.setOrderId(
+                orderId
+        );
+
+        payment.setAmount(
+                amount
+        );
+
+        payment.setCurrency(
+                "LKR"
+        );
+
+        payment.setStatus(
+                "PENDING"
+        );
+
+        payment.setPaymentReference(
+                null
+        );
+
+        payment.setPaymentDate(
+                getCurrentTimestamp()
+        );
+
+
+        long result =
+                paymentDAO.insertPayment(
+                        payment
+                );
+
+
+        if (result <= 0) {
+
+            Log.e(
+                    TAG,
+                    "Unable to create local payment"
+            );
+        }
+    }
+
+
+    // =========================================================
+    // REQUEST BACKEND HASH
+    // =========================================================
+
+    private void requestBackendPayment() {
+
+        btnPayNow.setEnabled(
+                false
+        );
+
+        txtPaymentStatus.setText(
+                "Connecting to payment server..."
+        );
+
+
+        new Thread(
+                () -> {
+
+                    HttpURLConnection connection =
+                            null;
+
+                    try {
+
+                        URL url =
+                                new URL(
+                                        HASH_URL
+                                );
+
+
+                        connection =
+                                (HttpURLConnection)
+                                        url.openConnection();
+
+
+                        connection.setRequestMethod(
+                                "POST"
+                        );
+
+
+                        connection.setRequestProperty(
+                                "Content-Type",
+                                "application/json"
+                        );
+
+
+                        connection.setRequestProperty(
+                                "Accept",
+                                "application/json"
+                        );
+
+
+                        connection.setConnectTimeout(
+                                10000
+                        );
+
+
+                        connection.setReadTimeout(
+                                10000
+                        );
+
+
+                        connection.setDoOutput(
+                                true
+                        );
+
+
+                        // =================================================
+                        // REQUEST BODY
+                        // =================================================
+
+                        JSONObject body =
+                                new JSONObject();
+
+
+                        body.put(
+                                "orderId",
+                                orderId
+                        );
+
+
+                        body.put(
+                                "amount",
+                                amount
+                        );
+
+
+                        body.put(
+                                "currency",
+                                "LKR"
+                        );
+
+
+                        byte[] requestBytes =
+                                body
+                                        .toString()
+                                        .getBytes(
+                                                StandardCharsets.UTF_8
+                                        );
+
+
+                        OutputStream outputStream =
+                                connection
+                                        .getOutputStream();
+
+
+                        outputStream.write(
+                                requestBytes
+                        );
+
+
+                        outputStream.flush();
+
+                        outputStream.close();
+
+
+                        // =================================================
+                        // RESPONSE
+                        // =================================================
+
+                        int responseCode =
+                                connection
+                                        .getResponseCode();
+
+
+                        InputStream inputStream;
+
+
+                        if (
+                                responseCode >= 200
+                                        &&
+                                        responseCode < 300
+                        ) {
+
+                            inputStream =
+                                    connection
+                                            .getInputStream();
+
+                        } else {
+
+                            inputStream =
+                                    connection
+                                            .getErrorStream();
+                        }
+
+
+                        String response =
+                                readInputStream(
+                                        inputStream
+                                );
+
+
+                        Log.d(
+                                TAG,
+                                "Backend response code = "
+                                        + responseCode
+                        );
+
+
+                        Log.d(
+                                TAG,
+                                "Backend response = "
+                                        + response
+                        );
+
+
+                        if (
+                                responseCode < 200
+                                        ||
+                                        responseCode >= 300
+                        ) {
+
+                            runOnUiThread(
+                                    () ->
+                                            showError(
+                                                    "Payment server rejected the request"
+                                            )
+                            );
+
+                            return;
+                        }
+
+
+                        JSONObject responseJson =
+                                new JSONObject(
+                                        response
+                                );
+
+
+                        boolean success =
+                                responseJson.optBoolean(
+                                        "success",
+                                        false
+                                );
+
+
+                        if (!success) {
+
+                            runOnUiThread(
+                                    () ->
+                                            showError(
+                                                    "Unable to initialize payment"
+                                            )
+                            );
+
+                            return;
+                        }
+
+
+                        // =================================================
+                        // READ BACKEND VALUES
+                        // =================================================
+
+                        String backendMerchantId =
+                                responseJson.getString(
+                                        "merchantId"
+                                );
+
+
+                        String backendOrderId =
+                                responseJson.getString(
+                                        "orderId"
+                                );
+
+
+                        backendHash =
+                                responseJson.getString(
+                                        "hash"
+                                );
+
+
+                        // =================================================
+                        // VERIFY BACKEND RESPONSE
+                        // =================================================
+
+                        if (
+                                !merchantId.equals(
+                                        backendMerchantId
+                                )
+                        ) {
+
+                            runOnUiThread(
+                                    () ->
+                                            showError(
+                                                    "Merchant ID mismatch"
+                                            )
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                                !orderId.equals(
+                                        backendOrderId
+                                )
+                        ) {
+
+                            runOnUiThread(
+                                    () ->
+                                            showError(
+                                                    "Order ID mismatch"
+                                            )
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                                backendHash == null
+                                        ||
+                                        backendHash.isEmpty()
+                        ) {
+
+                            runOnUiThread(
+                                    () ->
+                                            showError(
+                                                    "Payment hash missing"
+                                            )
+                            );
+
+                            return;
+                        }
+
+
+                        Log.d(
+                                TAG,
+                                "Backend payment initialized"
+                        );
+
+
+                        Log.d(
+                                TAG,
+                                "Hash received = "
+                                        + backendHash
+                        );
+
+
+                        // =================================================
+                        // OPEN PAYHERE
+                        // =================================================
+
+                        runOnUiThread(
+                                this::openPayHere
+                        );
+
+
+                    } catch (
+                            Exception exception
+                    ) {
+
+                        Log.e(
+                                TAG,
+                                "Backend connection failed",
+                                exception
+                        );
+
+
+                        runOnUiThread(
+                                () ->
+                                        showError(
+                                                "Cannot connect to payment server: "
+                                                        + exception.getMessage()
+                                        )
+                        );
+
+
+                    } finally {
+
+                        if (
+                                connection != null
+                        ) {
+
+                            connection.disconnect();
+                        }
+                    }
+                }
+        ).start();
+    }
+
+
+    // =========================================================
+    // OPEN PAYHERE
+    // =========================================================
+
+    private void openPayHere() {
 
         txtPaymentStatus.setText(
                 "Opening PayHere Sandbox..."
         );
+
 
         try {
 
@@ -290,39 +813,47 @@ public class PaymentActivity extends AppCompatActivity {
                     new InitRequest();
 
 
-            // -------------------------------------------------
+            // =================================================
             // MERCHANT
-            // -------------------------------------------------
+            // =================================================
 
             request.setMerchantId(
-                    MERCHANT_ID
+                    merchantId
             );
 
 
-            // -------------------------------------------------
-            // PAYMENT DETAILS
-            // -------------------------------------------------
+            request.setMerchantSecret(
+                    merchantSecret
+            );
+
+
+            // =================================================
+            // PAYMENT
+            // =================================================
 
             request.setCurrency(
                     "LKR"
             );
 
+
             request.setAmount(
                     amount
             );
+
 
             request.setOrderId(
                     orderId
             );
 
+
             request.setItemsDescription(
-                    "TechFix Repair Appointment"
+                    "TechFix Repair Payment"
             );
 
 
-            // -------------------------------------------------
+            // =================================================
             // CUSTOM VALUES
-            // -------------------------------------------------
+            // =================================================
 
             request.setCustom1(
                     String.valueOf(
@@ -330,29 +861,35 @@ public class PaymentActivity extends AppCompatActivity {
                     )
             );
 
+
             request.setCustom2(
-                    "TechFix Mobile App"
+                    String.valueOf(
+                            repairId
+                    )
             );
 
 
-            // -------------------------------------------------
-            // CUSTOMER DETAILS
-            // -------------------------------------------------
+            // =================================================
+            // CUSTOMER
+            // =================================================
 
             request.getCustomer()
                     .setFirstName(
-                            "Test"
+                            "TechFix"
                     );
+
 
             request.getCustomer()
                     .setLastName(
                             "Customer"
                     );
 
+
             request.getCustomer()
                     .setEmail(
-                            "test@example.com"
+                            "customer@techfix.com"
                     );
+
 
             request.getCustomer()
                     .setPhone(
@@ -360,9 +897,9 @@ public class PaymentActivity extends AppCompatActivity {
                     );
 
 
-            // -------------------------------------------------
-            // CUSTOMER ADDRESS
-            // -------------------------------------------------
+            // =================================================
+            // ADDRESS
+            // =================================================
 
             request.getCustomer()
                     .getAddress()
@@ -370,11 +907,13 @@ public class PaymentActivity extends AppCompatActivity {
                             "Colombo"
                     );
 
+
             request.getCustomer()
                     .getAddress()
                     .setCity(
                             "Colombo"
                     );
+
 
             request.getCustomer()
                     .getAddress()
@@ -383,18 +922,61 @@ public class PaymentActivity extends AppCompatActivity {
                     );
 
 
-            // -------------------------------------------------
-            // PAYHERE SANDBOX
-            // -------------------------------------------------
+            // =================================================
+            // IMPORTANT
+            //
+            // Do NOT set local notify URL here.
+            //
+            // PayHere cannot access:
+            // 192.168.8.193
+            //
+            // We will enable notify URL after Railway.
+            // =================================================
+
+
+            // =================================================
+            // SANDBOX
+            // =================================================
 
             PHConfigs.setBaseUrl(
                     PHConfigs.SANDBOX_URL
             );
 
 
-            // -------------------------------------------------
-            // OPEN PAYHERE ACTIVITY
-            // -------------------------------------------------
+            // =================================================
+            // LOG
+            // =================================================
+
+            Log.d(
+                    TAG,
+                    "Opening PayHere"
+            );
+
+
+            Log.d(
+                    TAG,
+                    "Merchant = "
+                            + merchantId
+            );
+
+
+            Log.d(
+                    TAG,
+                    "Order = "
+                            + orderId
+            );
+
+
+            Log.d(
+                    TAG,
+                    "Amount = "
+                            + amount
+            );
+
+
+            // =================================================
+            // INTENT
+            // =================================================
 
             Intent payHereIntent =
                     new Intent(
@@ -402,60 +984,108 @@ public class PaymentActivity extends AppCompatActivity {
                             PHMainActivity.class
                     );
 
+
             payHereIntent.putExtra(
                     PHConstants.INTENT_EXTRA_DATA,
                     request
             );
 
-            Toast.makeText(
-                    this,
-                    "Opening PayHere...",
-                    Toast.LENGTH_SHORT
-            ).show();
 
             payHereLauncher.launch(
                     payHereIntent
             );
 
-        } catch (Exception exception) {
 
-            String message =
-                    exception.getMessage();
+        } catch (
+                Exception exception
+        ) {
 
-            if (message == null) {
-                message = "Unknown PayHere error";
-            }
+            Log.e(
+                    TAG,
+                    "Unable to open PayHere",
+                    exception
+            );
+
 
             showError(
-                    "PayHere Error: " + message
+                    "Unable to open PayHere: "
+                            + exception.getMessage()
             );
         }
     }
 
 
     // =========================================================
-    // PAYMENT COMPLETED
+    // PAYMENT SUCCESS
     // =========================================================
 
-    private void handlePaymentCompleted() {
+    private void handlePaymentSuccess() {
 
-        paymentDAO.updatePaymentStatus(
-                orderId,
-                "SUCCESS",
-                null
-        );
+        // =====================================================
+        // PAYMENT -> SUCCESS
+        // =====================================================
+
+        int paymentRows =
+                paymentDAO.updatePaymentStatus(
+                        orderId,
+                        "SUCCESS",
+                        null
+                );
+
+
+        if (paymentRows <= 0) {
+
+            showError(
+                    "Payment succeeded but local payment update failed"
+            );
+
+            return;
+        }
+
+
+        // =====================================================
+        // REPAIR -> COMPLETED
+        // =====================================================
+
+        boolean repairCompleted =
+                repairDAO.updateRepairStatus(
+                        repairId,
+                        Repair.STATUS_COMPLETED
+                );
+
+
+        if (!repairCompleted) {
+
+            showError(
+                    "Payment succeeded but repair completion failed"
+            );
+
+            return;
+        }
+
+
+        // =====================================================
+        // SUCCESS
+        // =====================================================
 
         txtPaymentStatus.setText(
-                "Sandbox payment completed"
+                "Payment successful"
         );
+
 
         Toast.makeText(
                 this,
-                "Sandbox payment completed",
+                "Payment successful. Repair completed.",
                 Toast.LENGTH_LONG
         ).show();
 
-        btnPayNow.setEnabled(true);
+
+        setResult(
+                RESULT_OK
+        );
+
+
+        finish();
     }
 
 
@@ -471,11 +1101,23 @@ public class PaymentActivity extends AppCompatActivity {
                 null
         );
 
+
+        /*
+         * Repair remains READY_FOR_COLLECTION.
+         *
+         * Customer can retry the payment.
+         */
+
+
         txtPaymentStatus.setText(
                 "Payment cancelled"
         );
 
-        btnPayNow.setEnabled(true);
+
+        btnPayNow.setEnabled(
+                true
+        );
+
 
         Toast.makeText(
                 this,
@@ -486,28 +1128,53 @@ public class PaymentActivity extends AppCompatActivity {
 
 
     // =========================================================
-    // PAYMENT FAILED
+    // READ HTTP RESPONSE
     // =========================================================
 
-    private void handlePaymentFailed() {
+    private String readInputStream(
+            InputStream inputStream
+    ) throws Exception {
 
-        paymentDAO.updatePaymentStatus(
-                orderId,
-                "FAILED",
-                null
-        );
+        if (
+                inputStream == null
+        ) {
 
-        txtPaymentStatus.setText(
-                "Payment failed"
-        );
+            return "";
+        }
 
-        btnPayNow.setEnabled(true);
 
-        Toast.makeText(
-                this,
-                "Payment failed",
-                Toast.LENGTH_LONG
-        ).show();
+        BufferedReader reader =
+                new BufferedReader(
+                        new InputStreamReader(
+                                inputStream,
+                                StandardCharsets.UTF_8
+                        )
+                );
+
+
+        StringBuilder result =
+                new StringBuilder();
+
+
+        String line;
+
+
+        while (
+                (line = reader.readLine())
+                        !=
+                        null
+        ) {
+
+            result.append(
+                    line
+            );
+        }
+
+
+        reader.close();
+
+
+        return result.toString();
     }
 
 
@@ -515,18 +1182,83 @@ public class PaymentActivity extends AppCompatActivity {
     // ERROR
     // =========================================================
 
-    private void showError(String message) {
+    private void showError(
+            String message
+    ) {
+
+        Log.e(
+                TAG,
+                message
+        );
+
 
         txtPaymentStatus.setText(
                 message
         );
 
-        btnPayNow.setEnabled(true);
+
+        btnPayNow.setEnabled(
+                true
+        );
+
 
         Toast.makeText(
                 this,
                 message,
                 Toast.LENGTH_LONG
         ).show();
+    }
+
+
+    // =========================================================
+    // FATAL ERROR
+    // =========================================================
+
+    private void showFatalError(
+            String message
+    ) {
+
+        Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_LONG
+        ).show();
+
+
+        finish();
+    }
+
+
+    // =========================================================
+    // TIMESTAMP
+    // =========================================================
+
+    private String getCurrentTimestamp() {
+
+        return new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.getDefault()
+        ).format(
+                new Date()
+        );
+    }
+
+
+    // =========================================================
+    // CLEANUP
+    // =========================================================
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+
+        if (
+                repairDAO != null
+        ) {
+
+            repairDAO.close();
+        }
     }
 }
