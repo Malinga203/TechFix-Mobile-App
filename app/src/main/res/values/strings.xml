@@ -32,4 +32,6 @@
     <string name="msg_slot_full">This time slot is fully booked. Please pick another.</string>
     <string name="msg_no_services">No services available right now.</string>
     <string name="msg_no_parts">No spare parts available right now.</string>
+
+    <string name="payhere_merchant_id">1237646</string>
 </resources>

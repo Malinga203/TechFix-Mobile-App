@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "techfix.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // =========================================================
     // BRANCH
@@ -90,6 +90,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_APPOINTMENT_DATE = "appointment_date";
     public static final String COLUMN_APPOINTMENT_TIME = "appointment_time";
     public static final String COLUMN_STATUS = "status";
+
+    public static final String TABLE_PAYMENT = "payments";
+
+    public static final String COLUMN_PAYMENT_ID = "payment_id";
+    public static final String COLUMN_PAYMENT_APPOINTMENT_ID = "appointment_id";
+    public static final String COLUMN_PAYMENT_ORDER_ID = "order_id";
+    public static final String COLUMN_PAYMENT_AMOUNT = "amount";
+    public static final String COLUMN_PAYMENT_CURRENCY = "currency";
+    public static final String COLUMN_PAYMENT_STATUS = "payment_status";
+    public static final String COLUMN_PAYMENT_REFERENCE = "payment_reference";
+    public static final String COLUMN_PAYMENT_DATE = "payment_date";
 
     public DatabaseHelper(Context context) {
         super(
@@ -299,6 +310,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                         ")";
 
+        String createPaymentTable =
+                "CREATE TABLE " + TABLE_PAYMENT + " (" +
+
+                        COLUMN_PAYMENT_ID +
+                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
+                        COLUMN_PAYMENT_APPOINTMENT_ID +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_PAYMENT_ORDER_ID +
+                        " TEXT NOT NULL UNIQUE, " +
+
+                        COLUMN_PAYMENT_AMOUNT +
+                        " REAL NOT NULL, " +
+
+                        COLUMN_PAYMENT_CURRENCY +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_PAYMENT_STATUS +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_PAYMENT_REFERENCE +
+                        " TEXT, " +
+
+                        COLUMN_PAYMENT_DATE +
+                        " TEXT NOT NULL, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_PAYMENT_APPOINTMENT_ID +
+                        ") REFERENCES " +
+                        TABLE_APPOINTMENT +
+                        "(" +
+                        COLUMN_APPOINTMENT_ID +
+                        ")" +
+
+                        ")";
+
         db.execSQL(createBranchTable);
 
         db.execSQL(createTechnicianTable);
@@ -310,6 +358,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(createBranchSparePartTable);
 
         db.execSQL(createAppointmentTable);
+
+        db.execSQL(createPaymentTable);
 
         insertInitialBranches(db);
 
@@ -549,6 +599,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int newVersion
     ) {
 
+        db.execSQL(
+                "DROP TABLE IF EXISTS " +
+                        TABLE_PAYMENT
+        );
         db.execSQL(
                 "DROP TABLE IF EXISTS " +
                         TABLE_APPOINTMENT
