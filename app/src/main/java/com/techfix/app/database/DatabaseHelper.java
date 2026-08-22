@@ -22,6 +22,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_LONGITUDE = "longitude";
 
+    public static final String TABLE_REPAIR = "repairs";
+
+    public static final String COLUMN_REPAIR_ID = "repair_id";
+    public static final String COLUMN_APPOINTMENT_ID = "appointment_id";
+    public static final String COLUMN_CUSTOMER_ID = "customer_id";
+    public static final String COLUMN_TECHNICIAN_ID = "technician_id";
+
+    public static final String COLUMN_DEVICE_NAME = "device_name";
+    public static final String COLUMN_SERVICE_NAME = "service_name";
+    public static final String COLUMN_PROBLEM_DESCRIPTION = "problem_description";
+
+    public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_IMAGE_URI = "image_uri";
+
+    public static final String COLUMN_ESTIMATED_COST = "estimated_cost";
+    public static final String COLUMN_FINAL_COST = "final_cost";
+
+    public static final String COLUMN_CREATED_AT = "created_at";
+    public static final String COLUMN_UPDATED_AT = "updated_at";
+    public static final String COLUMN_COMPLETED_AT = "completed_at";
     // =========================================================
     // TECHNICIAN
     // =========================================================
@@ -103,12 +123,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PAYMENT_DATE = "payment_date";
 
     public DatabaseHelper(Context context) {
-        super(
-                context,
-                DATABASE_NAME,
-                null,
-                DATABASE_VERSION
-        );
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -121,7 +136,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        createBranchTable(db);
+        createRepairTable(db);
+    }
 
+    private void createBranchTable(SQLiteDatabase db) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " + TABLE_BRANCH + " (" +
+                        COLUMN_BRANCH_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_BRANCH_NAME + " TEXT NOT NULL, " +
+                        COLUMN_ADDRESS + " TEXT NOT NULL, " +
+                        COLUMN_LATITUDE + " REAL NOT NULL, " +
+                        COLUMN_LONGITUDE + " REAL NOT NULL" +
+                        ")";
+
+        db.execSQL(sql);
+    }
+
+    private void createRepairTable(SQLiteDatabase db) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " + TABLE_REPAIR + " (" +
+                        COLUMN_REPAIR_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        COLUMN_APPOINTMENT_ID + " INTEGER, " +
+                        COLUMN_CUSTOMER_ID + " INTEGER, " +
+                        COLUMN_BRANCH_ID + " INTEGER, " +
+                        COLUMN_TECHNICIAN_ID + " INTEGER, " +
+                        COLUMN_DEVICE_NAME + " TEXT NOT NULL, " +
+                        COLUMN_SERVICE_NAME + " TEXT NOT NULL, " +
+                        COLUMN_PROBLEM_DESCRIPTION + " TEXT, " +
+                        COLUMN_STATUS + " TEXT NOT NULL DEFAULT 'PENDING', " +
+                        COLUMN_IMAGE_URI + " TEXT, " +
+                        COLUMN_ESTIMATED_COST + " REAL NOT NULL DEFAULT 0, " +
+                        COLUMN_FINAL_COST + " REAL NOT NULL DEFAULT 0, " +
+                        COLUMN_CREATED_AT + " TEXT, " +
+                        COLUMN_UPDATED_AT + " TEXT, " +
+                        COLUMN_COMPLETED_AT + " TEXT" +
+                        ")";
+
+        db.execSQL(sql);
         String createBranchTable =
                 "CREATE TABLE " + TABLE_BRANCH + " (" +
                         COLUMN_BRANCH_ID +
@@ -599,6 +653,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int newVersion
     ) {
 
+        // Repair management was introduced with database version 2.
+        if (oldVersion < 2) {
+            createRepairTable(db);
+        }
         db.execSQL(
                 "DROP TABLE IF EXISTS " +
                         TABLE_PAYMENT
