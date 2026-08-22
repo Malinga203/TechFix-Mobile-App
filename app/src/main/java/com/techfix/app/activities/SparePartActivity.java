@@ -26,29 +26,44 @@ public class SparePartActivity extends AppCompatActivity
 
     private RecyclerView recyclerSpareParts;
     private TextView tvNoParts;
+
     private SparePartDAO sparePartDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spare_part);
+
+        setContentView(
+                R.layout.activity_spare_part
+        );
 
         MaterialToolbar toolbar =
-                findViewById(R.id.toolbar_spare_parts);
+                findViewById(
+                        R.id.toolbar_spare_parts
+                );
 
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+            getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
         }
 
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(
+                view -> finish()
+        );
 
         recyclerSpareParts =
-                findViewById(R.id.recycler_spare_parts);
+                findViewById(
+                        R.id.recycler_spare_parts
+                );
 
         tvNoParts =
-                findViewById(R.id.tv_no_parts);
+                findViewById(
+                        R.id.tv_no_parts
+                );
 
         sparePartDAO =
                 new SparePartDAO(this);
@@ -67,25 +82,40 @@ public class SparePartActivity extends AppCompatActivity
 
         if (spareParts.isEmpty()) {
 
-            tvNoParts.setVisibility(View.VISIBLE);
+            tvNoParts.setVisibility(
+                    View.VISIBLE
+            );
 
-            recyclerSpareParts.setVisibility(View.GONE);
+            recyclerSpareParts.setVisibility(
+                    View.GONE
+            );
 
             return;
         }
 
-        tvNoParts.setVisibility(View.GONE);
+        tvNoParts.setVisibility(
+                View.GONE
+        );
 
-        recyclerSpareParts.setVisibility(View.VISIBLE);
+        recyclerSpareParts.setVisibility(
+                View.VISIBLE
+        );
 
         SparePartAdapter adapter =
-                new SparePartAdapter(spareParts, this);
+                new SparePartAdapter(
+                        spareParts,
+                        this
+                );
 
-        recyclerSpareParts.setAdapter(adapter);
+        recyclerSpareParts.setAdapter(
+                adapter
+        );
     }
 
     @Override
-    public void onPartAdd(SparePart sparePart) {
+    public void onPartAdd(
+            SparePart sparePart
+    ) {
 
         Intent resultIntent =
                 new Intent();
@@ -105,7 +135,10 @@ public class SparePartActivity extends AppCompatActivity
                 sparePart.getPrice()
         );
 
-        setResult(RESULT_OK, resultIntent);
+        setResult(
+                RESULT_OK,
+                resultIntent
+        );
 
         finish();
     }

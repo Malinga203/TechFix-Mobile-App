@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp">
+    android:layout_marginStart="6dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginEnd="6dp"
+    android:layout_marginBottom="6dp"
+    app:cardBackgroundColor="@color/techfix_surface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp"
+    app:strokeColor="@color/techfix_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,81 +22,98 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_part_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tv_part_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                tools:text="OLED Display Assembly" />
-
-            <TextView
-                android:id="@+id/tv_part_stock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/status_completed"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:textAppearance="?attr/textAppearanceLabelSmall"
-                android:textColor="@color/white"
-                tools:text="In Stock (12)" />
-
-        </LinearLayout>
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="OLED Display Assembly" />
 
         <TextView
             android:id="@+id/tv_part_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:maxLines="2"
+            android:layout_marginTop="6dp"
             android:ellipsize="end"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:maxLines="2"
             android:textColor="@color/techfix_text_secondary"
+            android:textSize="14sp"
             tools:text="Original quality OLED display with touch digitizer." />
 
         <TextView
             android:id="@+id/tv_part_compatible"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="@color/techfix_text_secondary"
-            android:textStyle="italic"
-            tools:text="Compatible with: iPhone 12, 12 Pro" />
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_specialization_badge"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/techfix_primary_dark"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="Compatible with: iPhone 12, iPhone 12 Pro" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="12dp"
+            android:background="@color/techfix_divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tv_part_price"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/techfix_accent"
-                android:textStyle="bold"
-                tools:text="$89.99" />
+                android:orientation="vertical">
 
-            <Button
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Estimated Part Price"
+                    android:textColor="@color/techfix_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_part_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/techfix_gold"
+                    android:textSize="19sp"
+                    android:textStyle="bold"
+                    tools:text="$89.99" />
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_add_to_booking"
-                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_add" />
+                android:layout_height="48dp"
+                android:text="Select"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/techfix_primary"
+                app:cornerRadius="12dp" />
 
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Availability will be checked at the nearest suitable branch"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="11sp" />
 
     </LinearLayout>
 

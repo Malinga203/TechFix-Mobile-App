@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.techfix.app.R;
@@ -16,10 +15,14 @@ import com.techfix.app.models.SparePart;
 import java.util.List;
 import java.util.Locale;
 
-public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.SparePartViewHolder> {
+public class SparePartAdapter
+        extends RecyclerView.Adapter<SparePartAdapter.SparePartViewHolder> {
 
     public interface OnPartAddListener {
-        void onPartAdd(SparePart sparePart);
+
+        void onPartAdd(
+                SparePart sparePart
+        );
     }
 
     private final List<SparePart> sparePartList;
@@ -29,8 +32,12 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Spar
             List<SparePart> sparePartList,
             OnPartAddListener listener
     ) {
-        this.sparePartList = sparePartList;
-        this.listener = listener;
+
+        this.sparePartList =
+                sparePartList;
+
+        this.listener =
+                listener;
     }
 
     @NonNull
@@ -39,11 +46,19 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Spar
             @NonNull ViewGroup parent,
             int viewType
     ) {
-        View view =
-                LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_spare_part, parent, false);
 
-        return new SparePartViewHolder(view);
+        View view =
+                LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(
+                                R.layout.item_spare_part,
+                                parent,
+                                false
+                        );
+
+        return new SparePartViewHolder(
+                view
+        );
     }
 
     @Override
@@ -55,89 +70,87 @@ public class SparePartAdapter extends RecyclerView.Adapter<SparePartAdapter.Spar
         SparePart sparePart =
                 sparePartList.get(position);
 
-        holder.tvPartName.setText(sparePart.getPartName());
+        holder.tvPartName.setText(
+                sparePart.getPartName()
+        );
 
-        holder.tvPartDescription.setText(sparePart.getDescription());
+        holder.tvPartDescription.setText(
+                sparePart.getDescription()
+        );
 
         holder.tvPartCompatible.setText(
-                holder.itemView.getContext().getString(
-                        R.string.label_compatible_with) + " " +
-                        sparePart.getCompatibleModels()
+                holder.itemView
+                        .getContext()
+                        .getString(
+                                R.string.label_compatible_with
+                        )
+                        + " "
+                        + sparePart.getCompatibleModels()
         );
 
         holder.tvPartPrice.setText(
-                String.format(Locale.US, "$%.2f", sparePart.getPrice())
+                String.format(
+                        Locale.US,
+                        "$%.2f",
+                        sparePart.getPrice()
+                )
         );
 
-        if (sparePart.getStockQuantity() > 0) {
-
-            holder.tvPartStock.setText(
-                    holder.itemView.getContext().getString(
-                            R.string.label_stock) + " (" + sparePart.getStockQuantity() + ")"
-            );
-
-            holder.tvPartStock.setBackgroundColor(
-                    ContextCompat.getColor(
-                            holder.itemView.getContext(),
-                            R.color.status_completed
-                    )
-            );
-
-            holder.btnAddToBooking.setEnabled(true);
-
-        } else {
-
-            holder.tvPartStock.setText(R.string.label_out_of_stock);
-
-            holder.tvPartStock.setBackgroundColor(
-                    ContextCompat.getColor(
-                            holder.itemView.getContext(),
-                            R.color.status_pending
-                    )
-            );
-
-            holder.btnAddToBooking.setEnabled(false);
-        }
-
-        holder.btnAddToBooking.setOnClickListener(v ->
-                listener.onPartAdd(sparePart)
-        );
+        holder.btnAddToBooking
+                .setOnClickListener(
+                        view ->
+                                listener.onPartAdd(
+                                        sparePart
+                                )
+                );
     }
 
     @Override
     public int getItemCount() {
+
         return sparePartList.size();
     }
 
-    static class SparePartViewHolder extends RecyclerView.ViewHolder {
+    static class SparePartViewHolder
+            extends RecyclerView.ViewHolder {
 
         final TextView tvPartName;
         final TextView tvPartDescription;
         final TextView tvPartCompatible;
         final TextView tvPartPrice;
-        final TextView tvPartStock;
+
         final Button btnAddToBooking;
 
-        SparePartViewHolder(@NonNull View itemView) {
+        SparePartViewHolder(
+                @NonNull View itemView
+        ) {
+
             super(itemView);
 
             tvPartName =
-                    itemView.findViewById(R.id.tv_part_name);
+                    itemView.findViewById(
+                            R.id.tv_part_name
+                    );
 
             tvPartDescription =
-                    itemView.findViewById(R.id.tv_part_description);
+                    itemView.findViewById(
+                            R.id.tv_part_description
+                    );
 
             tvPartCompatible =
-                    itemView.findViewById(R.id.tv_part_compatible);
+                    itemView.findViewById(
+                            R.id.tv_part_compatible
+                    );
 
             tvPartPrice =
-                    itemView.findViewById(R.id.tv_part_price);
-
-            tvPartStock =
-                    itemView.findViewById(R.id.tv_part_stock);
+                    itemView.findViewById(
+                            R.id.tv_part_price
+                    );
 
             btnAddToBooking =
-                    itemView.findViewById(R.id.btn_add_to_booking);
+                    itemView.findViewById(
+                            R.id.btn_add_to_booking
+                    );
         }
     }
 }
