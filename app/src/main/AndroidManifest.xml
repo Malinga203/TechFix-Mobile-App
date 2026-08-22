@@ -36,6 +36,9 @@
         <activity
             android:name=".userauthentication.activities.CustomerProfileActivity"
             android:exported="true" />
+        <activity
+            android:name=".userauthentication.activities.AdminLoginActivity"
+            android:exported="true" />
 
         <!-- Main application Activity -->
         <activity

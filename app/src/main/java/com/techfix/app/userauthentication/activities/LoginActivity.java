@@ -21,6 +21,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private Button btnLogin;
     private TextView tvRegister;
+    private TextView tvAdminLogin;
 
     private AuthDatabaseHelper databaseHelper;
     private SessionManager sessionManager;
@@ -39,14 +40,28 @@ public class LoginActivity extends AppCompatActivity {
         sessionManager =
                 new SessionManager(this);
 
-        // LOGIN BUTTON
+        // =====================================================
+        // CUSTOMER LOGIN BUTTON
+        // =====================================================
+
         btnLogin.setOnClickListener(
                 v -> loginUser()
         );
 
+        // =====================================================
         // REGISTER LINK
+        // =====================================================
+
         tvRegister.setOnClickListener(
                 v -> openRegister()
+        );
+
+        // =====================================================
+        // ADMIN LOGIN LINK
+        // =====================================================
+
+        tvAdminLogin.setOnClickListener(
+                v -> openAdminLogin()
         );
     }
 
@@ -67,10 +82,13 @@ public class LoginActivity extends AppCompatActivity {
 
         tvRegister =
                 findViewById(R.id.tvRegister);
+
+        tvAdminLogin =
+                findViewById(R.id.tvAdminLogin);
     }
 
     // =========================================================
-    // LOGIN
+    // CUSTOMER LOGIN
     // =========================================================
 
     private void loginUser() {
@@ -115,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // -----------------------------------------------------
-        // AUTHENTICATE
+        // AUTHENTICATE CUSTOMER
         // -----------------------------------------------------
 
         User user =
@@ -130,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (user != null) {
 
-            // Save session
+            // Save login session
             sessionManager.createLoginSession(user);
 
             Toast.makeText(
@@ -152,13 +170,11 @@ public class LoginActivity extends AppCompatActivity {
             // Prevent returning to login
             finish();
 
-        }
+        } else {
 
-        // -----------------------------------------------------
-        // LOGIN FAILED
-        // -----------------------------------------------------
-
-        else {
+            // -------------------------------------------------
+            // LOGIN FAILED
+            // -------------------------------------------------
 
             Toast.makeText(
                     this,
@@ -178,6 +194,21 @@ public class LoginActivity extends AppCompatActivity {
                 new Intent(
                         LoginActivity.this,
                         RegisterActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+    // =========================================================
+    // OPEN ADMIN LOGIN PAGE
+    // =========================================================
+
+    private void openAdminLogin() {
+
+        Intent intent =
+                new Intent(
+                        LoginActivity.this,
+                        AdminLoginActivity.class
                 );
 
         startActivity(intent);
