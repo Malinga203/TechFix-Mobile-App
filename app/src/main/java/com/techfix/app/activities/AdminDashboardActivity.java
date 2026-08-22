@@ -16,6 +16,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private Button btnManageRepairs;
     private Button btnManageServices;
     private Button btnManageSpareParts;
+
+    // Repair Sample Approval
+    private Button btnApproveRepairSamples;
+
     private Button btnAdminLogout;
 
     @Override
@@ -59,6 +63,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
                         R.id.btnManageSpareParts
                 );
 
+        //Admin repair sample approval button
+        btnApproveRepairSamples =
+                findViewById(
+                        R.id.btnApproveRepairSamples
+                );
+
         btnAdminLogout =
                 findViewById(
                         R.id.btnAdminLogout
@@ -99,6 +109,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 view ->
                         openActivity(
                                 SparePartManagementActivity.class
+                        )
+        );
+
+        // Open pending repair sample approval page
+        btnApproveRepairSamples.setOnClickListener(
+                view ->
+                        openActivity(
+                                AdminSampleApprovalActivity.class
                         )
         );
 

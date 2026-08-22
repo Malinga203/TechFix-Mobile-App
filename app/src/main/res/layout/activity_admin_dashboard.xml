@@ -79,6 +79,14 @@
                     android:textAllCaps="false" />
 
                 <Button
+                    android:id="@+id/btnApproveRepairSamples"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Approve Repair Samples"
+                    android:textAllCaps="false" />
+
+                <Button
                     android:id="@+id/btnManageServices"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
