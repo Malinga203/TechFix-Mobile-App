@@ -240,19 +240,40 @@ public class AppointmentDAO {
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
+        String today =
+                new java.text.SimpleDateFormat(
+                        "yyyy-MM-dd",
+                        java.util.Locale.US
+                ).format(
+                        new java.util.Date()
+                );
+
+        String selection =
+                DatabaseHelper.COLUMN_APPOINTMENT_USER_ID +
+                        " = ? AND " +
+
+                        DatabaseHelper.COLUMN_APPOINTMENT_DATE +
+                        " >= ?";
+
+        String[] selectionArgs = {
+                String.valueOf(userId),
+                today
+        };
+
         Cursor cursor =
                 db.query(
                         DatabaseHelper.TABLE_APPOINTMENT,
                         null,
-                        DatabaseHelper.COLUMN_APPOINTMENT_USER_ID +
-                                " = ?",
-                        new String[]{
-                                String.valueOf(userId)
-                        },
+                        selection,
+                        selectionArgs,
                         null,
                         null,
+
                         DatabaseHelper.COLUMN_APPOINTMENT_DATE +
-                                " DESC"
+                                " ASC, " +
+
+                                DatabaseHelper.COLUMN_APPOINTMENT_TIME +
+                                " ASC"
                 );
 
         while (cursor.moveToNext()) {
@@ -268,7 +289,6 @@ public class AppointmentDAO {
 
         return appointments;
     }
-
     public int getAppointmentCountForSlot(
             String date,
             String time

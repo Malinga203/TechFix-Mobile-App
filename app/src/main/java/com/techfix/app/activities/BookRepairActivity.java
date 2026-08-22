@@ -2,6 +2,7 @@ package com.techfix.app.activities;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -32,8 +33,7 @@ import com.techfix.app.models.Appointment;
 import com.techfix.app.models.Branch;
 import com.techfix.app.models.RepairService;
 import com.techfix.app.services.BranchAssignmentService;
-
-import android.content.Intent;
+import com.techfix.app.userauthentication.utils.SessionManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,6 +85,8 @@ public class BookRepairActivity
     private BranchAssignmentService branchAssignmentService;
 
     private FusedLocationProviderClient fusedLocationClient;
+
+    private SessionManager sessionManager;
 
     private List<RepairService> services;
 
@@ -174,14 +176,16 @@ public class BookRepairActivity
             );
 
 
+    // =========================================================
+    // CREATE
+    // =========================================================
+
     @Override
     protected void onCreate(
             Bundle savedInstanceState
     ) {
 
-        super.onCreate(
-                savedInstanceState
-        );
+        super.onCreate(savedInstanceState);
 
         setContentView(
                 R.layout.activity_book_repair
@@ -222,6 +226,25 @@ public class BookRepairActivity
                         .getFusedLocationProviderClient(
                                 this
                         );
+
+        sessionManager =
+                new SessionManager(this);
+
+        if (
+                !sessionManager.isLoggedIn() ||
+                        sessionManager.getUserId() <= 0
+        ) {
+
+            Toast.makeText(
+                    this,
+                    "Please login before booking an appointment",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+
+            return;
+        }
 
         bindViews();
 
@@ -500,7 +523,11 @@ public class BookRepairActivity
             return;
         }
 
-        for (int i = 0; i < services.size(); i++) {
+        for (
+                int i = 0;
+                i < services.size();
+                i++
+        ) {
 
             if (
                     services.get(i)
@@ -642,7 +669,6 @@ public class BookRepairActivity
             );
         }
 
-
         if (
                 etDeviceModel.getText() == null ||
                         etDeviceModel
@@ -665,7 +691,6 @@ public class BookRepairActivity
                     null
             );
         }
-
 
         if (
                 etIssueDescription.getText() == null ||
@@ -690,7 +715,6 @@ public class BookRepairActivity
             );
         }
 
-
         if (
                 etDate.getText() == null ||
                         etDate
@@ -714,7 +738,6 @@ public class BookRepairActivity
             );
         }
 
-
         if (selectedTime == null) {
 
             tilTime.setError(
@@ -730,7 +753,6 @@ public class BookRepairActivity
                     null
             );
         }
-
 
         return valid;
     }
@@ -870,18 +892,25 @@ public class BookRepairActivity
 
         String message =
                 "Nearest suitable branch:\n\n" +
+
                         selectedBranch
                                 .getBranchName() +
+
                         "\n" +
+
                         selectedBranch
                                 .getAddress() +
+
                         "\n\nDistance: " +
+
                         String.format(
                                 Locale.getDefault(),
                                 "%.2f km",
                                 distance
                         ) +
+
                         "\n\nThis branch has the required technician" +
+
                         (
                                 selectedPartId != -1
                                         ?
@@ -919,6 +948,45 @@ public class BookRepairActivity
 
     private void confirmBooking() {
 
+        if (!validateInputs()) {
+            return;
+        }
+
+        if (selectedBranch == null) {
+
+            Toast.makeText(
+                    this,
+                    "No branch has been assigned",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+
+        // -----------------------------------------------------
+        // GET LOGGED-IN CUSTOMER
+        // -----------------------------------------------------
+
+        int customerId =
+                sessionManager.getUserId();
+
+        if (customerId <= 0) {
+
+            Toast.makeText(
+                    this,
+                    "Customer session not found. Please login again.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+
+        // -----------------------------------------------------
+        // CHECK SLOT
+        // -----------------------------------------------------
+
         int slotBookings =
                 appointmentDAO
                         .getAppointmentCountForSlot(
@@ -949,9 +1017,15 @@ public class BookRepairActivity
             return;
         }
 
+
+        // -----------------------------------------------------
+        // CREATE APPOINTMENT
+        // -----------------------------------------------------
+
         Appointment appointment =
                 new Appointment(
-                        1,
+
+                        customerId,
 
                         selectedService
                                 .getServiceId(),
@@ -982,6 +1056,11 @@ public class BookRepairActivity
 
                         selectedTime
                 );
+
+
+        // -----------------------------------------------------
+        // SAVE
+        // -----------------------------------------------------
 
         long insertedId =
                 appointmentDAO

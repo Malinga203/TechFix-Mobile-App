@@ -6,11 +6,13 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.techfix.app.activities.MyAppointmentsActivity;
 import com.techfix.app.activities.RepairHistoryActivity;
 import com.techfix.app.activities.RepairTrackingActivity;
 import com.techfix.app.activities.ServiceListActivity;
 import com.techfix.app.userauthentication.activities.CustomerProfileActivity;
 import com.techfix.app.userauthentication.activities.LoginActivity;
+import com.techfix.app.userauthentication.models.User;
 import com.techfix.app.userauthentication.utils.SessionManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private SessionManager sessionManager;
 
     private Button btnServices;
+    private Button btnMyAppointments;
     private Button btnRepairTracking;
     private Button btnRepairHistory;
     private Button btnSeeProfile;
@@ -25,17 +28,21 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         sessionManager =
                 new SessionManager(this);
 
-        // Keep existing authentication flow
+        // User must be logged in
         if (!sessionManager.isLoggedIn()) {
-
             openLogin();
+            return;
+        }
 
+        // Only customers should use MainActivity
+        if (!User.ROLE_CUSTOMER.equals(sessionManager.getRole())) {
+            sessionManager.logout();
+            openLogin();
             return;
         }
 
@@ -50,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =========================================================
-    // INITIALIZE
+    // INITIALIZE VIEWS
     // =========================================================
 
     private void initializeViews() {
@@ -58,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
         btnServices =
                 findViewById(
                         R.id.btnServices
+                );
+
+        btnMyAppointments =
+                findViewById(
+                        R.id.btnMyAppointments
                 );
 
         btnRepairTracking =
@@ -83,13 +95,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =========================================================
-    // PAGE NAVIGATION
+    // NAVIGATION
     // =========================================================
 
     private void setupNavigation() {
 
         btnServices.setOnClickListener(
                 view -> openServices()
+        );
+
+        btnMyAppointments.setOnClickListener(
+                view -> openMyAppointments()
         );
 
         btnRepairTracking.setOnClickListener(
@@ -120,6 +136,22 @@ public class MainActivity extends AppCompatActivity {
                 new Intent(
                         MainActivity.this,
                         ServiceListActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+
+    // =========================================================
+    // MY APPOINTMENTS
+    // =========================================================
+
+    private void openMyAppointments() {
+
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        MyAppointmentsActivity.class
                 );
 
         startActivity(intent);
@@ -182,7 +214,20 @@ public class MainActivity extends AppCompatActivity {
 
         sessionManager.logout();
 
-        openLogin();
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        LoginActivity.class
+                );
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+        startActivity(intent);
+
+        finish();
     }
 
 
@@ -197,6 +242,11 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this,
                         LoginActivity.class
                 );
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
 
         startActivity(intent);
 

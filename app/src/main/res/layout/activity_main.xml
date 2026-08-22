@@ -39,6 +39,14 @@
             android:text="Repair Services"
             android:textAllCaps="false" />
 
+        <Button
+            android:id="@+id/btnMyAppointments"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:text="My Appointments"
+            android:textAllCaps="false" />
+
 
         <Button
             android:id="@+id/btnRepairTracking"

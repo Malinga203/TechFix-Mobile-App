@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/techfix_surface"
+    app:cardCornerRadius="16dp"
+    app:strokeColor="@color/techfix_border"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtAppointmentId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Appointment #1"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtAppointmentCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Code: TF-APT-000001"
+            android:textColor="@color/techfix_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtAppointmentDevice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Device: iPhone 13"
+            android:textColor="@color/techfix_text_primary" />
+
+        <TextView
+            android:id="@+id/txtAppointmentDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Date: 25 Aug 2026"
+            android:textColor="@color/techfix_text_secondary" />
+
+        <TextView
+            android:id="@+id/txtAppointmentTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Time: 10:30 AM"
+            android:textColor="@color/techfix_text_secondary" />
+
+        <TextView
+            android:id="@+id/txtAppointmentStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Status: PENDING"
+            android:textColor="@color/techfix_olive"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

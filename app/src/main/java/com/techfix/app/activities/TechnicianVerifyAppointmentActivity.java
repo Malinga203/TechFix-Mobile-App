@@ -12,34 +12,46 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.techfix.app.R;
 import com.techfix.app.database.AppointmentDAO;
+import com.techfix.app.database.BranchDao;
 import com.techfix.app.database.RepairDAO;
 import com.techfix.app.database.ServiceDAO;
 import com.techfix.app.models.Appointment;
+import com.techfix.app.models.Branch;
 import com.techfix.app.models.Repair;
 import com.techfix.app.models.RepairService;
+import com.techfix.app.userauthentication.utils.SessionManager;
+
+import java.util.Locale;
 
 public class TechnicianVerifyAppointmentActivity
         extends AppCompatActivity {
 
     private EditText edtAppointmentCode;
 
-    private Button btnVerifyCode;
-    private Button btnAcceptRepair;
+    private Button btnVerifyAppointmentCode;
+    private Button btnAcceptAsRepair;
 
     private LinearLayout layoutAppointmentDetails;
 
-    private TextView txtAppointmentCustomer;
-    private TextView txtAppointmentDevice;
-    private TextView txtAppointmentService;
-    private TextView txtAppointmentIssue;
-    private TextView txtAppointmentDateTime;
+    private TextView txtVerificationStatus;
+    private TextView txtVerifiedCode;
+    private TextView txtVerifiedCustomer;
+    private TextView txtVerifiedDevice;
+    private TextView txtVerifiedService;
+    private TextView txtVerifiedIssue;
+    private TextView txtVerifiedDate;
+    private TextView txtVerifiedBranch;
 
     private AppointmentDAO appointmentDAO;
     private RepairDAO repairDAO;
     private ServiceDAO serviceDAO;
+    private BranchDao branchDao;
+
+    private SessionManager sessionManager;
 
     private Appointment verifiedAppointment;
     private RepairService verifiedService;
+    private Branch verifiedBranch;
 
     private int technicianId;
 
@@ -54,11 +66,33 @@ public class TechnicianVerifyAppointmentActivity
                 R.layout.activity_technician_verify_appointment
         );
 
+        sessionManager =
+                new SessionManager(this);
+
         technicianId =
-                getIntent().getIntExtra(
-                        TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
-                        1
-                );
+                sessionManager.getTechnicianId();
+
+        if (technicianId <= 0) {
+
+            technicianId =
+                    getIntent().getIntExtra(
+                            TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
+                            -1
+                    );
+        }
+
+        if (technicianId <= 0) {
+
+            Toast.makeText(
+                    this,
+                    "Technician session not found",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+
+            return;
+        }
 
         appointmentDAO =
                 new AppointmentDAO(this);
@@ -69,19 +103,35 @@ public class TechnicianVerifyAppointmentActivity
         serviceDAO =
                 new ServiceDAO(this);
 
+        branchDao =
+                new BranchDao(this);
+
+        bindViews();
+
+        btnVerifyAppointmentCode.setOnClickListener(
+                view -> verifyAppointment()
+        );
+
+        btnAcceptAsRepair.setOnClickListener(
+                view -> acceptAppointmentAsRepair()
+        );
+    }
+
+    private void bindViews() {
+
         edtAppointmentCode =
                 findViewById(
                         R.id.edtAppointmentCode
                 );
 
-        btnVerifyCode =
+        btnVerifyAppointmentCode =
                 findViewById(
-                        R.id.btnVerifyCode
+                        R.id.btnVerifyAppointmentCode
                 );
 
-        btnAcceptRepair =
+        btnAcceptAsRepair =
                 findViewById(
-                        R.id.btnAcceptRepair
+                        R.id.btnAcceptAsRepair
                 );
 
         layoutAppointmentDetails =
@@ -89,71 +139,206 @@ public class TechnicianVerifyAppointmentActivity
                         R.id.layoutAppointmentDetails
                 );
 
-        txtAppointmentCustomer =
+        txtVerificationStatus =
                 findViewById(
-                        R.id.txtAppointmentCustomer
+                        R.id.txtVerificationStatus
                 );
 
-        txtAppointmentDevice =
+        txtVerifiedCode =
                 findViewById(
-                        R.id.txtAppointmentDevice
+                        R.id.txtVerifiedCode
                 );
 
-        txtAppointmentService =
+        txtVerifiedCustomer =
                 findViewById(
-                        R.id.txtAppointmentService
+                        R.id.txtVerifiedCustomer
                 );
 
-        txtAppointmentIssue =
+        txtVerifiedDevice =
                 findViewById(
-                        R.id.txtAppointmentIssue
+                        R.id.txtVerifiedDevice
                 );
 
-        txtAppointmentDateTime =
+        txtVerifiedService =
                 findViewById(
-                        R.id.txtAppointmentDateTime
+                        R.id.txtVerifiedService
                 );
 
-        btnVerifyCode.setOnClickListener(
-                view -> verifyAppointment()
-        );
+        txtVerifiedIssue =
+                findViewById(
+                        R.id.txtVerifiedIssue
+                );
 
-        btnAcceptRepair.setOnClickListener(
-                view -> acceptAsRepair()
-        );
+        txtVerifiedDate =
+                findViewById(
+                        R.id.txtVerifiedDate
+                );
+
+        txtVerifiedBranch =
+                findViewById(
+                        R.id.txtVerifiedBranch
+                );
     }
 
     private void verifyAppointment() {
+
+        layoutAppointmentDetails.setVisibility(
+                View.GONE
+        );
+
+        verifiedAppointment = null;
+        verifiedService = null;
+        verifiedBranch = null;
 
         String code =
                 edtAppointmentCode
                         .getText()
                         .toString()
-                        .trim();
+                        .trim()
+                        .toUpperCase(
+                                Locale.US
+                        );
 
         if (code.isEmpty()) {
 
             edtAppointmentCode.setError(
-                    "Appointment code is required"
+                    "Enter appointment code"
             );
 
             return;
         }
 
-        verifiedAppointment =
+        Appointment appointment =
                 appointmentDAO.getAppointmentByCode(
                         code
                 );
 
-        if (verifiedAppointment == null) {
-
-            layoutAppointmentDetails.setVisibility(
-                    View.GONE
-            );
+        if (appointment == null) {
 
             Toast.makeText(
                     this,
                     "Invalid appointment code",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        Repair existingRepair =
+                repairDAO.getRepairByAppointmentId(
+                        appointment.getAppointmentId()
+                );
+
+        if (existingRepair != null) {
+
+            Toast.makeText(
+                    this,
+                    "This appointment has already been accepted as a repair",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        if (
+                "ACCEPTED".equalsIgnoreCase(
+                        appointment.getStatus()
+                )
+        ) {
+
+            Toast.makeText(
+                    this,
+                    "This appointment has already been accepted",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        verifiedAppointment =
+                appointment;
+
+        verifiedService =
+                serviceDAO.getServiceById(
+                        appointment.getServiceId()
+                );
+
+        verifiedBranch =
+                branchDao.getBranchById(
+                        appointment.getBranchId()
+                );
+
+        displayAppointment();
+    }
+
+    private void displayAppointment() {
+
+        txtVerificationStatus.setText(
+                "Valid Appointment"
+        );
+
+        txtVerifiedCode.setText(
+                "Code: " +
+                        verifiedAppointment.getAppointmentCode()
+        );
+
+        txtVerifiedCustomer.setText(
+                "Customer ID: " +
+                        verifiedAppointment.getUserId()
+        );
+
+        txtVerifiedDevice.setText(
+                "Device: " +
+                        verifiedAppointment.getDeviceModel()
+        );
+
+        txtVerifiedService.setText(
+                "Service: " +
+                        (
+                                verifiedService != null
+                                        ?
+                                        verifiedService.getServiceName()
+                                        :
+                                        "Unknown Service"
+                        )
+        );
+
+        txtVerifiedIssue.setText(
+                "Issue: " +
+                        verifiedAppointment.getIssueDescription()
+        );
+
+        txtVerifiedDate.setText(
+                "Appointment: " +
+                        verifiedAppointment.getAppointmentDate() +
+                        " at " +
+                        verifiedAppointment.getAppointmentTime()
+        );
+
+        txtVerifiedBranch.setText(
+                "Branch: " +
+                        (
+                                verifiedBranch != null
+                                        ?
+                                        verifiedBranch.getBranchName()
+                                        :
+                                        "Branch #" +
+                                                verifiedAppointment.getBranchId()
+                        )
+        );
+
+        layoutAppointmentDetails.setVisibility(
+                View.VISIBLE
+        );
+    }
+
+    private void acceptAppointmentAsRepair() {
+
+        if (verifiedAppointment == null) {
+
+            Toast.makeText(
+                    this,
+                    "Verify an appointment first",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -167,70 +352,10 @@ public class TechnicianVerifyAppointmentActivity
 
         if (existingRepair != null) {
 
-            layoutAppointmentDetails.setVisibility(
-                    View.GONE
-            );
-
             Toast.makeText(
                     this,
-                    "This appointment has already been accepted as a repair",
+                    "Repair already exists",
                     Toast.LENGTH_LONG
-            ).show();
-
-            return;
-        }
-
-        verifiedService =
-                serviceDAO.getServiceById(
-                        verifiedAppointment.getServiceId()
-                );
-
-        txtAppointmentCustomer.setText(
-                "Customer ID: " +
-                        verifiedAppointment.getUserId()
-        );
-
-        txtAppointmentDevice.setText(
-                "Device: " +
-                        verifiedAppointment.getDeviceModel()
-        );
-
-        txtAppointmentService.setText(
-                "Service: " +
-                        (
-                                verifiedService != null
-                                        ?
-                                        verifiedService.getServiceName()
-                                        :
-                                        "Unknown"
-                        )
-        );
-
-        txtAppointmentIssue.setText(
-                "Issue: " +
-                        verifiedAppointment.getIssueDescription()
-        );
-
-        txtAppointmentDateTime.setText(
-                "Appointment: " +
-                        verifiedAppointment.getAppointmentDate() +
-                        " " +
-                        verifiedAppointment.getAppointmentTime()
-        );
-
-        layoutAppointmentDetails.setVisibility(
-                View.VISIBLE
-        );
-    }
-
-    private void acceptAsRepair() {
-
-        if (verifiedAppointment == null) {
-
-            Toast.makeText(
-                    this,
-                    "Verify an appointment first",
-                    Toast.LENGTH_SHORT
             ).show();
 
             return;
@@ -263,6 +388,14 @@ public class TechnicianVerifyAppointmentActivity
                 verifiedAppointment.getIssueDescription()
         );
 
+        repair.setStatus(
+                Repair.STATUS_PENDING
+        );
+
+        repair.setFinalCost(
+                0.0
+        );
+
         if (verifiedService != null) {
 
             repair.setServiceName(
@@ -284,40 +417,48 @@ public class TechnicianVerifyAppointmentActivity
             );
         }
 
-        repair.setFinalCost(
-                0.0
-        );
-
-        repair.setStatus(
-                Repair.STATUS_PENDING
-        );
-
         long repairId =
                 repairDAO.insertRepair(
                         repair
                 );
 
-        if (repairId > 0) {
-
-            appointmentDAO.markAppointmentAsAccepted(
-                    verifiedAppointment.getAppointmentId()
-            );
+        if (repairId <= 0) {
 
             Toast.makeText(
                     this,
-                    "Repair created successfully",
+                    "Failed to create repair",
                     Toast.LENGTH_LONG
             ).show();
 
-            finish();
-
-        } else {
-
-            Toast.makeText(
-                    this,
-                    "Unable to create repair",
-                    Toast.LENGTH_LONG
-            ).show();
+            return;
         }
+
+        boolean appointmentUpdated =
+                appointmentDAO
+                        .markAppointmentAsAccepted(
+                                verifiedAppointment
+                                        .getAppointmentId()
+                        );
+
+        if (!appointmentUpdated) {
+
+            Toast.makeText(
+                    this,
+                    "Repair created, but appointment status could not be updated",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        Toast.makeText(
+                this,
+                "Appointment accepted. Repair #" +
+                        repairId +
+                        " created.",
+                Toast.LENGTH_LONG
+        ).show();
+
+        finish();
     }
 }

@@ -4,7 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/techfix_background">
+    android:background="@color/techfix_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,23 +14,32 @@
         android:padding="24dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Verify Appointment"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@color/techfix_text_primary" />
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="27sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Enter the appointment code provided by the customer."
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/edtAppointmentCode"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="26dp"
             android:hint="TF-APT-000001"
-            android:inputType="textCapCharacters" />
+            android:inputType="textCapCharacters"
+            android:singleLine="true" />
 
         <Button
-            android:id="@+id/btnVerifyCode"
+            android:id="@+id/btnVerifyAppointmentCode"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="14dp"
@@ -40,59 +50,87 @@
             android:id="@+id/layoutAppointmentDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
             android:orientation="vertical"
-            android:layout_marginTop="24dp"
             android:visibility="gone">
 
             <TextView
-                android:id="@+id/txtVerificationResult"
-                android:layout_width="wrap_content"
+                android:id="@+id/txtVerificationStatus"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Valid Appointment"
-                android:textStyle="bold"
                 android:textColor="@color/techfix_success"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/txtAppointmentCustomer"
+                android:id="@+id/txtVerifiedCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Customer" />
+                android:layout_marginTop="18dp"
+                android:text="Code:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
 
             <TextView
-                android:id="@+id/txtAppointmentDevice"
+                android:id="@+id/txtVerifiedCustomer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Device" />
+                android:layout_marginTop="10dp"
+                android:text="Customer:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
 
             <TextView
-                android:id="@+id/txtAppointmentService"
+                android:id="@+id/txtVerifiedDevice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Service" />
+                android:layout_marginTop="10dp"
+                android:text="Device:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
 
             <TextView
-                android:id="@+id/txtAppointmentIssue"
+                android:id="@+id/txtVerifiedService"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Issue" />
+                android:layout_marginTop="10dp"
+                android:text="Service:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
 
             <TextView
-                android:id="@+id/txtAppointmentDateTime"
+                android:id="@+id/txtVerifiedIssue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Date" />
+                android:layout_marginTop="10dp"
+                android:text="Issue:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txtVerifiedDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Appointment:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txtVerifiedBranch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Branch:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
 
             <Button
-                android:id="@+id/btnAcceptRepair"
+                android:id="@+id/btnAcceptAsRepair"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="22dp"
+                android:layout_marginTop="24dp"
                 android:text="Accept as Repair"
                 android:textAllCaps="false" />
 

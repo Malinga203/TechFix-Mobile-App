@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/techfix_background"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Appointments"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/techfix_text_primary"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/txtNoAppointments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You have no appointments yet."
+        android:textColor="@color/techfix_text_secondary"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerAppointments"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

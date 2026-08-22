@@ -14,25 +14,27 @@
 
         <TextView
             android:id="@+id/txtTechnicianWelcome"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Technician Dashboard"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/techfix_text_primary" />
+            android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/txtTechnicianInfo"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manage appointments and repair progress"
-            android:textColor="@color/techfix_text_secondary"
             android:layout_marginTop="6dp"
-            android:layout_marginBottom="24dp" />
+            android:text="Manage your assigned repairs"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnVerifyAppointment"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginTop="32dp"
             android:text="Verify Appointment"
             android:textAllCaps="false" />
 
@@ -56,7 +58,7 @@
             android:id="@+id/btnTechnicianLogout"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="30dp"
             android:text="Logout"
             android:textAllCaps="false" />
 

@@ -15,11 +15,21 @@ public class BranchDao {
     private final DatabaseHelper databaseHelper;
 
     public BranchDao(Context context) {
+
         databaseHelper =
-                new DatabaseHelper(context);
+                new DatabaseHelper(
+                        context.getApplicationContext()
+                );
     }
 
-    public long insertBranch(Branch branch) {
+
+    // =========================================================
+    // INSERT BRANCH
+    // =========================================================
+
+    public long insertBranch(
+            Branch branch
+    ) {
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
@@ -54,6 +64,11 @@ public class BranchDao {
         );
     }
 
+
+    // =========================================================
+    // GET ALL BRANCHES
+    // =========================================================
+
     public List<Branch> getAllBranches() {
 
         List<Branch> branches =
@@ -62,75 +77,106 @@ public class BranchDao {
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(
-                DatabaseHelper.TABLE_BRANCH,
-                null,
-                null,
-                null,
-                null,
-                null,
-                DatabaseHelper.COLUMN_BRANCH_NAME + " ASC"
-        );
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_BRANCH,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        DatabaseHelper.COLUMN_BRANCH_NAME +
+                                " ASC"
+                );
 
-        if (cursor.moveToFirst()) {
+        try {
 
-            do {
+            while (cursor.moveToNext()) {
 
-                int branchId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(
-                                        DatabaseHelper.COLUMN_BRANCH_ID
-                                )
-                        );
+                branches.add(
+                        createBranchFromCursor(
+                                cursor
+                        )
+                );
+            }
 
-                String branchName =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        DatabaseHelper.COLUMN_BRANCH_NAME
-                                )
-                        );
+        } finally {
 
-                String address =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        DatabaseHelper.COLUMN_ADDRESS
-                                )
-                        );
-
-                double latitude =
-                        cursor.getDouble(
-                                cursor.getColumnIndexOrThrow(
-                                        DatabaseHelper.COLUMN_LATITUDE
-                                )
-                        );
-
-                double longitude =
-                        cursor.getDouble(
-                                cursor.getColumnIndexOrThrow(
-                                        DatabaseHelper.COLUMN_LONGITUDE
-                                )
-                        );
-
-                Branch branch =
-                        new Branch(
-                                branchId,
-                                branchName,
-                                address,
-                                latitude,
-                                longitude
-                        );
-
-                branches.add(branch);
-
-            } while (cursor.moveToNext());
+            cursor.close();
         }
-
-        cursor.close();
 
         return branches;
     }
 
-    public int updateBranch(Branch branch) {
+
+    // =========================================================
+    // GET BRANCH BY ID
+    // =========================================================
+
+    public Branch getBranchById(
+            int branchId
+    ) {
+
+        if (branchId <= 0) {
+            return null;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_BRANCH,
+                        null,
+
+                        DatabaseHelper.COLUMN_BRANCH_ID +
+                                " = ?",
+
+                        new String[]{
+                                String.valueOf(
+                                        branchId
+                                )
+                        },
+
+                        null,
+                        null,
+                        null,
+                        "1"
+                );
+
+        try {
+
+            if (cursor.moveToFirst()) {
+
+                return createBranchFromCursor(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return null;
+    }
+
+
+    // =========================================================
+    // UPDATE BRANCH
+    // =========================================================
+
+    public int updateBranch(
+            Branch branch
+    ) {
+
+        if (
+                branch == null ||
+                        branch.getBranchId() <= 0
+        ) {
+
+            return 0;
+        }
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
@@ -161,7 +207,10 @@ public class BranchDao {
         return db.update(
                 DatabaseHelper.TABLE_BRANCH,
                 values,
-                DatabaseHelper.COLUMN_BRANCH_ID + " = ?",
+
+                DatabaseHelper.COLUMN_BRANCH_ID +
+                        " = ?",
+
                 new String[]{
                         String.valueOf(
                                 branch.getBranchId()
@@ -170,17 +219,96 @@ public class BranchDao {
         );
     }
 
-    public int deleteBranch(int branchId) {
+
+    // =========================================================
+    // DELETE BRANCH
+    // =========================================================
+
+    public int deleteBranch(
+            int branchId
+    ) {
+
+        if (branchId <= 0) {
+            return 0;
+        }
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
 
         return db.delete(
                 DatabaseHelper.TABLE_BRANCH,
-                DatabaseHelper.COLUMN_BRANCH_ID + " = ?",
+
+                DatabaseHelper.COLUMN_BRANCH_ID +
+                        " = ?",
+
                 new String[]{
-                        String.valueOf(branchId)
+                        String.valueOf(
+                                branchId
+                        )
                 }
         );
+    }
+
+
+    // =========================================================
+    // CURSOR -> BRANCH
+    // =========================================================
+
+    private Branch createBranchFromCursor(
+            Cursor cursor
+    ) {
+
+        int branchId =
+                cursor.getInt(
+                        cursor.getColumnIndexOrThrow(
+                                DatabaseHelper.COLUMN_BRANCH_ID
+                        )
+                );
+
+        String branchName =
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                                DatabaseHelper.COLUMN_BRANCH_NAME
+                        )
+                );
+
+        String address =
+                cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                                DatabaseHelper.COLUMN_ADDRESS
+                        )
+                );
+
+        double latitude =
+                cursor.getDouble(
+                        cursor.getColumnIndexOrThrow(
+                                DatabaseHelper.COLUMN_LATITUDE
+                        )
+                );
+
+        double longitude =
+                cursor.getDouble(
+                        cursor.getColumnIndexOrThrow(
+                                DatabaseHelper.COLUMN_LONGITUDE
+                        )
+                );
+
+        return new Branch(
+                branchId,
+                branchName,
+                address,
+                latitude,
+                longitude
+        );
+    }
+
+
+    // =========================================================
+    // CLOSE
+    // =========================================================
+
+    public void close() {
+
+        databaseHelper.close();
     }
 }
