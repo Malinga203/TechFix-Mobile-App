@@ -1,8 +1,10 @@
 package com.techfix.app.userauthentication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,11 +22,13 @@ public class CustomerProfileActivity
     private EditText etPhone;
 
     private Button btnSaveProfile;
+    private Button btnChangePassword;
+    private Button btnProfileLogout;
+
+    private TextView tvBack;
 
     private UserDao userDao;
-
     private SessionManager sessionManager;
-
 
     @Override
     protected void onCreate(
@@ -45,17 +49,17 @@ public class CustomerProfileActivity
 
         etName =
                 findViewById(
-                        R.id.etName
+                        R.id.etProfileName
                 );
 
         etEmail =
                 findViewById(
-                        R.id.etEmail
+                        R.id.etProfileEmail
                 );
 
         etPhone =
                 findViewById(
-                        R.id.etPhone
+                        R.id.etProfilePhone
                 );
 
         btnSaveProfile =
@@ -63,13 +67,48 @@ public class CustomerProfileActivity
                         R.id.btnSaveProfile
                 );
 
+        btnChangePassword =
+                findViewById(
+                        R.id.btnChangePassword
+                );
+
+        btnProfileLogout =
+                findViewById(
+                        R.id.btnProfileLogout
+                );
+
+        tvBack =
+                findViewById(
+                        R.id.tvBack
+                );
+
         loadProfile();
+
+        tvBack.setOnClickListener(
+                view -> finish()
+        );
 
         btnSaveProfile.setOnClickListener(
                 view -> saveProfile()
         );
-    }
 
+        btnChangePassword.setOnClickListener(
+                view -> {
+
+                    Intent intent =
+                            new Intent(
+                                    CustomerProfileActivity.this,
+                                    ChangePasswordActivity.class
+                            );
+
+                    startActivity(intent);
+                }
+        );
+
+        btnProfileLogout.setOnClickListener(
+                view -> logout()
+        );
+    }
 
     private void loadProfile() {
 
@@ -80,8 +119,13 @@ public class CustomerProfileActivity
 
         if (user == null) {
 
-            finish();
+            Toast.makeText(
+                    this,
+                    "Unable to load profile",
+                    Toast.LENGTH_SHORT
+            ).show();
 
+            finish();
             return;
         }
 
@@ -102,7 +146,6 @@ public class CustomerProfileActivity
         );
     }
 
-
     private void saveProfile() {
 
         String name =
@@ -117,6 +160,24 @@ public class CustomerProfileActivity
                         .toString()
                         .trim();
 
+        if (name.isEmpty()) {
+
+            etName.setError(
+                    "Name is required"
+            );
+
+            return;
+        }
+
+        if (phone.isEmpty()) {
+
+            etPhone.setError(
+                    "Phone number is required"
+            );
+
+            return;
+        }
+
         boolean updated =
                 userDao.updateUserProfile(
                         sessionManager.getUserId(),
@@ -126,12 +187,30 @@ public class CustomerProfileActivity
 
         Toast.makeText(
                 this,
-
                 updated
                         ? "Profile updated"
                         : "Profile update failed",
-
                 Toast.LENGTH_SHORT
         ).show();
+    }
+
+    private void logout() {
+
+        sessionManager.logout();
+
+        Intent intent =
+                new Intent(
+                        this,
+                        LoginActivity.class
+                );
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+        startActivity(intent);
+
+        finish();
     }
 }

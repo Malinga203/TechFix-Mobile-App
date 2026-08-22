@@ -10,11 +10,13 @@ import com.techfix.app.activities.CustomerPaymentsActivity;
 import com.techfix.app.activities.MyAppointmentsActivity;
 import com.techfix.app.activities.RepairHistoryActivity;
 import com.techfix.app.activities.RepairTrackingActivity;
+import com.techfix.app.activities.SampleRepairsActivity;
 import com.techfix.app.activities.ServiceListActivity;
-import com.techfix.app.userauthentication.activities.CustomerProfileActivity;
 import com.techfix.app.userauthentication.activities.LoginActivity;
 import com.techfix.app.userauthentication.models.User;
 import com.techfix.app.userauthentication.utils.SessionManager;
+import com.techfix.app.userauthentication.activities.CustomerProfileActivity;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,62 +27,41 @@ public class MainActivity extends AppCompatActivity {
     private Button btnRepairTracking;
     private Button btnRepairHistory;
     private Button btnPayments;
+    private Button btnSampleRepairs;
     private Button btnSeeProfile;
     private Button btnLogout;
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(
+            Bundle savedInstanceState
+    ) {
+
         super.onCreate(savedInstanceState);
 
         sessionManager =
                 new SessionManager(this);
 
-        // =====================================================
-        // CHECK LOGIN
-        // =====================================================
-
         if (!sessionManager.isLoggedIn()) {
-
             openLogin();
-
             return;
         }
 
-        // =====================================================
-        // CHECK CUSTOMER ROLE
-        // =====================================================
-
-        if (
-                !User.ROLE_CUSTOMER.equals(
-                        sessionManager.getRole()
-                )
-        ) {
+        if (!User.ROLE_CUSTOMER.equals(
+                sessionManager.getRole()
+        )) {
 
             sessionManager.logout();
-
             openLogin();
-
             return;
         }
-
-        // =====================================================
-        // LOAD CUSTOMER DASHBOARD
-        // =====================================================
 
         setContentView(
                 R.layout.activity_main
         );
 
         initializeViews();
-
         setupNavigation();
     }
-
-
-    // =========================================================
-    // INITIALIZE VIEWS
-    // =========================================================
 
     private void initializeViews() {
 
@@ -109,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
                         R.id.btnPayments
                 );
 
+        btnSampleRepairs =
+                findViewById(
+                        R.id.btnSampleRepairs
+                );
+
         btnSeeProfile =
                 findViewById(
                         R.id.btnSeeProfile
@@ -119,11 +105,6 @@ public class MainActivity extends AppCompatActivity {
                         R.id.btnLogout
                 );
     }
-
-
-    // =========================================================
-    // SETUP NAVIGATION
-    // =========================================================
 
     private void setupNavigation() {
 
@@ -147,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
                 view -> openPayments()
         );
 
+        btnSampleRepairs.setOnClickListener(
+                view -> openSampleRepairs()
+        );
+
         btnSeeProfile.setOnClickListener(
                 view -> openProfile()
         );
@@ -155,11 +140,6 @@ public class MainActivity extends AppCompatActivity {
                 view -> logoutUser()
         );
     }
-
-
-    // =========================================================
-    // SERVICES
-    // =========================================================
 
     private void openServices() {
 
@@ -172,11 +152,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-    // =========================================================
-    // MY APPOINTMENTS
-    // =========================================================
-
     private void openMyAppointments() {
 
         Intent intent =
@@ -187,11 +162,6 @@ public class MainActivity extends AppCompatActivity {
 
         startActivity(intent);
     }
-
-
-    // =========================================================
-    // REPAIR TRACKING
-    // =========================================================
 
     private void openRepairTracking() {
 
@@ -204,11 +174,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-    // =========================================================
-    // REPAIR HISTORY
-    // =========================================================
-
     private void openRepairHistory() {
 
         Intent intent =
@@ -219,11 +184,6 @@ public class MainActivity extends AppCompatActivity {
 
         startActivity(intent);
     }
-
-
-    // =========================================================
-    // PAYMENTS
-    // =========================================================
 
     private void openPayments() {
 
@@ -236,10 +196,16 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void openSampleRepairs() {
 
-    // =========================================================
-    // PROFILE
-    // =========================================================
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        SampleRepairsActivity.class
+                );
+
+        startActivity(intent);
+    }
 
     private void openProfile() {
 
@@ -251,11 +217,6 @@ public class MainActivity extends AppCompatActivity {
 
         startActivity(intent);
     }
-
-
-    // =========================================================
-    // LOGOUT
-    // =========================================================
 
     private void logoutUser() {
 
@@ -273,14 +234,8 @@ public class MainActivity extends AppCompatActivity {
         );
 
         startActivity(intent);
-
         finish();
     }
-
-
-    // =========================================================
-    // OPEN LOGIN
-    // =========================================================
 
     private void openLogin() {
 
@@ -296,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
         );
 
         startActivity(intent);
-
         finish();
     }
 }

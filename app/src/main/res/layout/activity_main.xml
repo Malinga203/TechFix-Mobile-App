@@ -84,10 +84,19 @@
 
 
         <Button
+            android:id="@+id/btnSampleRepairs"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:text="View Sample Repairs"
+            android:textAllCaps="false" />
+
+        <Button
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="28dp"
+            android:layout_marginBottom="24dp"
             android:text="Logout"
             android:textAllCaps="false" />
 
