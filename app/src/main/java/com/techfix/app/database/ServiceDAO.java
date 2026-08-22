@@ -1,5 +1,6 @@
 package com.techfix.app.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,9 +15,68 @@ public class ServiceDAO {
     private final DatabaseHelper databaseHelper;
 
     public ServiceDAO(Context context) {
+
         databaseHelper =
-                new DatabaseHelper(context);
+                new DatabaseHelper(
+                        context.getApplicationContext()
+                );
     }
+
+
+    // =========================================================
+    // INSERT SERVICE
+    // =========================================================
+
+    public long insertService(
+            RepairService service
+    ) {
+
+        if (service == null) {
+            return -1;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_SERVICE_NAME,
+                service.getServiceName()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_DESCRIPTION,
+                service.getDescription()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_PRICE,
+                service.getPrice()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_DURATION_MINUTES,
+                service.getDurationMinutes()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_CATEGORY,
+                service.getCategory()
+        );
+
+        return db.insert(
+                DatabaseHelper.TABLE_SERVICE,
+                null,
+                values
+        );
+    }
+
+
+    // =========================================================
+    // GET ALL SERVICES
+    // =========================================================
 
     public List<RepairService> getAllServices() {
 
@@ -26,59 +86,246 @@ public class ServiceDAO {
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(
-                DatabaseHelper.TABLE_SERVICE,
-                null,
-                null,
-                null,
-                null,
-                null,
-                DatabaseHelper.COLUMN_SERVICE_NAME + " ASC"
-        );
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_SERVICE,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        DatabaseHelper.COLUMN_SERVICE_NAME +
+                                " ASC"
+                );
 
-        if (cursor.moveToFirst()) {
+        try {
 
-            do {
+            while (
+                    cursor.moveToNext()
+            ) {
 
-                RepairService service = mapCursorToService(cursor);
+                services.add(
+                        mapCursorToService(
+                                cursor
+                        )
+                );
+            }
 
-                services.add(service);
+        } finally {
 
-            } while (cursor.moveToNext());
+            cursor.close();
         }
-
-        cursor.close();
 
         return services;
     }
 
-    public RepairService getServiceById(int serviceId) {
+
+    // =========================================================
+    // GET SERVICE BY ID
+    // =========================================================
+
+    public RepairService getServiceById(
+            int serviceId
+    ) {
+
+        if (serviceId <= 0) {
+            return null;
+        }
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(
-                DatabaseHelper.TABLE_SERVICE,
-                null,
-                DatabaseHelper.COLUMN_SERVICE_ID + " = ?",
-                new String[]{String.valueOf(serviceId)},
-                null,
-                null,
-                null
-        );
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_SERVICE,
+                        null,
 
-        RepairService service = null;
+                        DatabaseHelper.COLUMN_SERVICE_ID +
+                                " = ?",
 
-        if (cursor.moveToFirst()) {
-            service = mapCursorToService(cursor);
+                        new String[]{
+                                String.valueOf(
+                                        serviceId
+                                )
+                        },
+
+                        null,
+                        null,
+                        null,
+                        "1"
+                );
+
+        try {
+
+            if (
+                    cursor.moveToFirst()
+            ) {
+
+                return mapCursorToService(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
         }
 
-        cursor.close();
-
-        return service;
+        return null;
     }
 
-    private RepairService mapCursorToService(Cursor cursor) {
+
+    // =========================================================
+    // UPDATE SERVICE
+    // =========================================================
+
+    public int updateService(
+            RepairService service
+    ) {
+
+        if (
+                service == null ||
+                        service.getServiceId() <= 0
+        ) {
+
+            return 0;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_SERVICE_NAME,
+                service.getServiceName()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_DESCRIPTION,
+                service.getDescription()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_PRICE,
+                service.getPrice()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_DURATION_MINUTES,
+                service.getDurationMinutes()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_CATEGORY,
+                service.getCategory()
+        );
+
+        return db.update(
+                DatabaseHelper.TABLE_SERVICE,
+                values,
+
+                DatabaseHelper.COLUMN_SERVICE_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                service.getServiceId()
+                        )
+                }
+        );
+    }
+
+
+    // =========================================================
+    // DELETE SERVICE
+    // =========================================================
+
+    public int deleteService(
+            int serviceId
+    ) {
+
+        if (serviceId <= 0) {
+            return 0;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        return db.delete(
+                DatabaseHelper.TABLE_SERVICE,
+
+                DatabaseHelper.COLUMN_SERVICE_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                serviceId
+                        )
+                }
+        );
+    }
+
+
+    // =========================================================
+    // CHECK NAME
+    // =========================================================
+
+    public boolean serviceNameExists(
+            String serviceName
+    ) {
+
+        if (
+                serviceName == null ||
+                        serviceName.trim().isEmpty()
+        ) {
+
+            return false;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_SERVICE,
+
+                        new String[]{
+                                DatabaseHelper.COLUMN_SERVICE_ID
+                        },
+
+                        DatabaseHelper.COLUMN_SERVICE_NAME +
+                                " = ?",
+
+                        new String[]{
+                                serviceName.trim()
+                        },
+
+                        null,
+                        null,
+                        null,
+                        "1"
+                );
+
+        try {
+
+            return cursor.moveToFirst();
+
+        } finally {
+
+            cursor.close();
+        }
+    }
+
+
+    // =========================================================
+    // CURSOR -> SERVICE
+    // =========================================================
+
+    private RepairService mapCursorToService(
+            Cursor cursor
+    ) {
 
         int id =
                 cursor.getInt(
@@ -130,5 +377,15 @@ public class ServiceDAO {
                 duration,
                 category
         );
+    }
+
+
+    // =========================================================
+    // CLOSE
+    // =========================================================
+
+    public void close() {
+
+        databaseHelper.close();
     }
 }

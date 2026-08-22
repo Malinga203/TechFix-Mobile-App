@@ -91,7 +91,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageServices.setOnClickListener(
                 view ->
                         openActivity(
-                                ServiceListActivity.class
+                                ServiceManagementActivity.class
                         )
         );
 
