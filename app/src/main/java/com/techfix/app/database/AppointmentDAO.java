@@ -80,6 +80,20 @@ public class AppointmentDAO {
                 appointment.getAppointmentTime()
         );
 
+        if (
+                appointment.getImageUri() != null
+                        &&
+                        !appointment.getImageUri()
+                                .trim()
+                                .isEmpty()
+        ) {
+
+            values.put(
+                    DatabaseHelper.COLUMN_APPOINTMENT_IMAGE_URI,
+                    appointment.getImageUri()
+            );
+        }
+
         values.put(
                 DatabaseHelper.COLUMN_STATUS,
                 appointment.getStatus()
@@ -289,6 +303,7 @@ public class AppointmentDAO {
 
         return appointments;
     }
+
     public int getAppointmentCountForSlot(
             String date,
             String time
@@ -427,6 +442,24 @@ public class AppointmentDAO {
                         )
                 )
         );
+
+        int imageIndex =
+                cursor.getColumnIndex(
+                        DatabaseHelper.COLUMN_APPOINTMENT_IMAGE_URI
+                );
+
+        if (
+                imageIndex >= 0
+                        &&
+                        !cursor.isNull(imageIndex)
+        ) {
+
+            appointment.setImageUri(
+                    cursor.getString(
+                            imageIndex
+                    )
+            );
+        }
 
         appointment.setStatus(
                 cursor.getString(

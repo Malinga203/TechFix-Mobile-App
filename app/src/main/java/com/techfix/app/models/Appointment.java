@@ -16,6 +16,8 @@ public class Appointment {
     private String appointmentTime;
     private String status;
 
+    private String imageUri;
+
     public Appointment() {
     }
 
@@ -139,5 +141,15 @@ public class Appointment {
             String status
     ) {
         this.status = status;
+    }
+
+    public String getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(
+            String imageUri
+    ) {
+        this.imageUri = imageUri;
     }
 }

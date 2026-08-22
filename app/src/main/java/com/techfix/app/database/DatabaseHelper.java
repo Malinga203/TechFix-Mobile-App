@@ -2,6 +2,7 @@ package com.techfix.app.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -12,7 +13,7 @@ public class DatabaseHelper
             "techfix.db";
 
     private static final int DATABASE_VERSION =
-            8;
+            11;
 
 
     // =========================================================
@@ -190,6 +191,9 @@ public class DatabaseHelper
     public static final String COLUMN_APPOINTMENT_TIME =
             "appointment_time";
 
+    public static final String COLUMN_APPOINTMENT_IMAGE_URI =
+            "image_uri";
+
     public static final String COLUMN_STATUS =
             "status";
 
@@ -280,6 +284,44 @@ public class DatabaseHelper
 
 
     // =========================================================
+// REPAIR MEDIA
+// =========================================================
+
+    public static final String TABLE_REPAIR_MEDIA =
+            "repair_media";
+
+    public static final String COLUMN_MEDIA_ID =
+            "media_id";
+
+    public static final String COLUMN_MEDIA_REPAIR_ID =
+            "repair_id";
+
+    public static final String COLUMN_MEDIA_TECHNICIAN_ID =
+            "technician_id";
+
+    public static final String COLUMN_MEDIA_IMAGE_URI =
+            "image_uri";
+
+    public static final String COLUMN_MEDIA_CAPTION =
+            "caption";
+
+    public static final String COLUMN_MEDIA_TYPE =
+            "media_type";
+
+    public static final String COLUMN_MEDIA_REPAIR_STAGE =
+            "repair_stage";
+
+    public static final String COLUMN_MEDIA_APPROVAL_STATUS =
+            "approval_status";
+
+    public static final String COLUMN_MEDIA_CREATED_AT =
+            "created_at";
+
+    public static final String COLUMN_MEDIA_APPROVED_AT =
+            "approved_at";
+
+
+    // =========================================================
     // CONSTRUCTOR
     // =========================================================
 
@@ -331,6 +373,8 @@ public class DatabaseHelper
         createPaymentTable(db);
 
         createRepairTable(db);
+
+        createRepairMediaTable(db);
 
         insertInitialBranches(db);
 
@@ -635,6 +679,9 @@ public class DatabaseHelper
                         COLUMN_APPOINTMENT_TIME +
                         " TEXT NOT NULL, " +
 
+                        COLUMN_APPOINTMENT_IMAGE_URI +
+                        " TEXT, " +
+
                         COLUMN_STATUS +
                         " TEXT NOT NULL DEFAULT 'PENDING', " +
 
@@ -814,6 +861,66 @@ public class DatabaseHelper
         db.execSQL(sql);
     }
 
+
+    private void createRepairMediaTable(
+            SQLiteDatabase db
+    ) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " +
+                        TABLE_REPAIR_MEDIA +
+                        " (" +
+
+                        COLUMN_MEDIA_ID +
+                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
+                        COLUMN_MEDIA_REPAIR_ID +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_MEDIA_TECHNICIAN_ID +
+                        " INTEGER, " +
+
+                        COLUMN_MEDIA_IMAGE_URI +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_MEDIA_CAPTION +
+                        " TEXT, " +
+
+                        COLUMN_MEDIA_TYPE +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_MEDIA_REPAIR_STAGE +
+                        " TEXT, " +
+
+                        COLUMN_MEDIA_APPROVAL_STATUS +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_MEDIA_CREATED_AT +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_MEDIA_APPROVED_AT +
+                        " TEXT, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_MEDIA_REPAIR_ID +
+                        ") REFERENCES " +
+                        TABLE_REPAIR +
+                        "(" +
+                        COLUMN_REPAIR_ID +
+                        ") ON DELETE CASCADE, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_MEDIA_TECHNICIAN_ID +
+                        ") REFERENCES " +
+                        TABLE_TECHNICIAN +
+                        "(" +
+                        COLUMN_TECHNICIAN_ID +
+                        ")" +
+
+                        ")";
+
+        db.execSQL(sql);
+    }
 
     // =========================================================
     // ADMIN
@@ -1095,51 +1202,69 @@ public class DatabaseHelper
             int newVersion
     ) {
 
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_PAYMENT
-        );
+        if (oldVersion < 9) {
+            createRepairMediaTable(db);
+        }
 
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_REPAIR
-        );
+        if (oldVersion < 11) {
 
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_APPOINTMENT
-        );
+            if (!columnExists(
+                    db,
+                    TABLE_APPOINTMENT,
+                    COLUMN_APPOINTMENT_IMAGE_URI
+            )) {
 
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_BRANCH_SPARE_PART
-        );
-
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_USERS
-        );
-
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_TECHNICIAN
-        );
-
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_SPARE_PART
-        );
-
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_SERVICE
-        );
-
-        db.execSQL(
-                "DROP TABLE IF EXISTS " +
-                        TABLE_BRANCH
-        );
-
-        onCreate(db);
+                db.execSQL(
+                        "ALTER TABLE " +
+                                TABLE_APPOINTMENT +
+                                " ADD COLUMN " +
+                                COLUMN_APPOINTMENT_IMAGE_URI +
+                                " TEXT"
+                );
+            }
+        }
     }
+
+    private boolean columnExists(
+            SQLiteDatabase db,
+            String tableName,
+            String columnName
+    ) {
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor = db.rawQuery(
+                    "PRAGMA table_info(" +
+                            tableName +
+                            ")",
+                    null
+            );
+
+            int nameIndex =
+                    cursor.getColumnIndex("name");
+
+            while (cursor.moveToNext()) {
+
+                String existingColumn =
+                        cursor.getString(nameIndex);
+
+                if (columnName.equalsIgnoreCase(
+                        existingColumn
+                )) {
+                    return true;
+                }
+            }
+
+            return false;
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
 }
