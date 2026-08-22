@@ -18,12 +18,23 @@ public class RepairDAO {
 
     private final DatabaseHelper databaseHelper;
 
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
+
     public RepairDAO(Context context) {
+
         databaseHelper =
                 new DatabaseHelper(
                         context.getApplicationContext()
                 );
     }
+
+
+    // =========================================================
+    // INSERT REPAIR
+    // =========================================================
 
     public long insertRepair(Repair repair) {
 
@@ -32,24 +43,42 @@ public class RepairDAO {
         }
 
         if (TextUtils.isEmpty(repair.getStatus())) {
-            repair.setStatus(Repair.STATUS_PENDING);
+
+            repair.setStatus(
+                    Repair.STATUS_PENDING
+            );
         }
 
-        String now = getCurrentTimestamp();
+        String now =
+                getCurrentTimestamp();
 
-        if (TextUtils.isEmpty(repair.getCreatedAt())) {
+        if (TextUtils.isEmpty(
+                repair.getCreatedAt()
+        )) {
+
             repair.setCreatedAt(now);
         }
 
-        if (TextUtils.isEmpty(repair.getUpdatedAt())) {
+        if (TextUtils.isEmpty(
+                repair.getUpdatedAt()
+        )) {
+
             repair.setUpdatedAt(now);
         }
 
-        if (Repair.STATUS_COMPLETED.equals(repair.getStatus())
-                && TextUtils.isEmpty(repair.getCompletedAt())) {
+        if (
+                Repair.STATUS_COMPLETED.equals(
+                        repair.getStatus()
+                )
+                        &&
+                        TextUtils.isEmpty(
+                                repair.getCompletedAt()
+                        )
+        ) {
 
             repair.setCompletedAt(now);
         }
+
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
@@ -57,87 +86,120 @@ public class RepairDAO {
         ContentValues values =
                 new ContentValues();
 
+
+        // Appointment ID
         putOptionalLong(
                 values,
-                DatabaseHelper.COLUMN_APPOINTMENT_ID,
+                DatabaseHelper.COLUMN_REPAIR_APPOINTMENT_ID,
                 repair.getAppointmentId()
         );
 
+
+        // Customer ID
         putOptionalLong(
                 values,
-                DatabaseHelper.COLUMN_CUSTOMER_ID,
+                DatabaseHelper.COLUMN_REPAIR_CUSTOMER_ID,
                 repair.getCustomerId()
         );
 
+
+        // Branch ID
         putOptionalLong(
                 values,
-                DatabaseHelper.COLUMN_BRANCH_ID,
+                DatabaseHelper.COLUMN_REPAIR_BRANCH_ID,
                 repair.getBranchId()
         );
 
+
+        // Technician ID
         putOptionalLong(
                 values,
-                DatabaseHelper.COLUMN_TECHNICIAN_ID,
+                DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID,
                 repair.getTechnicianId()
         );
 
+
+        // Device
         values.put(
-                DatabaseHelper.COLUMN_DEVICE_NAME,
+                DatabaseHelper.COLUMN_REPAIR_DEVICE_NAME,
                 repair.getDeviceName().trim()
         );
 
+
+        // Service
         values.put(
-                DatabaseHelper.COLUMN_SERVICE_NAME,
+                DatabaseHelper.COLUMN_REPAIR_SERVICE_NAME,
                 repair.getServiceName().trim()
         );
 
+
+        // Problem description
         values.put(
-                DatabaseHelper.COLUMN_PROBLEM_DESCRIPTION,
+                DatabaseHelper.COLUMN_REPAIR_PROBLEM_DESCRIPTION,
                 safeTrim(
                         repair.getProblemDescription()
                 )
         );
 
+
+        // Status
         values.put(
-                DatabaseHelper.COLUMN_STATUS,
+                DatabaseHelper.COLUMN_REPAIR_STATUS,
                 repair.getStatus()
         );
 
-        if (!TextUtils.isEmpty(repair.getImageUri())) {
+
+        // Image
+        if (!TextUtils.isEmpty(
+                repair.getImageUri()
+        )) {
 
             values.put(
-                    DatabaseHelper.COLUMN_IMAGE_URI,
+                    DatabaseHelper.COLUMN_REPAIR_IMAGE_URI,
                     repair.getImageUri().trim()
             );
         }
 
+
+        // Estimated cost
         values.put(
-                DatabaseHelper.COLUMN_ESTIMATED_COST,
+                DatabaseHelper.COLUMN_REPAIR_ESTIMATED_COST,
                 repair.getEstimatedCost()
         );
 
+
+        // Final cost
         values.put(
-                DatabaseHelper.COLUMN_FINAL_COST,
+                DatabaseHelper.COLUMN_REPAIR_FINAL_COST,
                 repair.getFinalCost()
         );
 
+
+        // Created
         values.put(
-                DatabaseHelper.COLUMN_CREATED_AT,
+                DatabaseHelper.COLUMN_REPAIR_CREATED_AT,
                 repair.getCreatedAt()
         );
 
+
+        // Updated
         values.put(
-                DatabaseHelper.COLUMN_UPDATED_AT,
+                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
                 repair.getUpdatedAt()
         );
 
-        if (!TextUtils.isEmpty(repair.getCompletedAt())) {
+
+        // Completed
+        if (!TextUtils.isEmpty(
+                repair.getCompletedAt()
+        )) {
 
             values.put(
-                    DatabaseHelper.COLUMN_COMPLETED_AT,
+                    DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT,
                     repair.getCompletedAt()
             );
         }
+
 
         return db.insert(
                 DatabaseHelper.TABLE_REPAIR,
@@ -145,6 +207,11 @@ public class RepairDAO {
                 values
         );
     }
+
+
+    // =========================================================
+    // GET ACTIVE REPAIRS
+    // =========================================================
 
     public List<Repair> getActiveRepairs() {
 
@@ -158,13 +225,19 @@ public class RepairDAO {
                 db.query(
                         DatabaseHelper.TABLE_REPAIR,
                         null,
-                        DatabaseHelper.COLUMN_STATUS + " != ?",
+
+                        DatabaseHelper.COLUMN_REPAIR_STATUS +
+                                " != ?",
+
                         new String[]{
                                 Repair.STATUS_COMPLETED
                         },
+
                         null,
                         null,
-                        DatabaseHelper.COLUMN_CREATED_AT + " DESC"
+
+                        DatabaseHelper.COLUMN_REPAIR_CREATED_AT +
+                                " DESC"
                 );
 
         try {
@@ -183,6 +256,11 @@ public class RepairDAO {
 
         return repairs;
     }
+
+
+    // =========================================================
+    // GET REPAIR HISTORY
+    // =========================================================
 
     public List<Repair> getRepairHistory() {
 
@@ -196,13 +274,19 @@ public class RepairDAO {
                 db.query(
                         DatabaseHelper.TABLE_REPAIR,
                         null,
-                        DatabaseHelper.COLUMN_STATUS + " = ?",
+
+                        DatabaseHelper.COLUMN_REPAIR_STATUS +
+                                " = ?",
+
                         new String[]{
                                 Repair.STATUS_COMPLETED
                         },
+
                         null,
                         null,
-                        DatabaseHelper.COLUMN_COMPLETED_AT + " DESC"
+
+                        DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT +
+                                " DESC"
                 );
 
         try {
@@ -222,7 +306,14 @@ public class RepairDAO {
         return repairs;
     }
 
-    public Repair getRepairById(long repairId) {
+
+    // =========================================================
+    // GET REPAIR BY ID
+    // =========================================================
+
+    public Repair getRepairById(
+            long repairId
+    ) {
 
         if (repairId <= 0) {
             return null;
@@ -235,10 +326,14 @@ public class RepairDAO {
                 db.query(
                         DatabaseHelper.TABLE_REPAIR,
                         null,
-                        DatabaseHelper.COLUMN_REPAIR_ID + " = ?",
+
+                        DatabaseHelper.COLUMN_REPAIR_ID +
+                                " = ?",
+
                         new String[]{
                                 String.valueOf(repairId)
                         },
+
                         null,
                         null,
                         null,
@@ -248,7 +343,10 @@ public class RepairDAO {
         try {
 
             if (cursor.moveToFirst()) {
-                return cursorToRepair(cursor);
+
+                return cursorToRepair(
+                        cursor
+                );
             }
 
         } finally {
@@ -259,23 +357,37 @@ public class RepairDAO {
         return null;
     }
 
+
+    // =========================================================
+    // UPDATE REPAIR STATUS
+    // =========================================================
+
     public boolean updateRepairStatus(
             long repairId,
             String newStatus
     ) {
 
-        if (repairId <= 0
-                || !Repair.isValidStatus(newStatus)) {
+        if (
+                repairId <= 0
+                        ||
+                        !Repair.isValidStatus(
+                                newStatus
+                        )
+        ) {
 
             return false;
         }
 
+
         Repair currentRepair =
-                getRepairById(repairId);
+                getRepairById(
+                        repairId
+                );
 
         if (currentRepair == null) {
             return false;
         }
+
 
         if (!Repair.canTransition(
                 currentRepair.getStatus(),
@@ -285,125 +397,201 @@ public class RepairDAO {
             return false;
         }
 
+
         String now =
                 getCurrentTimestamp();
 
         ContentValues values =
                 new ContentValues();
 
+
         values.put(
-                DatabaseHelper.COLUMN_STATUS,
+                DatabaseHelper.COLUMN_REPAIR_STATUS,
                 newStatus
         );
 
+
         values.put(
-                DatabaseHelper.COLUMN_UPDATED_AT,
+                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
                 now
         );
 
-        if (Repair.STATUS_COMPLETED.equals(newStatus)) {
+
+        if (Repair.STATUS_COMPLETED.equals(
+                newStatus
+        )) {
 
             values.put(
-                    DatabaseHelper.COLUMN_COMPLETED_AT,
+                    DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT,
                     now
             );
         }
 
+
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
+
 
         int rows =
                 db.update(
                         DatabaseHelper.TABLE_REPAIR,
                         values,
-                        DatabaseHelper.COLUMN_REPAIR_ID + " = ?",
+
+                        DatabaseHelper.COLUMN_REPAIR_ID +
+                                " = ?",
+
                         new String[]{
-                                String.valueOf(repairId)
+                                String.valueOf(
+                                        repairId
+                                )
                         }
                 );
 
+
         return rows > 0;
     }
+
+
+    // =========================================================
+    // UPDATE REPAIR IMAGE
+    // =========================================================
 
     public boolean updateRepairImageUri(
             long repairId,
             String imageUri
     ) {
 
-        if (repairId <= 0
-                || TextUtils.isEmpty(imageUri)) {
+        if (
+                repairId <= 0
+                        ||
+                        TextUtils.isEmpty(
+                                imageUri
+                        )
+        ) {
 
             return false;
         }
 
+
         ContentValues values =
                 new ContentValues();
 
+
         values.put(
-                DatabaseHelper.COLUMN_IMAGE_URI,
+                DatabaseHelper.COLUMN_REPAIR_IMAGE_URI,
                 imageUri.trim()
         );
 
+
         values.put(
-                DatabaseHelper.COLUMN_UPDATED_AT,
+                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
                 getCurrentTimestamp()
         );
 
+
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
+
 
         int rows =
                 db.update(
                         DatabaseHelper.TABLE_REPAIR,
                         values,
-                        DatabaseHelper.COLUMN_REPAIR_ID + " = ?",
+
+                        DatabaseHelper.COLUMN_REPAIR_ID +
+                                " = ?",
+
                         new String[]{
-                                String.valueOf(repairId)
+                                String.valueOf(
+                                        repairId
+                                )
                         }
                 );
+
 
         return rows > 0;
     }
 
-    private boolean isValidRepair(Repair repair) {
+
+    // =========================================================
+    // VALIDATE REPAIR
+    // =========================================================
+
+    private boolean isValidRepair(
+            Repair repair
+    ) {
 
         if (repair == null) {
             return false;
         }
 
-        if (TextUtils.isEmpty(repair.getDeviceName())
-                || repair.getDeviceName().trim().length() < 2) {
+
+        if (
+                TextUtils.isEmpty(
+                        repair.getDeviceName()
+                )
+                        ||
+                        repair.getDeviceName()
+                                .trim()
+                                .length() < 2
+        ) {
 
             return false;
         }
 
-        if (TextUtils.isEmpty(repair.getServiceName())
-                || repair.getServiceName().trim().length() < 2) {
+
+        if (
+                TextUtils.isEmpty(
+                        repair.getServiceName()
+                )
+                        ||
+                        repair.getServiceName()
+                                .trim()
+                                .length() < 2
+        ) {
 
             return false;
         }
 
-        if (!TextUtils.isEmpty(repair.getProblemDescription())
-                && repair.getProblemDescription()
-                .trim()
-                .length() > 500) {
+
+        if (
+                !TextUtils.isEmpty(
+                        repair.getProblemDescription()
+                )
+                        &&
+                        repair.getProblemDescription()
+                                .trim()
+                                .length() > 500
+        ) {
 
             return false;
         }
 
-        if (!TextUtils.isEmpty(repair.getStatus())
-                && !Repair.isValidStatus(
-                repair.getStatus()
-        )) {
+
+        if (
+                !TextUtils.isEmpty(
+                        repair.getStatus()
+                )
+                        &&
+                        !Repair.isValidStatus(
+                                repair.getStatus()
+                        )
+        ) {
 
             return false;
         }
+
 
         return repair.getEstimatedCost() >= 0
-                && repair.getFinalCost() >= 0;
+                &&
+                repair.getFinalCost() >= 0;
     }
 
-    // Optional IDs remain null until another module assigns them.
+
+    // =========================================================
+    // OPTIONAL LONG
+    // =========================================================
+
     private void putOptionalLong(
             ContentValues values,
             String column,
@@ -411,11 +599,24 @@ public class RepairDAO {
     ) {
 
         if (value > 0) {
-            values.put(column, value);
+
+            values.put(
+                    column,
+                    value
+            );
+
         } else {
-            values.putNull(column);
+
+            values.putNull(
+                    column
+            );
         }
     }
+
+
+    // =========================================================
+    // CURSOR -> REPAIR
+    // =========================================================
 
     private Repair cursorToRepair(
             Cursor cursor
@@ -424,6 +625,8 @@ public class RepairDAO {
         Repair repair =
                 new Repair();
 
+
+        // Repair ID
         repair.setRepairId(
                 cursor.getLong(
                         cursor.getColumnIndexOrThrow(
@@ -432,116 +635,150 @@ public class RepairDAO {
                 )
         );
 
+
+        // Appointment
         repair.setAppointmentId(
                 getNullableLong(
                         cursor,
-                        DatabaseHelper.COLUMN_APPOINTMENT_ID
+                        DatabaseHelper.COLUMN_REPAIR_APPOINTMENT_ID
                 )
         );
 
+
+        // Customer
         repair.setCustomerId(
                 getNullableLong(
                         cursor,
-                        DatabaseHelper.COLUMN_CUSTOMER_ID
+                        DatabaseHelper.COLUMN_REPAIR_CUSTOMER_ID
                 )
         );
 
+
+        // Branch
         repair.setBranchId(
                 getNullableLong(
                         cursor,
-                        DatabaseHelper.COLUMN_BRANCH_ID
+                        DatabaseHelper.COLUMN_REPAIR_BRANCH_ID
                 )
         );
 
+
+        // Technician
         repair.setTechnicianId(
                 getNullableLong(
                         cursor,
-                        DatabaseHelper.COLUMN_TECHNICIAN_ID
+                        DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID
                 )
         );
 
+
+        // Device
         repair.setDeviceName(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_DEVICE_NAME
+                                DatabaseHelper.COLUMN_REPAIR_DEVICE_NAME
                         )
                 )
         );
 
+
+        // Service
         repair.setServiceName(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_SERVICE_NAME
+                                DatabaseHelper.COLUMN_REPAIR_SERVICE_NAME
                         )
                 )
         );
 
+
+        // Problem
         repair.setProblemDescription(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_PROBLEM_DESCRIPTION
+                                DatabaseHelper.COLUMN_REPAIR_PROBLEM_DESCRIPTION
                         )
                 )
         );
 
+
+        // Status
         repair.setStatus(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_STATUS
+                                DatabaseHelper.COLUMN_REPAIR_STATUS
                         )
                 )
         );
 
+
+        // Image
         repair.setImageUri(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_IMAGE_URI
+                                DatabaseHelper.COLUMN_REPAIR_IMAGE_URI
                         )
                 )
         );
 
+
+        // Estimated cost
         repair.setEstimatedCost(
                 cursor.getDouble(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_ESTIMATED_COST
+                                DatabaseHelper.COLUMN_REPAIR_ESTIMATED_COST
                         )
                 )
         );
 
+
+        // Final cost
         repair.setFinalCost(
                 cursor.getDouble(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_FINAL_COST
+                                DatabaseHelper.COLUMN_REPAIR_FINAL_COST
                         )
                 )
         );
 
+
+        // Created
         repair.setCreatedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_CREATED_AT
+                                DatabaseHelper.COLUMN_REPAIR_CREATED_AT
                         )
                 )
         );
 
+
+        // Updated
         repair.setUpdatedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_UPDATED_AT
+                                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT
                         )
                 )
         );
 
+
+        // Completed
         repair.setCompletedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                                DatabaseHelper.COLUMN_COMPLETED_AT
+                                DatabaseHelper.COLUMN_REPAIR_COMPLETED_AT
                         )
                 )
         );
 
+
         return repair;
     }
+
+
+    // =========================================================
+    // NULLABLE LONG
+    // =========================================================
 
     private long getNullableLong(
             Cursor cursor,
@@ -553,27 +790,55 @@ public class RepairDAO {
                         columnName
                 );
 
-        return cursor.isNull(index)
-                ? 0
-                : cursor.getLong(index);
+
+        if (cursor.isNull(index)) {
+            return 0;
+        }
+
+
+        return cursor.getLong(
+                index
+        );
     }
 
-    private String safeTrim(String value) {
 
-        return value == null
-                ? ""
-                : value.trim();
+    // =========================================================
+    // SAFE TRIM
+    // =========================================================
+
+    private String safeTrim(
+            String value
+    ) {
+
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
     }
+
+
+    // =========================================================
+    // CURRENT TIMESTAMP
+    // =========================================================
 
     private String getCurrentTimestamp() {
 
         return new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm",
                 Locale.getDefault()
-        ).format(new Date());
+        ).format(
+                new Date()
+        );
     }
 
+
+    // =========================================================
+    // CLOSE
+    // =========================================================
+
     public void close() {
+
         databaseHelper.close();
     }
 }
