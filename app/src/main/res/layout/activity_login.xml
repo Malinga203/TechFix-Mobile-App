@@ -2,6 +2,7 @@
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_auth"
@@ -55,7 +56,7 @@
 
 
         <!-- ================================================= -->
-        <!-- EMAIL -->
+        <!-- EMAIL LABEL -->
         <!-- ================================================= -->
 
         <TextView
@@ -67,14 +68,23 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
+
+        <!-- ================================================= -->
+        <!-- EMAIL FIELD -->
+        <!-- ================================================= -->
+
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_input"
+            android:gravity="center_vertical"
             android:hint="Enter your email"
+            android:includeFontPadding="false"
             android:inputType="textEmailAddress"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:singleLine="true"
             android:textColor="@color/techfix_text_primary"
             android:textColorHint="@color/techfix_text_soft"
@@ -82,7 +92,7 @@
 
 
         <!-- ================================================= -->
-        <!-- PASSWORD -->
+        <!-- PASSWORD LABEL -->
         <!-- ================================================= -->
 
         <TextView
@@ -94,22 +104,48 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/etPassword"
+
+        <!-- ================================================= -->
+        <!-- PASSWORD FIELD WITH SHOW / HIDE -->
+        <!-- ================================================= -->
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordInputLayout"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_input"
-            android:hint="Enter your password"
-            android:inputType="textPassword"
-            android:singleLine="true"
-            android:textColor="@color/techfix_text_primary"
-            android:textColorHint="@color/techfix_text_soft"
-            android:textSize="16sp" />
+            android:padding="0dp"
+            app:boxBackgroundMode="none"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/techfix_text_secondary"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:hint="Enter your password"
+                android:includeFontPadding="false"
+                android:inputType="textPassword"
+                android:minHeight="56dp"
+                android:paddingStart="16dp"
+                android:paddingTop="0dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="0dp"
+                android:singleLine="true"
+                android:textColor="@color/techfix_text_primary"
+                android:textColorHint="@color/techfix_text_soft"
+                android:textSize="16sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
 
         <!-- ================================================= -->
-        <!-- LOGIN -->
+        <!-- LOGIN BUTTON -->
         <!-- ================================================= -->
 
         <Button
@@ -141,7 +177,7 @@
 
 
         <!-- ================================================= -->
-        <!-- CUSTOMER REGISTRATION -->
+        <!-- REGISTER LINK -->
         <!-- ================================================= -->
 
         <LinearLayout
