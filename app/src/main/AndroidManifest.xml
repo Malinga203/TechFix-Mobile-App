@@ -79,12 +79,7 @@
         <!-- ================================================= -->
         <!-- USER AUTHENTICATION -->
         <!-- ================================================= -->
-
-        <activity
-            android:name=".userauthentication.activities.AuthDatabaseTestActivity"
-            android:exported="false" />
-
-        <activity
+<activity
             android:name=".userauthentication.activities.RegisterActivity"
             android:exported="false" />
 
