@@ -1,14 +1,19 @@
 package com.techfix.app.activities;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import com.techfix.app.R;
 import com.techfix.app.database.AppointmentDAO;
@@ -41,6 +46,10 @@ public class TechnicianVerifyAppointmentActivity
     private TextView txtVerifiedIssue;
     private TextView txtVerifiedDate;
     private TextView txtVerifiedBranch;
+
+    private TextView txtCustomerDevicePhotoLabel;
+    private ImageView imgVerifiedDevicePhoto;
+    private Button btnViewVerifiedDevicePhoto;
 
     private AppointmentDAO appointmentDAO;
     private RepairDAO repairDAO;
@@ -177,6 +186,21 @@ public class TechnicianVerifyAppointmentActivity
         txtVerifiedBranch =
                 findViewById(
                         R.id.txtVerifiedBranch
+                );
+
+        txtCustomerDevicePhotoLabel =
+                findViewById(
+                        R.id.txtCustomerDevicePhotoLabel
+                );
+
+        imgVerifiedDevicePhoto =
+                findViewById(
+                        R.id.imgVerifiedDevicePhoto
+                );
+
+        btnViewVerifiedDevicePhoto =
+                findViewById(
+                        R.id.btnViewVerifiedDevicePhoto
                 );
     }
 
@@ -327,6 +351,63 @@ public class TechnicianVerifyAppointmentActivity
                         )
         );
 
+        String customerImageUri =
+                verifiedAppointment.getImageUri();
+
+        if (!TextUtils.isEmpty(customerImageUri)) {
+
+            txtCustomerDevicePhotoLabel.setVisibility(
+                    View.VISIBLE
+            );
+
+            imgVerifiedDevicePhoto.setVisibility(
+                    View.VISIBLE
+            );
+
+            btnViewVerifiedDevicePhoto.setVisibility(
+                    View.VISIBLE
+            );
+
+            try {
+
+                imgVerifiedDevicePhoto.setImageURI(
+                        Uri.parse(customerImageUri)
+                );
+
+            } catch (Exception ignored) {
+
+                imgVerifiedDevicePhoto.setImageResource(
+                        android.R.drawable.ic_menu_camera
+                );
+            }
+
+            btnViewVerifiedDevicePhoto.setOnClickListener(
+                    view -> showDevicePhoto(
+                            customerImageUri
+                    )
+            );
+
+            imgVerifiedDevicePhoto.setOnClickListener(
+                    view -> showDevicePhoto(
+                            customerImageUri
+                    )
+            );
+
+        } else {
+
+            txtCustomerDevicePhotoLabel.setVisibility(
+                    View.GONE
+            );
+
+            imgVerifiedDevicePhoto.setVisibility(
+                    View.GONE
+            );
+
+            btnViewVerifiedDevicePhoto.setVisibility(
+                    View.GONE
+            );
+        }
+
         layoutAppointmentDetails.setVisibility(
                 View.VISIBLE
         );
@@ -386,6 +467,10 @@ public class TechnicianVerifyAppointmentActivity
 
         repair.setProblemDescription(
                 verifiedAppointment.getIssueDescription()
+        );
+
+        repair.setImageUri(
+                verifiedAppointment.getImageUri()
         );
 
         repair.setStatus(
@@ -461,4 +546,61 @@ public class TechnicianVerifyAppointmentActivity
 
         finish();
     }
+
+    private void showDevicePhoto(
+            String imageUri
+    ) {
+
+        if (TextUtils.isEmpty(imageUri)) {
+            return;
+        }
+
+        ImageView imageView =
+                new ImageView(this);
+
+        int padding =
+                (int) (
+                        16 *
+                                getResources()
+                                        .getDisplayMetrics()
+                                        .density
+                );
+
+        imageView.setPadding(
+                padding,
+                padding,
+                padding,
+                padding
+        );
+
+        imageView.setAdjustViewBounds(
+                true
+        );
+
+        imageView.setScaleType(
+                ImageView.ScaleType.FIT_CENTER
+        );
+
+        imageView.setMinimumHeight(
+                500
+        );
+
+        imageView.setImageURI(
+                Uri.parse(imageUri)
+        );
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(
+                        "Customer Device Photo"
+                )
+                .setView(
+                        imageView
+                )
+                .setPositiveButton(
+                        "Close",
+                        null
+                )
+                .show();
+    }
+
 }

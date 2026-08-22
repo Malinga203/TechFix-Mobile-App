@@ -126,6 +126,40 @@
                 android:textColor="@color/techfix_text_primary"
                 android:textSize="15sp" />
 
+
+            <!-- Customer Device Photo -->
+            <TextView
+                android:id="@+id/txtCustomerDevicePhotoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Customer Device Photo"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/imgVerifiedDevicePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                android:layout_marginTop="10dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="Customer device photo"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnViewVerifiedDevicePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:text="View Full Device Photo"
+                android:textAllCaps="false"
+                android:visibility="gone" />
+
+
+            <!-- Accept Repair -->
             <Button
                 android:id="@+id/btnAcceptAsRepair"
                 android:layout_width="match_parent"

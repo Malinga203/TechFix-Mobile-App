@@ -4,11 +4,19 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,15 +25,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
 import com.techfix.app.R;
 import com.techfix.app.database.AppointmentDAO;
 import com.techfix.app.database.ServiceDAO;
@@ -35,14 +42,17 @@ import com.techfix.app.models.RepairService;
 import com.techfix.app.services.BranchAssignmentService;
 import com.techfix.app.userauthentication.utils.SessionManager;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class BookRepairActivity
-        extends AppCompatActivity {
+public class BookRepairActivity extends AppCompatActivity {
 
     public static final String EXTRA_SERVICE_ID =
             "extra_service_id";
@@ -57,8 +67,10 @@ public class BookRepairActivity
             "04:00 PM"
     };
 
-    private static final int MAX_BOOKINGS_PER_SLOT =
-            2;
+    private static final int MAX_BOOKINGS_PER_SLOT = 2;
+
+    private static final long MAX_IMAGE_SIZE =
+            5L * 1024L * 1024L;
 
     private TextInputLayout tilService;
     private TextInputLayout tilDeviceModel;
@@ -78,6 +90,17 @@ public class BookRepairActivity
 
     private Button btnBrowseParts;
     private Button btnConfirmBooking;
+    private Button btnBookingCamera;
+    private Button btnBookingGallery;
+    private Button btnRemoveBookingImage;
+
+    private ImageView imgBookingDevice;
+
+    private File pendingCameraFile;
+    private Uri pendingCameraUri;
+
+    private File selectedDeviceImageFile;
+    private String selectedDeviceImageUri;
 
     private ServiceDAO serviceDAO;
     private AppointmentDAO appointmentDAO;
@@ -106,19 +129,14 @@ public class BookRepairActivity
             Calendar.getInstance();
 
 
-    // =========================================================
-    // SPARE PART RESULT
-    // =========================================================
-
+    // Spare part selection result
     private final ActivityResultLauncher<Intent> sparePartLauncher =
             registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
 
-                        if (
-                                result.getResultCode() == RESULT_OK &&
-                                        result.getData() != null
-                        ) {
+                        if (result.getResultCode() == RESULT_OK
+                                && result.getData() != null) {
 
                             Intent data =
                                     result.getData();
@@ -143,16 +161,42 @@ public class BookRepairActivity
                                     );
 
                             updateSelectedPartView();
-
                             updateSummary();
                         }
                     }
             );
 
 
-    // =========================================================
-    // LOCATION PERMISSION
-    // =========================================================
+    // Device photo from camera
+    private final ActivityResultLauncher<Uri> cameraLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.TakePicture(),
+                    success -> {
+
+                        if (success) {
+
+                            handleCameraResult();
+
+                        } else {
+
+                            deletePendingCameraFile();
+                        }
+                    }
+            );
+
+
+    // Device photo from gallery
+    private final ActivityResultLauncher<String> galleryLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.GetContent(),
+                    uri -> {
+
+                        if (uri != null) {
+                            handleGalleryResult(uri);
+                        }
+                    }
+            );
+
 
     private final ActivityResultLauncher<String>
             locationPermissionLauncher =
@@ -175,10 +219,6 @@ public class BookRepairActivity
                     }
             );
 
-
-    // =========================================================
-    // CREATE
-    // =========================================================
 
     @Override
     protected void onCreate(
@@ -230,10 +270,8 @@ public class BookRepairActivity
         sessionManager =
                 new SessionManager(this);
 
-        if (
-                !sessionManager.isLoggedIn() ||
-                        sessionManager.getUserId() <= 0
-        ) {
+        if (!sessionManager.isLoggedIn()
+                || sessionManager.getUserId() <= 0) {
 
             Toast.makeText(
                     this,
@@ -242,18 +280,14 @@ public class BookRepairActivity
             ).show();
 
             finish();
-
             return;
         }
 
         bindViews();
 
         loadServices();
-
         setupTimeSlots();
-
         setupDatePicker();
-
         preselectServiceFromIntent();
 
         btnBrowseParts.setOnClickListener(
@@ -270,12 +304,23 @@ public class BookRepairActivity
                 view ->
                         startBranchAssignment()
         );
+
+        btnBookingCamera.setOnClickListener(
+                view -> openCamera()
+        );
+
+        btnBookingGallery.setOnClickListener(
+                view ->
+                        galleryLauncher.launch(
+                                "image/*"
+                        )
+        );
+
+        btnRemoveBookingImage.setOnClickListener(
+                view -> removeSelectedImage()
+        );
     }
 
-
-    // =========================================================
-    // VIEW BINDING
-    // =========================================================
 
     private void bindViews() {
 
@@ -348,12 +393,28 @@ public class BookRepairActivity
                 findViewById(
                         R.id.btn_confirm_booking
                 );
+
+        imgBookingDevice =
+                findViewById(
+                        R.id.img_booking_device
+                );
+
+        btnBookingCamera =
+                findViewById(
+                        R.id.btn_booking_camera
+                );
+
+        btnBookingGallery =
+                findViewById(
+                        R.id.btn_booking_gallery
+                );
+
+        btnRemoveBookingImage =
+                findViewById(
+                        R.id.btn_remove_booking_image
+                );
     }
 
-
-    // =========================================================
-    // SERVICES
-    // =========================================================
 
     private void loadServices() {
 
@@ -399,10 +460,6 @@ public class BookRepairActivity
     }
 
 
-    // =========================================================
-    // TIME SLOTS
-    // =========================================================
-
     private void setupTimeSlots() {
 
         ArrayAdapter<String> adapter =
@@ -429,10 +486,6 @@ public class BookRepairActivity
         );
     }
 
-
-    // =========================================================
-    // DATE
-    // =========================================================
 
     private void setupDatePicker() {
 
@@ -506,10 +559,6 @@ public class BookRepairActivity
     }
 
 
-    // =========================================================
-    // PRESELECT SERVICE
-    // =========================================================
-
     private void preselectServiceFromIntent() {
 
         int serviceId =
@@ -523,18 +572,13 @@ public class BookRepairActivity
             return;
         }
 
-        for (
-                int i = 0;
-                i < services.size();
-                i++
-        ) {
+        for (int i = 0;
+             i < services.size();
+             i++) {
 
-            if (
-                    services.get(i)
-                            .getServiceId()
-                            ==
-                            serviceId
-            ) {
+            if (services.get(i)
+                    .getServiceId()
+                    == serviceId) {
 
                 selectedService =
                         services.get(i);
@@ -552,10 +596,6 @@ public class BookRepairActivity
         }
     }
 
-
-    // =========================================================
-    // SELECTED PART
-    // =========================================================
 
     private void updateSelectedPartView() {
 
@@ -577,39 +617,29 @@ public class BookRepairActivity
         );
 
         tvSelectedPart.setText(
-                "Selected Part: " +
-                        selectedPartName +
-                        String.format(
-                                Locale.US,
-                                " (+$%.2f)",
-                                selectedPartPrice
-                        ) +
-                        "\nTap to remove"
+                "Selected Part: "
+                        + selectedPartName
+                        + String.format(
+                        Locale.US,
+                        " (+$%.2f)",
+                        selectedPartPrice
+                )
+                        + "\nTap to remove"
         );
 
         tvSelectedPart.setOnClickListener(
                 view -> {
 
-                    selectedPartId =
-                            -1;
-
-                    selectedPartName =
-                            null;
-
-                    selectedPartPrice =
-                            0.0;
+                    selectedPartId = -1;
+                    selectedPartName = null;
+                    selectedPartPrice = 0.0;
 
                     updateSelectedPartView();
-
                     updateSummary();
                 }
         );
     }
 
-
-    // =========================================================
-    // PRICE SUMMARY
-    // =========================================================
 
     private void updateSummary() {
 
@@ -627,26 +657,20 @@ public class BookRepairActivity
                         +
                         (
                                 selectedPartId != -1
-                                        ?
-                                        selectedPartPrice
-                                        :
-                                        0.0
+                                        ? selectedPartPrice
+                                        : 0.0
                         );
 
         tvSummaryPrice.setText(
-                "Estimated Price: " +
-                        String.format(
-                                Locale.US,
-                                "$%.2f",
-                                total
-                        )
+                "Estimated Price: "
+                        + String.format(
+                        Locale.US,
+                        "$%.2f",
+                        total
+                )
         );
     }
 
-
-    // =========================================================
-    // INPUT VALIDATION
-    // =========================================================
 
     private boolean validateInputs() {
 
@@ -669,14 +693,12 @@ public class BookRepairActivity
             );
         }
 
-        if (
-                etDeviceModel.getText() == null ||
-                        etDeviceModel
-                                .getText()
-                                .toString()
-                                .trim()
-                                .isEmpty()
-        ) {
+        if (etDeviceModel.getText() == null
+                || etDeviceModel
+                .getText()
+                .toString()
+                .trim()
+                .isEmpty()) {
 
             tilDeviceModel.setError(
                     "Enter the device model"
@@ -692,14 +714,12 @@ public class BookRepairActivity
             );
         }
 
-        if (
-                etIssueDescription.getText() == null ||
-                        etIssueDescription
-                                .getText()
-                                .toString()
-                                .trim()
-                                .isEmpty()
-        ) {
+        if (etIssueDescription.getText() == null
+                || etIssueDescription
+                .getText()
+                .toString()
+                .trim()
+                .isEmpty()) {
 
             tilIssueDescription.setError(
                     "Describe the issue"
@@ -715,14 +735,12 @@ public class BookRepairActivity
             );
         }
 
-        if (
-                etDate.getText() == null ||
-                        etDate
-                                .getText()
-                                .toString()
-                                .trim()
-                                .isEmpty()
-        ) {
+        if (etDate.getText() == null
+                || etDate
+                .getText()
+                .toString()
+                .trim()
+                .isEmpty()) {
 
             tilDate.setError(
                     "Select appointment date"
@@ -758,24 +776,16 @@ public class BookRepairActivity
     }
 
 
-    // =========================================================
-    // START BRANCH ASSIGNMENT
-    // =========================================================
-
     private void startBranchAssignment() {
 
         if (!validateInputs()) {
             return;
         }
 
-        if (
-                ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                )
-                        ==
-                        PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED) {
 
             getLocationAndAssignBranch();
 
@@ -788,20 +798,12 @@ public class BookRepairActivity
     }
 
 
-    // =========================================================
-    // GET GPS + FIND BRANCH
-    // =========================================================
-
     private void getLocationAndAssignBranch() {
 
-        if (
-                ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                )
-                        !=
-                        PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
 
             return;
         }
@@ -831,10 +833,8 @@ public class BookRepairActivity
 
                             Integer requiredPartId =
                                     selectedPartId != -1
-                                            ?
-                                            selectedPartId
-                                            :
-                                            null;
+                                            ? selectedPartId
+                                            : null;
 
                             selectedBranch =
                                     branchAssignmentService
@@ -882,41 +882,29 @@ public class BookRepairActivity
     }
 
 
-    // =========================================================
-    // BRANCH CONFIRMATION
-    // =========================================================
-
     private void showAssignedBranchDialog(
             float distance
     ) {
 
         String message =
-                "Nearest suitable branch:\n\n" +
-
-                        selectedBranch
-                                .getBranchName() +
-
-                        "\n" +
-
-                        selectedBranch
-                                .getAddress() +
-
-                        "\n\nDistance: " +
-
-                        String.format(
-                                Locale.getDefault(),
-                                "%.2f km",
-                                distance
-                        ) +
-
-                        "\n\nThis branch has the required technician" +
-
+                "Nearest suitable branch:\n\n"
+                        + selectedBranch
+                        .getBranchName()
+                        + "\n"
+                        + selectedBranch
+                        .getAddress()
+                        + "\n\nDistance: "
+                        + String.format(
+                        Locale.getDefault(),
+                        "%.2f km",
+                        distance
+                )
+                        + "\n\nThis branch has the required technician"
+                        +
                         (
                                 selectedPartId != -1
-                                        ?
-                                        " and selected spare part."
-                                        :
-                                        "."
+                                        ? " and selected spare part."
+                                        : "."
                         );
 
         new AlertDialog.Builder(this)
@@ -942,9 +930,552 @@ public class BookRepairActivity
     }
 
 
-    // =========================================================
-    // SAVE APPOINTMENT
-    // =========================================================
+    private void openCamera() {
+
+        try {
+
+            deletePendingCameraFile();
+
+            pendingCameraFile =
+                    createImageFile();
+
+            pendingCameraUri =
+                    FileProvider.getUriForFile(
+                            this,
+                            getPackageName()
+                                    + ".fileprovider",
+                            pendingCameraFile
+                    );
+
+            cameraLauncher.launch(
+                    pendingCameraUri
+            );
+
+        } catch (IOException exception) {
+
+            Toast.makeText(
+                    this,
+                    "Unable to create image file",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+    }
+
+
+    private void handleCameraResult() {
+
+        if (!isValidImageFile(
+                pendingCameraFile
+        )) {
+
+            deletePendingCameraFile();
+
+            Toast.makeText(
+                    this,
+                    "Invalid camera image",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        if (pendingCameraUri == null) {
+
+            deletePendingCameraFile();
+
+            Toast.makeText(
+                    this,
+                    "Unable to access captured image",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        deletePreviouslySelectedFile(
+                pendingCameraFile
+        );
+
+        selectedDeviceImageFile =
+                pendingCameraFile;
+
+        selectedDeviceImageUri =
+                pendingCameraUri.toString();
+
+        showSelectedImage(
+                pendingCameraUri
+        );
+
+        Toast.makeText(
+                this,
+                "Device photo added",
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+
+    private void handleGalleryResult(
+            Uri sourceUri
+    ) {
+
+        if (!isValidGalleryImage(
+                sourceUri
+        )) {
+
+            Toast.makeText(
+                    this,
+                    "Please select a valid image under 5 MB",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        try {
+
+            File copiedImage =
+                    copyGalleryImage(
+                            sourceUri
+                    );
+
+            Uri savedUri =
+                    FileProvider.getUriForFile(
+                            this,
+                            getPackageName()
+                                    + ".fileprovider",
+                            copiedImage
+                    );
+
+            deletePreviouslySelectedFile(
+                    copiedImage
+            );
+
+            selectedDeviceImageFile =
+                    copiedImage;
+
+            selectedDeviceImageUri =
+                    savedUri.toString();
+
+            showSelectedImage(
+                    savedUri
+            );
+
+            Toast.makeText(
+                    this,
+                    "Device photo added",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        } catch (IOException exception) {
+
+            Toast.makeText(
+                    this,
+                    "Unable to save selected image",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+    }
+
+
+    private void showSelectedImage(
+            Uri uri
+    ) {
+
+        imgBookingDevice.setImageURI(
+                null
+        );
+
+        imgBookingDevice.setPadding(
+                0,
+                0,
+                0,
+                0
+        );
+
+        imgBookingDevice.setScaleType(
+                ImageView.ScaleType.CENTER_CROP
+        );
+
+        imgBookingDevice.setImageURI(
+                uri
+        );
+
+        btnRemoveBookingImage.setVisibility(
+                View.VISIBLE
+        );
+    }
+
+
+    private void removeSelectedImage() {
+
+        if (selectedDeviceImageFile != null
+                && selectedDeviceImageFile.exists()) {
+
+            selectedDeviceImageFile.delete();
+        }
+
+        if (pendingCameraFile != null
+                && pendingCameraFile.exists()
+                && pendingCameraFile != selectedDeviceImageFile) {
+
+            pendingCameraFile.delete();
+        }
+
+        selectedDeviceImageFile =
+                null;
+
+        selectedDeviceImageUri =
+                null;
+
+        pendingCameraFile =
+                null;
+
+        pendingCameraUri =
+                null;
+
+        imgBookingDevice.setImageURI(
+                null
+        );
+
+        imgBookingDevice.setScaleType(
+                ImageView.ScaleType.CENTER_INSIDE
+        );
+
+        int padding =
+                dpToPx(18);
+
+        imgBookingDevice.setPadding(
+                padding,
+                padding,
+                padding,
+                padding
+        );
+
+        imgBookingDevice.setImageResource(
+                android.R.drawable.ic_menu_camera
+        );
+
+        btnRemoveBookingImage.setVisibility(
+                View.GONE
+        );
+
+        Toast.makeText(
+                this,
+                "Device photo removed",
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+
+    private void deletePreviouslySelectedFile(
+            File newFile
+    ) {
+
+        if (selectedDeviceImageFile == null) {
+            return;
+        }
+
+        if (selectedDeviceImageFile.equals(
+                newFile
+        )) {
+
+            return;
+        }
+
+        if (selectedDeviceImageFile.exists()) {
+
+            selectedDeviceImageFile.delete();
+        }
+    }
+
+
+    private void deletePendingCameraFile() {
+
+        if (pendingCameraFile != null
+                && pendingCameraFile.exists()
+                && pendingCameraFile != selectedDeviceImageFile) {
+
+            pendingCameraFile.delete();
+        }
+
+        pendingCameraFile =
+                null;
+
+        pendingCameraUri =
+                null;
+    }
+
+
+    private boolean isValidGalleryImage(
+            Uri uri
+    ) {
+
+        if (uri == null) {
+            return false;
+        }
+
+        String mimeType =
+                getContentResolver()
+                        .getType(
+                                uri
+                        );
+
+        if (TextUtils.isEmpty(
+                mimeType
+        )
+                || !mimeType.startsWith(
+                "image/"
+        )) {
+
+            return false;
+        }
+
+        long size =
+                getContentSize(
+                        uri
+                );
+
+        return size <= 0
+                || size <= MAX_IMAGE_SIZE;
+    }
+
+
+    private long getContentSize(
+            Uri uri
+    ) {
+
+        Cursor cursor =
+                null;
+
+        try {
+
+            cursor =
+                    getContentResolver()
+                            .query(
+                                    uri,
+                                    new String[]{
+                                            OpenableColumns.SIZE
+                                    },
+                                    null,
+                                    null,
+                                    null
+                            );
+
+            if (cursor != null
+                    && cursor.moveToFirst()) {
+
+                int index =
+                        cursor.getColumnIndex(
+                                OpenableColumns.SIZE
+                        );
+
+                if (index >= 0
+                        && !cursor.isNull(
+                        index
+                )) {
+
+                    return cursor.getLong(
+                            index
+                    );
+                }
+            }
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return -1;
+    }
+
+
+    private File copyGalleryImage(
+            Uri sourceUri
+    ) throws IOException {
+
+        File directory =
+                getExternalFilesDir(
+                        Environment.DIRECTORY_PICTURES
+                );
+
+        if (directory == null) {
+
+            throw new IOException(
+                    "Image directory unavailable"
+            );
+        }
+
+        String extension =
+                getFileExtension(
+                        sourceUri
+                );
+
+        File destination =
+                new File(
+                        directory,
+                        "booking_device_"
+                                + System.currentTimeMillis()
+                                + "."
+                                + extension
+                );
+
+        try (
+                InputStream input =
+                        getContentResolver()
+                                .openInputStream(
+                                        sourceUri
+                                );
+
+                FileOutputStream output =
+                        new FileOutputStream(
+                                destination
+                        )
+        ) {
+
+            if (input == null) {
+
+                throw new IOException(
+                        "Unable to read image"
+                );
+            }
+
+            byte[] buffer =
+                    new byte[8192];
+
+            long total =
+                    0;
+
+            int read;
+
+            while ((read =
+                    input.read(
+                            buffer
+                    )) != -1) {
+
+                total += read;
+
+                if (total > MAX_IMAGE_SIZE) {
+
+                    destination.delete();
+
+                    throw new IOException(
+                            "Image too large"
+                    );
+                }
+
+                output.write(
+                        buffer,
+                        0,
+                        read
+                );
+            }
+        }
+
+        if (!isValidImageFile(
+                destination
+        )) {
+
+            destination.delete();
+
+            throw new IOException(
+                    "Invalid image"
+            );
+        }
+
+        return destination;
+    }
+
+
+    private String getFileExtension(
+            Uri uri
+    ) {
+
+        String mimeType =
+                getContentResolver()
+                        .getType(
+                                uri
+                        );
+
+        String extension =
+                MimeTypeMap
+                        .getSingleton()
+                        .getExtensionFromMimeType(
+                                mimeType
+                        );
+
+        return TextUtils.isEmpty(
+                extension
+        )
+                ? "jpg"
+                : extension;
+    }
+
+
+    private File createImageFile()
+            throws IOException {
+
+        File directory =
+                getExternalFilesDir(
+                        Environment.DIRECTORY_PICTURES
+                );
+
+        if (directory == null) {
+
+            throw new IOException(
+                    "Image directory unavailable"
+            );
+        }
+
+        return File.createTempFile(
+                "booking_device_",
+                ".jpg",
+                directory
+        );
+    }
+
+
+    private boolean isValidImageFile(
+            File file
+    ) {
+
+        if (file == null
+                || !file.exists()
+                || file.length() <= 0
+                || file.length() > MAX_IMAGE_SIZE) {
+
+            return false;
+        }
+
+        BitmapFactory.Options options =
+                new BitmapFactory.Options();
+
+        options.inJustDecodeBounds =
+                true;
+
+        BitmapFactory.decodeFile(
+                file.getAbsolutePath(),
+                options
+        );
+
+        return options.outWidth > 0
+                && options.outHeight > 0;
+    }
+
+
+    private int dpToPx(
+            int dp
+    ) {
+
+        return Math.round(
+                dp
+                        * getResources()
+                        .getDisplayMetrics()
+                        .density
+        );
+    }
+
 
     private void confirmBooking() {
 
@@ -963,11 +1494,6 @@ public class BookRepairActivity
             return;
         }
 
-
-        // -----------------------------------------------------
-        // GET LOGGED-IN CUSTOMER
-        // -----------------------------------------------------
-
         int customerId =
                 sessionManager.getUserId();
 
@@ -982,11 +1508,6 @@ public class BookRepairActivity
             return;
         }
 
-
-        // -----------------------------------------------------
-        // CHECK SLOT
-        // -----------------------------------------------------
-
         int slotBookings =
                 appointmentDAO
                         .getAppointmentCountForSlot(
@@ -994,15 +1515,11 @@ public class BookRepairActivity
                                         .getText()
                                         .toString()
                                         .trim(),
-
                                 selectedTime
                         );
 
-        if (
-                slotBookings
-                        >=
-                        MAX_BOOKINGS_PER_SLOT
-        ) {
+        if (slotBookings
+                >= MAX_BOOKINGS_PER_SLOT) {
 
             tilTime.setError(
                     "This time slot is full"
@@ -1017,24 +1534,16 @@ public class BookRepairActivity
             return;
         }
 
-
-        // -----------------------------------------------------
-        // CREATE APPOINTMENT
-        // -----------------------------------------------------
-
         Appointment appointment =
                 new Appointment(
-
                         customerId,
 
                         selectedService
                                 .getServiceId(),
 
                         selectedPartId != -1
-                                ?
-                                selectedPartId
-                                :
-                                null,
+                                ? selectedPartId
+                                : null,
 
                         selectedBranch
                                 .getBranchId(),
@@ -1057,10 +1566,14 @@ public class BookRepairActivity
                         selectedTime
                 );
 
+        if (!TextUtils.isEmpty(
+                selectedDeviceImageUri
+        )) {
 
-        // -----------------------------------------------------
-        // SAVE
-        // -----------------------------------------------------
+            appointment.setImageUri(
+                    selectedDeviceImageUri
+            );
+        }
 
         long insertedId =
                 appointmentDAO

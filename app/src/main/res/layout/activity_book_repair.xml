@@ -33,6 +33,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Service Selection -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_service"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -48,6 +49,8 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+
+            <!-- Device Model -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_device_model"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -64,6 +67,8 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+
+            <!-- Issue Description -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_issue_description"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -82,12 +87,130 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+
+            <!-- Device Condition Photo -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/techfix_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/techfix_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Device Condition Photo"
+                        android:textColor="@color/techfix_text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Optional • Add a photo showing the device condition before repair."
+                        android:textColor="@color/techfix_text_secondary"
+                        android:textSize="12sp" />
+
+
+                    <!-- Image Preview -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="190dp"
+                        android:layout_marginTop="12dp"
+                        app:cardBackgroundColor="@color/techfix_primary_light"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <ImageView
+                                android:id="@+id/img_booking_device"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="Device condition photo"
+                                android:padding="18dp"
+                                android:scaleType="centerInside"
+                                android:src="@android:drawable/ic_menu_camera" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_remove_booking_image"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:contentDescription="Remove selected image"
+                                android:minWidth="0dp"
+                                android:minHeight="0dp"
+                                android:padding="0dp"
+                                android:text="×"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:backgroundTint="@color/techfix_surface"
+                                app:cornerRadius="20dp"
+                                app:strokeColor="@color/techfix_border"
+                                app:strokeWidth="1dp" />
+
+                        </FrameLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+
+                    <!-- Camera / Gallery Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_booking_camera"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:text="Take Photo"
+                            android:textAllCaps="false"
+                            app:cornerRadius="12dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_booking_gallery"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:text="Gallery"
+                            android:textAllCaps="false"
+                            app:cornerRadius="12dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Date / Time -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
+                <!-- Date -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_date"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -107,6 +230,8 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+
+                <!-- Time -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_time"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -126,6 +251,8 @@
 
             </LinearLayout>
 
+
+            <!-- Branch Selection -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_branch"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -142,6 +269,8 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+
+            <!-- Selected Spare Part -->
             <TextView
                 android:id="@+id/tv_selected_part"
                 android:layout_width="match_parent"
@@ -153,6 +282,8 @@
                 tools:text="Spare part: OLED Display Assembly (+$89.99)"
                 tools:visibility="visible" />
 
+
+            <!-- Browse Spare Parts -->
             <Button
                 android:id="@+id/btn_browse_parts"
                 style="?attr/materialButtonOutlinedStyle"
@@ -161,6 +292,8 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/hint_add_spare_part" />
 
+
+            <!-- Booking Summary -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -193,6 +326,8 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+
+            <!-- Confirm Booking -->
             <Button
                 android:id="@+id/btn_confirm_booking"
                 android:layout_width="match_parent"
