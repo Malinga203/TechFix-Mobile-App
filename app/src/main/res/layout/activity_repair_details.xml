@@ -29,7 +29,7 @@
             android:orientation="vertical"
             android:padding="18dp">
 
-            <!-- Service order header -->
+            <!-- Service order -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
                             android:id="@+id/imgDetailRepair"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Device condition photo"
+                            android:contentDescription="Customer device photo"
                             android:padding="12dp"
                             android:scaleType="centerInside"
                             android:src="@android:drawable/ic_menu_camera" />
@@ -272,7 +272,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Progress -->
+            <!-- Repair progress -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -356,66 +356,18 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Device condition -->
-            <LinearLayout
-                android:id="@+id/layoutPhotoActions"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewProgressPhotos"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Device Condition"
-                    android:textColor="@color/techfix_text_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Keep a photo of the device before repair."
-                    android:textColor="@color/techfix_text_secondary"
-                    android:textSize="12sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="11dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDetailCamera"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_marginEnd="5dp"
-                        android:layout_weight="1"
-                        android:text="Take Photo"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        app:backgroundTint="@color/techfix_primary"
-                        app:cornerRadius="12dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDetailGallery"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_weight="1"
-                        android:text="Gallery"
-                        android:textAllCaps="false"
-                        android:textColor="@color/techfix_primary"
-                        android:textStyle="bold"
-                        app:cornerRadius="12dp"
-                        app:strokeColor="@color/techfix_primary" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+                android:layout_height="52dp"
+                android:layout_marginTop="14dp"
+                android:text="View Technician Progress Photos"
+                android:textAllCaps="false"
+                android:textColor="@color/techfix_primary"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/techfix_primary" />
 
             <View
                 android:layout_width="match_parent"
