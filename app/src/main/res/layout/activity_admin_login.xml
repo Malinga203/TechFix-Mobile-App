@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="28dp"
+    android:gravity="center_horizontal"
+    android:background="#F6F8FC">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TECHFIX"
+        android:textColor="#2563EB"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Admin Login"
+        android:textColor="#111827"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp" />
+
+    <EditText
+        android:id="@+id/etAdminUsername"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="36dp"
+        android:hint="Admin username"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <EditText
+        android:id="@+id/etAdminPassword"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="18dp"
+        android:hint="Admin password"
+        android:inputType="textPassword"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/btnAdminLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="28dp"
+        android:text="Login as Admin"
+        android:textAllCaps="false" />
+
+    <TextView
+        android:id="@+id/tvBackToCustomerLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Back to Customer Login"
+        android:textColor="#2563EB"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true" />
+
+</LinearLayout>
