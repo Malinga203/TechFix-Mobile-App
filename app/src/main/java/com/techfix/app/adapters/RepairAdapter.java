@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.techfix.app.R;
 import com.techfix.app.models.Repair;
 
@@ -169,7 +170,15 @@ public class RepairAdapter
 
         // Reset the recycled image before loading a new one.
         holder.imgRepair.setImageURI(null);
-        holder.imgRepair.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
+        holder.imgRepair.setOnClickListener(
+                null
+        );
+
+        holder.imgRepair.setScaleType(
+                ImageView.ScaleType.CENTER_INSIDE
+        );
+
         holder.imgRepair.setImageResource(
                 android.R.drawable.ic_menu_camera
         );
@@ -184,6 +193,13 @@ public class RepairAdapter
 
                 holder.imgRepair.setImageURI(
                         Uri.parse(repair.getImageUri())
+                );
+
+                holder.imgRepair.setOnClickListener(
+                        view -> showRepairImage(
+                                view.getContext(),
+                                repair.getImageUri()
+                        )
                 );
 
             } catch (Exception ignored) {
@@ -323,6 +339,66 @@ public class RepairAdapter
                 ? fallback
                 : value.trim();
     }
+
+    private void showRepairImage(
+            Context context,
+            String imageUri
+    ) {
+
+        if (TextUtils.isEmpty(imageUri)) {
+            return;
+        }
+
+        ImageView imageView =
+                new ImageView(context);
+
+        int padding =
+                (int) (
+                        16 *
+                                context.getResources()
+                                        .getDisplayMetrics()
+                                        .density
+                );
+
+        imageView.setPadding(
+                padding,
+                padding,
+                padding,
+                padding
+        );
+
+        imageView.setAdjustViewBounds(
+                true
+        );
+
+        imageView.setScaleType(
+                ImageView.ScaleType.FIT_CENTER
+        );
+
+        imageView.setMinimumHeight(
+                500
+        );
+
+        imageView.setImageURI(
+                Uri.parse(imageUri)
+        );
+
+        new MaterialAlertDialogBuilder(
+                context
+        )
+                .setTitle(
+                        "Device Photo"
+                )
+                .setView(
+                        imageView
+                )
+                .setPositiveButton(
+                        "Close",
+                        null
+                )
+                .show();
+    }
+
 
     @Override
     public int getItemCount() {
