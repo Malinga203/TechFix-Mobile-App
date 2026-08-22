@@ -17,8 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix">
 
+        <!-- ================================================= -->
+        <!-- MAIN APPLICATION ACTIVITY -->
+        <!-- ================================================= -->
+
         <activity
-            android:name=".activities.PaymentActivity"
+            android:name=".MainActivity"
             android:exported="true">
 
             <intent-filter>
@@ -28,18 +32,57 @@
 
         </activity>
 
-        <!-- Camera image access -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
 
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+        <!-- ================================================= -->
+        <!-- USER AUTHENTICATION -->
+        <!-- ================================================= -->
 
-        </provider>
+        <activity
+            android:name=".userauthentication.activities.AuthDatabaseTestActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.SessionTestActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.LogoutTestActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.CustomerProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.AdminLoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".userauthentication.activities.ChangePasswordActivity"
+            android:exported="false" />
+
+
+        <!-- ================================================= -->
+        <!-- PAYMENT -->
+        <!-- ================================================= -->
+
+        <activity
+            android:name=".activities.PaymentActivity"
+            android:exported="false" />
+
+
+        <!-- ================================================= -->
+        <!-- TECHNICIAN -->
+        <!-- ================================================= -->
+
         <activity
             android:name=".activities.AddEditTechnicianActivity"
             android:exported="false" />
@@ -47,6 +90,11 @@
         <activity
             android:name=".activities.TechnicianActivity"
             android:exported="false" />
+
+
+        <!-- ================================================= -->
+        <!-- SERVICES / BOOKING -->
+        <!-- ================================================= -->
 
         <activity
             android:name=".activities.ServiceListActivity"
@@ -60,6 +108,11 @@
             android:name=".activities.SparePartActivity"
             android:exported="false" />
 
+
+        <!-- ================================================= -->
+        <!-- BRANCH / MAP -->
+        <!-- ================================================= -->
+
         <activity
             android:name=".activities.MapPickerActivity"
             android:exported="false" />
@@ -72,9 +125,22 @@
             android:name=".activities.BranchActivity"
             android:exported="false" />
 
-        <activity
-            android:name=".activities.MainActivity"
-            android:exported="false" />
+
+        <!-- ================================================= -->
+        <!-- FILE PROVIDER -->
+        <!-- ================================================= -->
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+
+        </provider>
 
     </application>
 
