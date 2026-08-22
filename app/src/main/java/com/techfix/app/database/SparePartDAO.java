@@ -14,11 +14,65 @@ public class SparePartDAO {
 
     private final DatabaseHelper databaseHelper;
 
+
     public SparePartDAO(Context context) {
 
         databaseHelper =
-                new DatabaseHelper(context);
+                new DatabaseHelper(
+                        context.getApplicationContext()
+                );
     }
+
+
+    // =========================================================
+    // INSERT SPARE PART
+    // =========================================================
+
+    public long insertSparePart(
+            SparePart sparePart
+    ) {
+
+        if (sparePart == null) {
+            return -1;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_PART_NAME,
+                sparePart.getPartName()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_DESCRIPTION,
+                sparePart.getDescription()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_PRICE,
+                sparePart.getPrice()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_COMPATIBLE_MODELS,
+                sparePart.getCompatibleModels()
+        );
+
+        return db.insert(
+                DatabaseHelper.TABLE_SPARE_PART,
+                null,
+                values
+        );
+    }
+
+
+    // =========================================================
+    // GET ALL SPARE PARTS
+    // =========================================================
 
     public List<SparePart> getAllSpareParts() {
 
@@ -40,27 +94,39 @@ public class SparePartDAO {
                                 " ASC"
                 );
 
-        if (cursor.moveToFirst()) {
+        try {
 
-            do {
+            while (
+                    cursor.moveToNext()
+            ) {
 
                 spareParts.add(
                         mapCursorToSparePart(
                                 cursor
                         )
                 );
+            }
 
-            } while (cursor.moveToNext());
+        } finally {
+
+            cursor.close();
         }
-
-        cursor.close();
 
         return spareParts;
     }
 
+
+    // =========================================================
+    // GET SPARE PART BY ID
+    // =========================================================
+
     public SparePart getSparePartById(
             int partId
     ) {
+
+        if (partId <= 0) {
+            return null;
+        }
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
@@ -69,31 +135,201 @@ public class SparePartDAO {
                 db.query(
                         DatabaseHelper.TABLE_SPARE_PART,
                         null,
+
                         DatabaseHelper.COLUMN_PART_ID +
                                 " = ?",
+
                         new String[]{
-                                String.valueOf(partId)
+                                String.valueOf(
+                                        partId
+                                )
                         },
+
                         null,
                         null,
-                        null
+                        null,
+                        "1"
                 );
 
-        SparePart sparePart =
-                null;
+        try {
 
-        if (cursor.moveToFirst()) {
+            if (
+                    cursor.moveToFirst()
+            ) {
 
-            sparePart =
-                    mapCursorToSparePart(
-                            cursor
-                    );
+                return mapCursorToSparePart(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
         }
 
-        cursor.close();
-
-        return sparePart;
+        return null;
     }
+
+
+    // =========================================================
+    // UPDATE SPARE PART
+    // =========================================================
+
+    public int updateSparePart(
+            SparePart sparePart
+    ) {
+
+        if (
+                sparePart == null ||
+                        sparePart.getPartId() <= 0
+        ) {
+
+            return 0;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_PART_NAME,
+                sparePart.getPartName()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_DESCRIPTION,
+                sparePart.getDescription()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_PRICE,
+                sparePart.getPrice()
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_COMPATIBLE_MODELS,
+                sparePart.getCompatibleModels()
+        );
+
+        return db.update(
+                DatabaseHelper.TABLE_SPARE_PART,
+                values,
+
+                DatabaseHelper.COLUMN_PART_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                sparePart.getPartId()
+                        )
+                }
+        );
+    }
+
+
+    // =========================================================
+    // DELETE SPARE PART
+    // =========================================================
+
+    public int deleteSparePart(
+            int partId
+    ) {
+
+        if (partId <= 0) {
+            return 0;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        /*
+         * Remove branch-stock rows first because
+         * branch_spare_parts references spare_parts.
+         */
+        db.delete(
+                DatabaseHelper.TABLE_BRANCH_SPARE_PART,
+
+                DatabaseHelper.COLUMN_BSP_PART_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                partId
+                        )
+                }
+        );
+
+        return db.delete(
+                DatabaseHelper.TABLE_SPARE_PART,
+
+                DatabaseHelper.COLUMN_PART_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                partId
+                        )
+                }
+        );
+    }
+
+
+    // =========================================================
+    // CHECK PART NAME EXISTS
+    // =========================================================
+
+    public boolean partNameExists(
+            String partName
+    ) {
+
+        if (
+                partName == null ||
+                        partName.trim().isEmpty()
+        ) {
+
+            return false;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_SPARE_PART,
+
+                        new String[]{
+                                DatabaseHelper.COLUMN_PART_ID
+                        },
+
+                        DatabaseHelper.COLUMN_PART_NAME +
+                                " = ?",
+
+                        new String[]{
+                                partName.trim()
+                        },
+
+                        null,
+                        null,
+                        null,
+                        "1"
+                );
+
+        try {
+
+            return cursor.moveToFirst();
+
+        } finally {
+
+            cursor.close();
+        }
+    }
+
+
+    // =========================================================
+    // CHECK AVAILABILITY AT BRANCH
+    // =========================================================
 
     public boolean isPartAvailableAtBranch(
             int partId,
@@ -138,6 +374,11 @@ public class SparePartDAO {
         return available;
     }
 
+
+    // =========================================================
+    // GET STOCK AT BRANCH
+    // =========================================================
+
     public int getPartStockAtBranch(
             int partId,
             int branchId
@@ -170,29 +411,51 @@ public class SparePartDAO {
                         null
                 );
 
-        int quantity = 0;
+        int quantity =
+                0;
 
-        if (cursor.moveToFirst()) {
+        try {
 
-            quantity =
-                    cursor.getInt(
-                            cursor.getColumnIndexOrThrow(
-                                    DatabaseHelper
-                                            .COLUMN_BSP_STOCK_QUANTITY
-                            )
-                    );
+            if (
+                    cursor.moveToFirst()
+            ) {
+
+                quantity =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(
+                                        DatabaseHelper
+                                                .COLUMN_BSP_STOCK_QUANTITY
+                                )
+                        );
+            }
+
+        } finally {
+
+            cursor.close();
         }
-
-        cursor.close();
 
         return quantity;
     }
+
+
+    // =========================================================
+    // ADD OR UPDATE BRANCH STOCK
+    // =========================================================
 
     public long addOrUpdateBranchStock(
             int branchId,
             int partId,
             int quantity
     ) {
+
+        if (
+                branchId <= 0 ||
+                        partId <= 0 ||
+                        quantity < 0
+        ) {
+
+            return -1;
+        }
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
@@ -223,6 +486,11 @@ public class SparePartDAO {
         );
     }
 
+
+    // =========================================================
+    // REDUCE STOCK
+    // =========================================================
+
     public boolean reduceBranchStock(
             int branchId,
             int partId,
@@ -239,7 +507,10 @@ public class SparePartDAO {
                         branchId
                 );
 
-        if (currentStock < amount) {
+        if (
+                currentStock < amount
+        ) {
+
             return false;
         }
 
@@ -276,6 +547,11 @@ public class SparePartDAO {
 
         return result > 0;
     }
+
+
+    // =========================================================
+    // CURSOR -> SPARE PART
+    // =========================================================
 
     private SparePart mapCursorToSparePart(
             Cursor cursor
@@ -323,5 +599,15 @@ public class SparePartDAO {
                 price,
                 compatibleModels
         );
+    }
+
+
+    // =========================================================
+    // CLOSE
+    // =========================================================
+
+    public void close() {
+
+        databaseHelper.close();
     }
 }
