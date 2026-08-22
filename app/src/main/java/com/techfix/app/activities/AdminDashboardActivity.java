@@ -98,7 +98,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageSpareParts.setOnClickListener(
                 view ->
                         openActivity(
-                                SparePartActivity.class
+                                SparePartManagementActivity.class
                         )
         );
 
