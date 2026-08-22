@@ -1,5 +1,6 @@
 package com.techfix.app.userauthentication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,24 +46,45 @@ public class CustomerProfileActivity extends AppCompatActivity {
         sessionManager =
                 new SessionManager(this);
 
+        // Load logged-in customer's information
         loadUserProfile();
+
+        // =====================================================
+        // SAVE PROFILE
+        // =====================================================
 
         btnSaveProfile.setOnClickListener(
                 v -> updateProfile()
         );
 
+        // =====================================================
+        // CHANGE PASSWORD
+        // =====================================================
+
         btnChangePassword.setOnClickListener(
-                v -> showChangePassword()
+                v -> openChangePassword()
         );
+
+        // =====================================================
+        // LOGOUT
+        // =====================================================
 
         btnLogout.setOnClickListener(
                 v -> logout()
         );
 
+        // =====================================================
+        // BACK
+        // =====================================================
+
         tvBack.setOnClickListener(
                 v -> finish()
         );
     }
+
+    // =========================================================
+    // INITIALIZE VIEWS
+    // =========================================================
 
     private void initializeViews() {
 
@@ -88,17 +110,25 @@ public class CustomerProfileActivity extends AppCompatActivity {
                 findViewById(R.id.tvBack);
     }
 
+    // =========================================================
+    // LOAD USER PROFILE
+    // =========================================================
+
     private void loadUserProfile() {
 
+        // Check whether customer is logged in
         if (!sessionManager.isLoggedIn()) {
 
             finish();
+
             return;
         }
 
+        // Get logged-in user's ID
         int userId =
                 sessionManager.getUserId();
 
+        // Get user from SQLite
         currentUser =
                 databaseHelper.getUserById(userId);
 
@@ -111,9 +141,11 @@ public class CustomerProfileActivity extends AppCompatActivity {
             ).show();
 
             finish();
+
             return;
         }
 
+        // Display customer information
         etName.setText(
                 currentUser.getName()
         );
@@ -126,9 +158,13 @@ public class CustomerProfileActivity extends AppCompatActivity {
                 currentUser.getPhone()
         );
 
-        // Email should not be edited
+        // Email cannot be changed
         etEmail.setEnabled(false);
     }
+
+    // =========================================================
+    // UPDATE PROFILE
+    // =========================================================
 
     private void updateProfile() {
 
@@ -142,6 +178,10 @@ public class CustomerProfileActivity extends AppCompatActivity {
                         .toString()
                         .trim();
 
+        // -----------------------------------------------------
+        // VALIDATE NAME
+        // -----------------------------------------------------
+
         if (ValidationUtils.isEmpty(name)) {
 
             etName.setError(
@@ -149,8 +189,13 @@ public class CustomerProfileActivity extends AppCompatActivity {
             );
 
             etName.requestFocus();
+
             return;
         }
+
+        // -----------------------------------------------------
+        // VALIDATE PHONE
+        // -----------------------------------------------------
 
         if (ValidationUtils.isEmpty(phone)) {
 
@@ -159,6 +204,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
             );
 
             etPhone.requestFocus();
+
             return;
         }
 
@@ -169,8 +215,13 @@ public class CustomerProfileActivity extends AppCompatActivity {
             );
 
             etPhone.requestFocus();
+
             return;
         }
+
+        // -----------------------------------------------------
+        // UPDATE DATABASE
+        // -----------------------------------------------------
 
         int userId =
                 sessionManager.getUserId();
@@ -183,6 +234,10 @@ public class CustomerProfileActivity extends AppCompatActivity {
                 );
 
         if (updated) {
+
+            // Update local object as well
+            currentUser =
+                    databaseHelper.getUserById(userId);
 
             Toast.makeText(
                     this,
@@ -200,14 +255,47 @@ public class CustomerProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void showChangePassword() {
+    // =========================================================
+    // OPEN CHANGE PASSWORD PAGE
+    // =========================================================
 
-        Toast.makeText(
-                this,
-                "Change password screen will be added next",
-                Toast.LENGTH_SHORT
-        ).show();
+    private void openChangePassword() {
+
+        if (currentUser == null) {
+
+            Toast.makeText(
+                    this,
+                    "Unable to identify customer",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        Intent intent =
+                new Intent(
+                        CustomerProfileActivity.this,
+                        ChangePasswordActivity.class
+                );
+
+        // Send logged-in customer's ID
+        intent.putExtra(
+                "USER_ID",
+                currentUser.getId()
+        );
+
+        // Also send email in case it is needed later
+        intent.putExtra(
+                "USER_EMAIL",
+                currentUser.getEmail()
+        );
+
+        startActivity(intent);
     }
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
 
     private void logout() {
 
@@ -219,8 +307,27 @@ public class CustomerProfileActivity extends AppCompatActivity {
                 Toast.LENGTH_SHORT
         ).show();
 
+        // Return to login
+        Intent intent =
+                new Intent(
+                        CustomerProfileActivity.this,
+                        LoginActivity.class
+                );
+
+        // Remove profile/login screens from back stack
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+        startActivity(intent);
+
         finish();
     }
+
+    // =========================================================
+    // DESTROY
+    // =========================================================
 
     @Override
     protected void onDestroy() {

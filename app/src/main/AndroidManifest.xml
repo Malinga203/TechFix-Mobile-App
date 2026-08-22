@@ -39,6 +39,9 @@
         <activity
             android:name=".userauthentication.activities.AdminLoginActivity"
             android:exported="true" />
+        <activity
+            android:name=".userauthentication.activities.ChangePasswordActivity"
+            android:exported="true" />
 
         <!-- Main application Activity -->
         <activity
