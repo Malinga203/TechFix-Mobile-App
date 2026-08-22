@@ -3,12 +3,35 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="techfix_primary">#FF1565C0</color>
-    <color name="techfix_primary_dark">#FF0D47A1</color>
+
     <color name="techfix_accent">#FFFF6F00</color>
-    <color name="techfix_background">#FFF5F7FA</color>
-    <color name="techfix_text_secondary">#FF607D8B</color>
+
     <color name="status_pending">#FFF57C00</color>
     <color name="status_in_progress">#FF1976D2</color>
     <color name="status_completed">#FF388E3C</color>
+
+    <color name="techfix_background">#F8F3EF</color>
+    <color name="techfix_surface">#FFFDFC</color>
+
+    <color name="techfix_primary">#955754</color>
+    <color name="techfix_primary_dark">#74413F</color>
+    <color name="techfix_primary_light">#E7C4BF</color>
+
+    <color name="techfix_gold">#D7A259</color>
+    <color name="techfix_gold_light">#F3E3C8</color>
+
+    <color name="techfix_olive">#85835A</color>
+    <color name="techfix_olive_light">#E5E3D2</color>
+
+    <color name="techfix_text_primary">#2E2926</color>
+    <color name="techfix_text_secondary">#746964</color>
+
+    <color name="techfix_border">#E5D8D1</color>
+    <color name="techfix_divider">#EEE4DE</color>
+
+    <color name="techfix_success">#6D7950</color>
+    <color name="techfix_success_background">#E7E8D9</color>
+
+    <color name="techfix_danger">#B64C4C</color>
+    <color name="techfix_danger_background">#F5DEDC</color>
 </resources>

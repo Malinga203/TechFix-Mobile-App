@@ -37,7 +37,9 @@
             android:exported="false" />
 
         <activity
-            android:name=".activities.SparePartActivity"
+            android:name=".activities.SparePartActivity">
+
+        </activity>
         <activity
             android:name=".activities.MapPickerActivity"
             android:exported="false" />
@@ -46,7 +48,9 @@
             android:exported="false" />
         <activity
             android:name=".activities.BranchActivity"
-            android:exported="false"></activity>
+            android:exported="false">
+
+        </activity>
         <activity
             android:name=".activities.MainActivity"
             android:exported="false" />

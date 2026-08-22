@@ -6,7 +6,6 @@ public class SparePart {
     private String partName;
     private String description;
     private double price;
-    private int stockQuantity;
     private String compatibleModels;
 
     public SparePart() {
@@ -17,14 +16,12 @@ public class SparePart {
             String partName,
             String description,
             double price,
-            int stockQuantity,
             String compatibleModels
     ) {
         this.partId = partId;
         this.partName = partName;
         this.description = description;
         this.price = price;
-        this.stockQuantity = stockQuantity;
         this.compatibleModels = compatibleModels;
     }
 
@@ -58,14 +55,6 @@ public class SparePart {
 
     public void setPrice(double price) {
         this.price = price;
-    }
-
-    public int getStockQuantity() {
-        return stockQuantity;
-    }
-
-    public void setStockQuantity(int stockQuantity) {
-        this.stockQuantity = stockQuantity;
     }
 
     public String getCompatibleModels() {

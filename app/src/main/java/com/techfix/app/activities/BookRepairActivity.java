@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import com.techfix.app.R;
 import com.techfix.app.database.AppointmentDAO;
-import com.techfix.app.database.BranchDAO;
+import com.techfix.app.database.BranchDao;
 import com.techfix.app.database.ServiceDAO;
 import com.techfix.app.models.Appointment;
 import com.techfix.app.models.Branch;
@@ -60,7 +60,7 @@ public class BookRepairActivity extends AppCompatActivity {
     private Button btnConfirmBooking;
 
     private ServiceDAO serviceDAO;
-    private BranchDAO branchDAO;
+    private BranchDao branchDAO;
     private AppointmentDAO appointmentDAO;
 
     private List<RepairService> services;
@@ -129,7 +129,7 @@ public class BookRepairActivity extends AppCompatActivity {
                 new ServiceDAO(this);
 
         branchDAO =
-                new BranchDAO(this);
+                new BranchDao(this);
 
         appointmentDAO =
                 new AppointmentDAO(this);
