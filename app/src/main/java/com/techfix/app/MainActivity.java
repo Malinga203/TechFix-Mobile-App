@@ -6,6 +6,9 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.techfix.app.activities.RepairHistoryActivity;
+import com.techfix.app.activities.RepairTrackingActivity;
+import com.techfix.app.activities.ServiceListActivity;
 import com.techfix.app.userauthentication.activities.CustomerProfileActivity;
 import com.techfix.app.userauthentication.activities.LoginActivity;
 import com.techfix.app.userauthentication.utils.SessionManager;
@@ -14,48 +17,162 @@ public class MainActivity extends AppCompatActivity {
 
     private SessionManager sessionManager;
 
+    private Button btnServices;
+    private Button btnRepairTracking;
+    private Button btnRepairHistory;
     private Button btnSeeProfile;
     private Button btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
-        sessionManager = new SessionManager(this);
+        sessionManager =
+                new SessionManager(this);
 
-        // Check if user is logged in
+        // Keep existing authentication flow
         if (!sessionManager.isLoggedIn()) {
 
             openLogin();
+
             return;
         }
 
-        setContentView(R.layout.activity_main);
+        setContentView(
+                R.layout.activity_main
+        );
 
-        // Initialize buttons
-        btnSeeProfile = findViewById(R.id.btnSeeProfile);
-        btnLogout = findViewById(R.id.btnLogout);
+        initializeViews();
 
-        // Open customer profile
-        btnSeeProfile.setOnClickListener(v -> openProfile());
-
-        // Logout
-        btnLogout.setOnClickListener(v -> logoutUser());
+        setupNavigation();
     }
 
+
     // =========================================================
-    // OPEN CUSTOMER PROFILE
+    // INITIALIZE
+    // =========================================================
+
+    private void initializeViews() {
+
+        btnServices =
+                findViewById(
+                        R.id.btnServices
+                );
+
+        btnRepairTracking =
+                findViewById(
+                        R.id.btnRepairTracking
+                );
+
+        btnRepairHistory =
+                findViewById(
+                        R.id.btnRepairHistory
+                );
+
+        btnSeeProfile =
+                findViewById(
+                        R.id.btnSeeProfile
+                );
+
+        btnLogout =
+                findViewById(
+                        R.id.btnLogout
+                );
+    }
+
+
+    // =========================================================
+    // PAGE NAVIGATION
+    // =========================================================
+
+    private void setupNavigation() {
+
+        btnServices.setOnClickListener(
+                view -> openServices()
+        );
+
+        btnRepairTracking.setOnClickListener(
+                view -> openRepairTracking()
+        );
+
+        btnRepairHistory.setOnClickListener(
+                view -> openRepairHistory()
+        );
+
+        btnSeeProfile.setOnClickListener(
+                view -> openProfile()
+        );
+
+        btnLogout.setOnClickListener(
+                view -> logoutUser()
+        );
+    }
+
+
+    // =========================================================
+    // SERVICES
+    // =========================================================
+
+    private void openServices() {
+
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        ServiceListActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+
+    // =========================================================
+    // REPAIR TRACKING
+    // =========================================================
+
+    private void openRepairTracking() {
+
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        RepairTrackingActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+
+    // =========================================================
+    // REPAIR HISTORY
+    // =========================================================
+
+    private void openRepairHistory() {
+
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        RepairHistoryActivity.class
+                );
+
+        startActivity(intent);
+    }
+
+
+    // =========================================================
+    // PROFILE
     // =========================================================
 
     private void openProfile() {
 
-        Intent intent = new Intent(
-                MainActivity.this,
-                CustomerProfileActivity.class
-        );
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        CustomerProfileActivity.class
+                );
 
         startActivity(intent);
     }
+
 
     // =========================================================
     // LOGOUT
@@ -68,20 +185,21 @@ public class MainActivity extends AppCompatActivity {
         openLogin();
     }
 
+
     // =========================================================
-    // OPEN LOGIN
+    // LOGIN
     // =========================================================
 
     private void openLogin() {
 
-        Intent intent = new Intent(
-                MainActivity.this,
-                LoginActivity.class
-        );
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        LoginActivity.class
+                );
 
         startActivity(intent);
 
-        // Prevent going back to MainActivity
         finish();
     }
 }

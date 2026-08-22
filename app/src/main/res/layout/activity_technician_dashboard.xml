@@ -13,64 +13,49 @@
         android:padding="24dp">
 
         <TextView
-            android:id="@+id/tvWelcome"
+            android:id="@+id/txtTechnicianWelcome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to TechFix"
-            android:textColor="@color/techfix_text_primary"
+            android:text="Technician Dashboard"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:layout_marginTop="24dp" />
+            android:textColor="@color/techfix_text_primary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="What would you like to do?"
+            android:text="Manage appointments and repair progress"
             android:textColor="@color/techfix_text_secondary"
-            android:textSize="15sp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="24dp" />
 
-
         <Button
-            android:id="@+id/btnServices"
+            android:id="@+id/btnVerifyAppointment"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:text="Repair Services"
+            android:layout_height="56dp"
+            android:text="Verify Appointment"
             android:textAllCaps="false" />
 
-
         <Button
-            android:id="@+id/btnRepairTracking"
+            android:id="@+id/btnMyRepairs"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="Track Repairs"
+            android:layout_height="56dp"
+            android:layout_marginTop="14dp"
+            android:text="My Repairs"
             android:textAllCaps="false" />
 
-
         <Button
-            android:id="@+id/btnRepairHistory"
+            android:id="@+id/btnTechnicianProfile"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="Repair History"
-            android:textAllCaps="false" />
-
-
-        <Button
-            android:id="@+id/btnSeeProfile"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="14dp"
             android:text="My Profile"
             android:textAllCaps="false" />
 
-
         <Button
-            android:id="@+id/btnLogout"
+            android:id="@+id/btnTechnicianLogout"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="56dp"
             android:layout_marginTop="28dp"
             android:text="Logout"
             android:textAllCaps="false" />

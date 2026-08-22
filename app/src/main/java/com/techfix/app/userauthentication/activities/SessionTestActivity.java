@@ -18,11 +18,20 @@ public class SessionTestActivity extends AppCompatActivity {
         SessionManager sessionManager =
                 new SessionManager(this);
 
+        // =====================================================
+        // LOGIN STATUS
+        // =====================================================
+
         Log.d(
                 TAG,
                 "Is logged in: "
                         + sessionManager.isLoggedIn()
         );
+
+
+        // =====================================================
+        // USER INFORMATION
+        // =====================================================
 
         Log.d(
                 TAG,
@@ -42,10 +51,49 @@ public class SessionTestActivity extends AppCompatActivity {
                         + sessionManager.getUserEmail()
         );
 
+
+        // =====================================================
+        // ROLE INFORMATION
+        // =====================================================
+
         Log.d(
                 TAG,
-                "User phone: "
-                        + sessionManager.getUserPhone()
+                "Role: "
+                        + sessionManager.getRole()
+        );
+
+
+        // =====================================================
+        // TECHNICIAN INFORMATION
+        // =====================================================
+
+        Log.d(
+                TAG,
+                "Technician ID: "
+                        + sessionManager.getTechnicianId()
+        );
+
+
+        // =====================================================
+        // ROLE CHECKS
+        // =====================================================
+
+        Log.d(
+                TAG,
+                "Is Customer: "
+                        + sessionManager.isCustomer()
+        );
+
+        Log.d(
+                TAG,
+                "Is Technician: "
+                        + sessionManager.isTechnician()
+        );
+
+        Log.d(
+                TAG,
+                "Is Admin: "
+                        + sessionManager.isAdmin()
         );
     }
 }

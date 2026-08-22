@@ -7,6 +7,9 @@ public class Appointment {
     private int serviceId;
     private Integer partId;
     private int branchId;
+
+    private String appointmentCode;
+
     private String deviceModel;
     private String issueDescription;
     private String appointmentDate;
@@ -26,6 +29,7 @@ public class Appointment {
             String appointmentDate,
             String appointmentTime
     ) {
+
         this.userId = userId;
         this.serviceId = serviceId;
         this.partId = partId;
@@ -77,11 +81,23 @@ public class Appointment {
         this.branchId = branchId;
     }
 
+    public String getAppointmentCode() {
+        return appointmentCode;
+    }
+
+    public void setAppointmentCode(
+            String appointmentCode
+    ) {
+        this.appointmentCode = appointmentCode;
+    }
+
     public String getDeviceModel() {
         return deviceModel;
     }
 
-    public void setDeviceModel(String deviceModel) {
+    public void setDeviceModel(
+            String deviceModel
+    ) {
         this.deviceModel = deviceModel;
     }
 
@@ -89,7 +105,9 @@ public class Appointment {
         return issueDescription;
     }
 
-    public void setIssueDescription(String issueDescription) {
+    public void setIssueDescription(
+            String issueDescription
+    ) {
         this.issueDescription = issueDescription;
     }
 
@@ -97,7 +115,9 @@ public class Appointment {
         return appointmentDate;
     }
 
-    public void setAppointmentDate(String appointmentDate) {
+    public void setAppointmentDate(
+            String appointmentDate
+    ) {
         this.appointmentDate = appointmentDate;
     }
 
@@ -105,7 +125,9 @@ public class Appointment {
         return appointmentTime;
     }
 
-    public void setAppointmentTime(String appointmentTime) {
+    public void setAppointmentTime(
+            String appointmentTime
+    ) {
         this.appointmentTime = appointmentTime;
     }
 
@@ -113,7 +135,9 @@ public class Appointment {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(
+            String status
+    ) {
         this.status = status;
     }
 }

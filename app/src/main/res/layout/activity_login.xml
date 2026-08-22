@@ -16,37 +16,31 @@
         android:paddingTop="36dp"
         android:paddingBottom="32dp">
 
-        <!-- Brand -->
+        <!-- ================================================= -->
+        <!-- BRAND -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TECHFIX"
-            android:textColor="#2563EB"
-            android:textSize="30sp"
-            android:textStyle="bold"
+            android:layout_marginTop="12dp"
             android:letterSpacing="0.08"
-            android:layout_marginTop="12dp" />
+            android:text="TECHFIX"
+            android:textColor="@color/techfix_primary"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvAdminLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="Login as admin"
-            android:textColor="#2563EB"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="4dp" />
 
-        <!-- Welcome -->
+        <!-- ================================================= -->
+        <!-- WELCOME -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="42dp"
+            android:layout_marginTop="52dp"
             android:text="Welcome back"
-            android:textColor="#111827"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -54,46 +48,52 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:lineSpacingExtra="3dp"
             android:text="Sign in to continue to your TechFix account."
-            android:textColor="#6B7280"
-            android:textSize="16sp"
-            android:lineSpacingExtra="3dp" />
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="16sp" />
 
-        <!-- Name label -->
+
+        <!-- ================================================= -->
+        <!-- EMAIL -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
-            android:text="Name"
-            android:textColor="#374151"
+            android:text="Email"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- Name -->
         <EditText
-            android:id="@+id/etName"
+            android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_input"
-            android:hint="Enter your name"
-            android:inputType="textPersonName"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:hint="Enter your email"
+            android:inputType="textEmailAddress"
+            android:singleLine="true"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
+            android:textSize="16sp" />
 
-        <!-- Password label -->
+
+        <!-- ================================================= -->
+        <!-- PASSWORD -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Password"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- Password -->
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
@@ -102,26 +102,48 @@
             android:background="@drawable/bg_input"
             android:hint="Enter your password"
             android:inputType="textPassword"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
+            android:textSize="16sp" />
 
-        <!-- Login button -->
+
+        <!-- ================================================= -->
+        <!-- LOGIN -->
+        <!-- ================================================= -->
+
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="30dp"
             android:background="@drawable/bg_button_primary"
+            android:elevation="2dp"
             android:text="Login"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
             android:textAllCaps="false"
-            android:elevation="2dp" />
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-        <!-- Register section -->
+
+        <!-- ================================================= -->
+        <!-- LOGIN INFORMATION -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="Customers, technicians and administrators use the same login."
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="12sp" />
+
+
+        <!-- ================================================= -->
+        <!-- CUSTOMER REGISTRATION -->
+        <!-- ================================================= -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -133,20 +155,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Don't have an account? "
-                android:textColor="#6B7280"
+                android:textColor="@color/techfix_text_secondary"
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvRegister"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Register here"
-                android:textColor="#2563EB"
-                android:textSize="14sp"
-                android:textStyle="bold"
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="4dp" />
+                android:padding="4dp"
+                android:text="Register here"
+                android:textColor="@color/techfix_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 

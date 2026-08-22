@@ -5,13 +5,43 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseHelper
+        extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME =
             "techfix.db";
 
     private static final int DATABASE_VERSION =
-            5;
+            8;
+
+
+    // =========================================================
+    // USER
+    // =========================================================
+
+    public static final String TABLE_USERS =
+            "users";
+
+    public static final String COLUMN_USER_ID =
+            "user_id";
+
+    public static final String COLUMN_USER_NAME =
+            "name";
+
+    public static final String COLUMN_USER_EMAIL =
+            "email";
+
+    public static final String COLUMN_USER_PHONE =
+            "phone";
+
+    public static final String COLUMN_USER_PASSWORD =
+            "password";
+
+    public static final String COLUMN_USER_ROLE =
+            "role";
+
+    public static final String COLUMN_USER_TECHNICIAN_ID =
+            "technician_id";
 
 
     // =========================================================
@@ -132,6 +162,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_APPOINTMENT_ID =
             "appointment_id";
+
+    public static final String COLUMN_APPOINTMENT_CODE =
+            "appointment_code";
 
     public static final String COLUMN_APPOINTMENT_USER_ID =
             "user_id";
@@ -263,10 +296,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
-    // FOREIGN KEYS
-    // =========================================================
-
     @Override
     public void onConfigure(
             SQLiteDatabase db
@@ -280,10 +309,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // =========================================================
-    // CREATE DATABASE
-    // =========================================================
-
     @Override
     public void onCreate(
             SQLiteDatabase db
@@ -292,6 +317,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createBranchTable(db);
 
         createTechnicianTable(db);
+
+        createUserTable(db);
 
         createServiceTable(db);
 
@@ -305,9 +332,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         createRepairTable(db);
 
-
-        // Seed data must be inserted after tables exist.
-
         insertInitialBranches(db);
 
         seedServices(db);
@@ -315,11 +339,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         seedSpareParts(db);
 
         seedBranchSparePartStock(db);
+
+        seedAdminAccount(db);
     }
 
 
     // =========================================================
-    // BRANCH TABLE
+    // USERS
+    // =========================================================
+
+    private void createUserTable(
+            SQLiteDatabase db
+    ) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " +
+                        TABLE_USERS +
+                        " (" +
+
+                        COLUMN_USER_ID +
+                        " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
+                        COLUMN_USER_NAME +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_USER_EMAIL +
+                        " TEXT NOT NULL UNIQUE, " +
+
+                        COLUMN_USER_PHONE +
+                        " TEXT, " +
+
+                        COLUMN_USER_PASSWORD +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_USER_ROLE +
+                        " TEXT NOT NULL DEFAULT 'CUSTOMER', " +
+
+                        COLUMN_USER_TECHNICIAN_ID +
+                        " INTEGER, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_USER_TECHNICIAN_ID +
+                        ") REFERENCES " +
+                        TABLE_TECHNICIAN +
+                        "(" +
+                        COLUMN_TECHNICIAN_ID +
+                        ")" +
+
+                        ")";
+
+        db.execSQL(sql);
+    }
+
+
+    // =========================================================
+    // BRANCH
     // =========================================================
 
     private void createBranchTable(
@@ -353,7 +427,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // TECHNICIAN TABLE
+    // TECHNICIAN
     // =========================================================
 
     private void createTechnicianTable(
@@ -398,7 +472,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // SERVICE TABLE
+    // SERVICE
     // =========================================================
 
     private void createServiceTable(
@@ -435,7 +509,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // SPARE PART TABLE
+    // SPARE PART
     // =========================================================
 
     private void createSparePartTable(
@@ -469,7 +543,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // BRANCH SPARE PART TABLE
+    // STOCK
     // =========================================================
 
     private void createBranchSparePartTable(
@@ -519,7 +593,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // APPOINTMENT TABLE
+    // APPOINTMENT
     // =========================================================
 
     private void createAppointmentTable(
@@ -546,6 +620,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         COLUMN_APPOINTMENT_BRANCH_ID +
                         " INTEGER NOT NULL, " +
 
+                        COLUMN_APPOINTMENT_CODE +
+                        " TEXT UNIQUE, " +
+
                         COLUMN_DEVICE_MODEL +
                         " TEXT NOT NULL, " +
 
@@ -560,6 +637,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                         COLUMN_STATUS +
                         " TEXT NOT NULL DEFAULT 'PENDING', " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_APPOINTMENT_USER_ID +
+                        ") REFERENCES " +
+                        TABLE_USERS +
+                        "(" +
+                        COLUMN_USER_ID +
+                        "), " +
 
                         "FOREIGN KEY(" +
                         COLUMN_APPOINTMENT_SERVICE_ID +
@@ -592,7 +677,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // PAYMENT TABLE
+    // PAYMENT
     // =========================================================
 
     private void createPaymentTable(
@@ -643,7 +728,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // REPAIR TABLE
+    // REPAIR
     // =========================================================
 
     private void createRepairTable(
@@ -698,11 +783,83 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         " TEXT, " +
 
                         COLUMN_REPAIR_COMPLETED_AT +
-                        " TEXT" +
+                        " TEXT, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_REPAIR_APPOINTMENT_ID +
+                        ") REFERENCES " +
+                        TABLE_APPOINTMENT +
+                        "(" +
+                        COLUMN_APPOINTMENT_ID +
+                        "), " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_REPAIR_CUSTOMER_ID +
+                        ") REFERENCES " +
+                        TABLE_USERS +
+                        "(" +
+                        COLUMN_USER_ID +
+                        "), " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_REPAIR_TECHNICIAN_ID +
+                        ") REFERENCES " +
+                        TABLE_TECHNICIAN +
+                        "(" +
+                        COLUMN_TECHNICIAN_ID +
+                        ")" +
 
                         ")";
 
         db.execSQL(sql);
+    }
+
+
+    // =========================================================
+    // ADMIN
+    // =========================================================
+
+    private void seedAdminAccount(
+            SQLiteDatabase db
+    ) {
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                COLUMN_USER_NAME,
+                "TechFix Admin"
+        );
+
+        values.put(
+                COLUMN_USER_EMAIL,
+                "admin@techfix.com"
+        );
+
+        values.put(
+                COLUMN_USER_PHONE,
+                "0000000000"
+        );
+
+        values.put(
+                COLUMN_USER_PASSWORD,
+                "admin123"
+        );
+
+        values.put(
+                COLUMN_USER_ROLE,
+                "ADMIN"
+        );
+
+        values.putNull(
+                COLUMN_USER_TECHNICIAN_ID
+        );
+
+        db.insert(
+                TABLE_USERS,
+                null,
+                values
+        );
     }
 
 
@@ -871,14 +1028,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // =========================================================
-    // BRANCH STOCK
+    // STOCK
     // =========================================================
 
     private void seedBranchSparePartStock(
             SQLiteDatabase db
     ) {
 
-        // Colombo
         insertBranchStock(db, 1, 1, 8);
         insertBranchStock(db, 1, 2, 12);
         insertBranchStock(db, 1, 3, 9);
@@ -886,7 +1042,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertBranchStock(db, 1, 5, 3);
         insertBranchStock(db, 1, 6, 0);
 
-        // Galle
         insertBranchStock(db, 2, 1, 4);
         insertBranchStock(db, 2, 2, 8);
         insertBranchStock(db, 2, 3, 6);
@@ -958,6 +1113,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(
                 "DROP TABLE IF EXISTS " +
                         TABLE_BRANCH_SPARE_PART
+        );
+
+        db.execSQL(
+                "DROP TABLE IF EXISTS " +
+                        TABLE_USERS
         );
 
         db.execSQL(

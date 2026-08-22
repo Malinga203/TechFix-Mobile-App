@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -10,51 +13,118 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TechFix">
-
-        <!-- Temporary authentication database test Activity -->
+        android:theme="@style/Theme.TechFix"
+        android:usesCleartextTraffic="true">
         <activity
-            android:name=".userauthentication.activities.AuthDatabaseTestActivity"
-            android:exported="true" />
-
+            android:name=".activities.TechnicianProfileActivity"
+            android:exported="false" />
         <activity
-            android:name=".userauthentication.activities.RegisterActivity"
-            android:exported="true" />
-
+            android:name=".TechnicianRepairDetailsActivity"
+            android:exported="false" />
         <activity
-            android:name=".userauthentication.activities.LoginActivity"
-            android:exported="true" />
-
+            android:name=".TechnicianRepairsActivity"
+            android:exported="false" />
         <activity
-            android:name=".userauthentication.activities.SessionTestActivity"
-            android:exported="true" />
-
+            android:name=".activities.TechnicianVerifyAppointmentActivity"
+            android:exported="false" />
         <activity
-            android:name=".userauthentication.activities.LogoutTestActivity"
-            android:exported="true" />
-
+            android:name=".activities.TechnicianDashboardActivity"
+            android:exported="false" />
         <activity
-            android:name=".userauthentication.activities.CustomerProfileActivity"
-            android:exported="true" />
-        <activity
-            android:name=".userauthentication.activities.AdminLoginActivity"
-            android:exported="true" />
-        <activity
-            android:name=".userauthentication.activities.ChangePasswordActivity"
-            android:exported="true" />
-
-        <!-- Main application Activity -->
+            android:name=".activities.AdminDashboardActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- MAIN APPLICATION ACTIVITY -->
+        <!-- ================================================= -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-        </activity>
-
+        </activity> <!-- ================================================= -->
+        <!-- USER AUTHENTICATION -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".userauthentication.activities.AuthDatabaseTestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.SessionTestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.LogoutTestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.CustomerProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.AdminLoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userauthentication.activities.ChangePasswordActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- PAYMENT -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.PaymentActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- TECHNICIAN -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.AddEditTechnicianActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.TechnicianActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- SERVICES / BOOKING -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.ServiceListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.BookRepairActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SparePartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.RepairTrackingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.RepairHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.RepairDetailsActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- BRANCH / MAP -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.MapPickerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.AddEditBranchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.BranchActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- FILE PROVIDER -->
+        <!-- ================================================= -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

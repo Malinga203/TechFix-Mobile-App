@@ -1,5 +1,6 @@
 package com.techfix.app.userauthentication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.techfix.app.R;
+import com.techfix.app.activities.AdminDashboardActivity;
 
 public class AdminLoginActivity extends AppCompatActivity {
 
@@ -16,46 +18,78 @@ public class AdminLoginActivity extends AppCompatActivity {
     private EditText etAdminPassword;
 
     private Button btnAdminLogin;
+
     private TextView tvBackToCustomerLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_admin_login);
+        setContentView(
+                R.layout.activity_admin_login
+        );
 
-        etAdminUsername = findViewById(R.id.etAdminUsername);
-        etAdminPassword = findViewById(R.id.etAdminPassword);
+        initializeViews();
 
-        btnAdminLogin = findViewById(R.id.btnAdminLogin);
+        setupListeners();
+    }
+
+    private void initializeViews() {
+
+        etAdminUsername =
+                findViewById(
+                        R.id.etAdminUsername
+                );
+
+        etAdminPassword =
+                findViewById(
+                        R.id.etAdminPassword
+                );
+
+        btnAdminLogin =
+                findViewById(
+                        R.id.btnAdminLogin
+                );
+
         tvBackToCustomerLogin =
-                findViewById(R.id.tvBackToCustomerLogin);
+                findViewById(
+                        R.id.tvBackToCustomerLogin
+                );
+    }
+
+    private void setupListeners() {
 
         btnAdminLogin.setOnClickListener(
-                v -> adminLogin()
+                view -> loginAdmin()
         );
 
         tvBackToCustomerLogin.setOnClickListener(
-                v -> finish()
+                view -> openCustomerLogin()
         );
     }
 
-    private void adminLogin() {
+    private void loginAdmin() {
 
         String username =
-                etAdminUsername.getText()
+                etAdminUsername
+                        .getText()
                         .toString()
                         .trim();
 
         String password =
-                etAdminPassword.getText()
-                        .toString();
+                etAdminPassword
+                        .getText()
+                        .toString()
+                        .trim();
 
         if (username.isEmpty()) {
 
             etAdminUsername.setError(
-                    "Enter admin username"
+                    "Admin username is required"
             );
+
+            etAdminUsername.requestFocus();
 
             return;
         }
@@ -63,16 +97,19 @@ public class AdminLoginActivity extends AppCompatActivity {
         if (password.isEmpty()) {
 
             etAdminPassword.setError(
-                    "Enter admin password"
+                    "Admin password is required"
             );
+
+            etAdminPassword.requestFocus();
 
             return;
         }
 
-        // Temporary admin credentials for testing.
-        // We will connect this to SQLite later.
-        if (username.equals("admin")
-                && password.equals("admin123")) {
+        if (
+                username.equals("admin")
+                        &&
+                        password.equals("admin123")
+        ) {
 
             Toast.makeText(
                     this,
@@ -80,7 +117,23 @@ public class AdminLoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
-            // Admin Dashboard will be connected here later.
+            Intent intent =
+                    new Intent(
+                            AdminLoginActivity.this,
+                            AdminDashboardActivity.class
+                    );
+
+            /*
+             * Remove login screens from the back stack.
+             */
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+
+            finish();
 
         } else {
 
@@ -90,5 +143,18 @@ public class AdminLoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
         }
+    }
+
+    private void openCustomerLogin() {
+
+        Intent intent =
+                new Intent(
+                        AdminLoginActivity.this,
+                        LoginActivity.class
+                );
+
+        startActivity(intent);
+
+        finish();
     }
 }

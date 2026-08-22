@@ -14,10 +14,14 @@ public class TechnicianDao {
 
     private final DatabaseHelper databaseHelper;
 
-    public TechnicianDao(Context context) {
+    public TechnicianDao(
+            Context context
+    ) {
+
         databaseHelper =
                 new DatabaseHelper(context);
     }
+
 
     public long insertTechnician(
             Technician technician
@@ -27,32 +31,9 @@ public class TechnicianDao {
                 databaseHelper.getWritableDatabase();
 
         ContentValues values =
-                new ContentValues();
-
-        values.put(
-                DatabaseHelper.COLUMN_TECHNICIAN_NAME,
-                technician.getName()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_TECHNICIAN_PHONE,
-                technician.getPhone()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_SPECIALIZATION,
-                technician.getSpecialization()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_AVAILABLE,
-                technician.isAvailable() ? 1 : 0
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_TECHNICIAN_BRANCH_ID,
-                technician.getBranchId()
-        );
+                createValues(
+                        technician
+                );
 
         return db.insert(
                 DatabaseHelper.TABLE_TECHNICIAN,
@@ -60,6 +41,50 @@ public class TechnicianDao {
                 values
         );
     }
+
+
+    public Technician getTechnicianById(
+            int technicianId
+    ) {
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_TECHNICIAN,
+                        null,
+
+                        DatabaseHelper.COLUMN_TECHNICIAN_ID +
+                                " = ?",
+
+                        new String[]{
+                                String.valueOf(
+                                        technicianId
+                                )
+                        },
+
+                        null,
+                        null,
+                        null
+                );
+
+        Technician technician =
+                null;
+
+        if (cursor.moveToFirst()) {
+
+            technician =
+                    createTechnicianFromCursor(
+                            cursor
+                    );
+        }
+
+        cursor.close();
+
+        return technician;
+    }
+
 
     public List<Technician> getAllTechnicians() {
 
@@ -77,29 +102,24 @@ public class TechnicianDao {
                         null,
                         null,
                         null,
-                        DatabaseHelper.COLUMN_TECHNICIAN_NAME + " ASC"
+                        DatabaseHelper.COLUMN_TECHNICIAN_NAME +
+                                " ASC"
                 );
 
-        if (cursor.moveToFirst()) {
+        while (cursor.moveToNext()) {
 
-            do {
-
-                Technician technician =
-                        createTechnicianFromCursor(
-                                cursor
-                        );
-
-                technicians.add(
-                        technician
-                );
-
-            } while (cursor.moveToNext());
+            technicians.add(
+                    createTechnicianFromCursor(
+                            cursor
+                    )
+            );
         }
 
         cursor.close();
 
         return technicians;
     }
+
 
     public List<Technician> getTechniciansByBranch(
             int branchId
@@ -115,26 +135,30 @@ public class TechnicianDao {
                 db.query(
                         DatabaseHelper.TABLE_TECHNICIAN,
                         null,
-                        DatabaseHelper.COLUMN_TECHNICIAN_BRANCH_ID + " = ?",
+
+                        DatabaseHelper.COLUMN_TECHNICIAN_BRANCH_ID +
+                                " = ?",
+
                         new String[]{
-                                String.valueOf(branchId)
+                                String.valueOf(
+                                        branchId
+                                )
                         },
+
                         null,
                         null,
-                        DatabaseHelper.COLUMN_TECHNICIAN_NAME + " ASC"
+
+                        DatabaseHelper.COLUMN_TECHNICIAN_NAME +
+                                " ASC"
                 );
 
-        if (cursor.moveToFirst()) {
+        while (cursor.moveToNext()) {
 
-            do {
-
-                technicians.add(
-                        createTechnicianFromCursor(
-                                cursor
-                        )
-                );
-
-            } while (cursor.moveToNext());
+            technicians.add(
+                    createTechnicianFromCursor(
+                            cursor
+                    )
+            );
         }
 
         cursor.close();
@@ -142,12 +166,99 @@ public class TechnicianDao {
         return technicians;
     }
 
+
     public int updateTechnician(
             Technician technician
     ) {
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
+
+        return db.update(
+                DatabaseHelper.TABLE_TECHNICIAN,
+
+                createValues(
+                        technician
+                ),
+
+                DatabaseHelper.COLUMN_TECHNICIAN_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                technician.getTechnicianId()
+                        )
+                }
+        );
+    }
+
+
+    public int deleteTechnician(
+            int technicianId
+    ) {
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        return db.delete(
+                DatabaseHelper.TABLE_TECHNICIAN,
+
+                DatabaseHelper.COLUMN_TECHNICIAN_ID +
+                        " = ?",
+
+                new String[]{
+                        String.valueOf(
+                                technicianId
+                        )
+                }
+        );
+    }
+
+
+    public boolean isTechnicianAvailable(
+            int branchId,
+            String specialization
+    ) {
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_TECHNICIAN,
+                        null,
+
+                        DatabaseHelper.COLUMN_TECHNICIAN_BRANCH_ID +
+                                " = ? AND " +
+
+                                DatabaseHelper.COLUMN_SPECIALIZATION +
+                                " = ? AND " +
+
+                                DatabaseHelper.COLUMN_AVAILABLE +
+                                " = 1",
+
+                        new String[]{
+                                String.valueOf(branchId),
+                                specialization
+                        },
+
+                        null,
+                        null,
+                        null
+                );
+
+        boolean exists =
+                cursor.moveToFirst();
+
+        cursor.close();
+
+        return exists;
+    }
+
+
+    private ContentValues createValues(
+            Technician technician
+    ) {
 
         ContentValues values =
                 new ContentValues();
@@ -169,7 +280,9 @@ public class TechnicianDao {
 
         values.put(
                 DatabaseHelper.COLUMN_AVAILABLE,
-                technician.isAvailable() ? 1 : 0
+                technician.isAvailable()
+                        ? 1
+                        : 0
         );
 
         values.put(
@@ -177,126 +290,51 @@ public class TechnicianDao {
                 technician.getBranchId()
         );
 
-        return db.update(
-                DatabaseHelper.TABLE_TECHNICIAN,
-                values,
-                DatabaseHelper.COLUMN_TECHNICIAN_ID + " = ?",
-                new String[]{
-                        String.valueOf(
-                                technician.getTechnicianId()
-                        )
-                }
-        );
+        return values;
     }
 
-    public int deleteTechnician(
-            int technicianId
-    ) {
-
-        SQLiteDatabase db =
-                databaseHelper.getWritableDatabase();
-
-        return db.delete(
-                DatabaseHelper.TABLE_TECHNICIAN,
-                DatabaseHelper.COLUMN_TECHNICIAN_ID + " = ?",
-                new String[]{
-                        String.valueOf(
-                                technicianId
-                        )
-                }
-        );
-    }
-
-    public boolean isTechnicianAvailable(
-            int branchId,
-            String specialization
-    ) {
-
-        SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
-
-        String selection =
-                DatabaseHelper.COLUMN_TECHNICIAN_BRANCH_ID + " = ? AND " +
-                        DatabaseHelper.COLUMN_SPECIALIZATION + " = ? AND " +
-                        DatabaseHelper.COLUMN_AVAILABLE + " = 1";
-
-        String[] selectionArgs = {
-                String.valueOf(branchId),
-                specialization
-        };
-
-        Cursor cursor =
-                db.query(
-                        DatabaseHelper.TABLE_TECHNICIAN,
-                        null,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        null
-                );
-
-        boolean available =
-                cursor.getCount() > 0;
-
-        cursor.close();
-
-        return available;
-    }
 
     private Technician createTechnicianFromCursor(
             Cursor cursor
     ) {
 
-        int technicianId =
+        return new Technician(
+
                 cursor.getInt(
                         cursor.getColumnIndexOrThrow(
                                 DatabaseHelper.COLUMN_TECHNICIAN_ID
                         )
-                );
+                ),
 
-        String name =
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
                                 DatabaseHelper.COLUMN_TECHNICIAN_NAME
                         )
-                );
+                ),
 
-        String phone =
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
                                 DatabaseHelper.COLUMN_TECHNICIAN_PHONE
                         )
-                );
+                ),
 
-        String specialization =
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
                                 DatabaseHelper.COLUMN_SPECIALIZATION
                         )
-                );
+                ),
 
-        int availableValue =
                 cursor.getInt(
                         cursor.getColumnIndexOrThrow(
                                 DatabaseHelper.COLUMN_AVAILABLE
                         )
-                );
+                ) == 1,
 
-        int branchId =
                 cursor.getInt(
                         cursor.getColumnIndexOrThrow(
                                 DatabaseHelper.COLUMN_TECHNICIAN_BRANCH_ID
                         )
-                );
-
-        return new Technician(
-                technicianId,
-                name,
-                phone,
-                specialization,
-                availableValue == 1,
-                branchId
+                )
         );
     }
 }

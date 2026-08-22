@@ -3,10 +3,13 @@ package com.techfix.app.models;
 public class Technician {
 
     private int technicianId;
+
     private String name;
     private String phone;
     private String specialization;
+
     private boolean available;
+
     private int branchId;
 
     public Technician() {
@@ -20,6 +23,7 @@ public class Technician {
             boolean available,
             int branchId
     ) {
+
         this.technicianId = technicianId;
         this.name = name;
         this.phone = phone;
@@ -32,7 +36,9 @@ public class Technician {
         return technicianId;
     }
 
-    public void setTechnicianId(int technicianId) {
+    public void setTechnicianId(
+            int technicianId
+    ) {
         this.technicianId = technicianId;
     }
 
@@ -40,7 +46,9 @@ public class Technician {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(
+            String name
+    ) {
         this.name = name;
     }
 
@@ -48,7 +56,9 @@ public class Technician {
         return phone;
     }
 
-    public void setPhone(String phone) {
+    public void setPhone(
+            String phone
+    ) {
         this.phone = phone;
     }
 
@@ -56,15 +66,20 @@ public class Technician {
         return specialization;
     }
 
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
+    public void setSpecialization(
+            String specialization
+    ) {
+        this.specialization =
+                specialization;
     }
 
     public boolean isAvailable() {
         return available;
     }
 
-    public void setAvailable(boolean available) {
+    public void setAvailable(
+            boolean available
+    ) {
         this.available = available;
     }
 
@@ -72,7 +87,9 @@ public class Technician {
         return branchId;
     }
 
-    public void setBranchId(int branchId) {
+    public void setBranchId(
+            int branchId
+    ) {
         this.branchId = branchId;
     }
 }

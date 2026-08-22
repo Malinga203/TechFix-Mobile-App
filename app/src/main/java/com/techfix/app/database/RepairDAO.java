@@ -832,6 +832,144 @@ public class RepairDAO {
         );
     }
 
+    public Repair getRepairByAppointmentId(
+            long appointmentId
+    ) {
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+                        DatabaseHelper.COLUMN_REPAIR_APPOINTMENT_ID +
+                                " = ?",
+                        new String[]{
+                                String.valueOf(
+                                        appointmentId
+                                )
+                        },
+                        null,
+                        null,
+                        null,
+                        "1"
+                );
+
+        try {
+
+            if (cursor.moveToFirst()) {
+
+                return cursorToRepair(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return null;
+    }
+
+    public List<Repair> getRepairsByTechnician(
+            long technicianId
+    ) {
+
+        List<Repair> repairs =
+                new ArrayList<>();
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor =
+                db.query(
+                        DatabaseHelper.TABLE_REPAIR,
+                        null,
+                        DatabaseHelper.COLUMN_REPAIR_TECHNICIAN_ID +
+                                " = ?",
+                        new String[]{
+                                String.valueOf(
+                                        technicianId
+                                )
+                        },
+                        null,
+                        null,
+                        DatabaseHelper.COLUMN_REPAIR_UPDATED_AT +
+                                " DESC"
+                );
+
+        try {
+
+            while (cursor.moveToNext()) {
+
+                repairs.add(
+                        cursorToRepair(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
+        }
+
+        return repairs;
+    }
+
+    public boolean updateRepairCosts(
+            long repairId,
+            double estimatedCost,
+            double finalCost
+    ) {
+
+        if (
+                repairId <= 0 ||
+                        estimatedCost < 0 ||
+                        finalCost < 0
+        ) {
+
+            return false;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_ESTIMATED_COST,
+                estimatedCost
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_FINAL_COST,
+                finalCost
+        );
+
+        values.put(
+                DatabaseHelper.COLUMN_REPAIR_UPDATED_AT,
+                getCurrentTimestamp()
+        );
+
+        int rows =
+                db.update(
+                        DatabaseHelper.TABLE_REPAIR,
+                        values,
+                        DatabaseHelper.COLUMN_REPAIR_ID +
+                                " = ?",
+                        new String[]{
+                                String.valueOf(
+                                        repairId
+                                )
+                        }
+                );
+
+        return rows > 0;
+    }
 
     // =========================================================
     // CLOSE

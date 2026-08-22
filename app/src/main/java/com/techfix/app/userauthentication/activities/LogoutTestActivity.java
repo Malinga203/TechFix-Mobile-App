@@ -18,7 +18,10 @@ public class LogoutTestActivity extends AppCompatActivity {
         SessionManager sessionManager =
                 new SessionManager(this);
 
-        // Check session before logout
+        // =====================================================
+        // BEFORE LOGOUT
+        // =====================================================
+
         Log.d(
                 TAG,
                 "Before logout - Is logged in: "
@@ -27,14 +30,46 @@ public class LogoutTestActivity extends AppCompatActivity {
 
         Log.d(
                 TAG,
+                "Before logout - User ID: "
+                        + sessionManager.getUserId()
+        );
+
+        Log.d(
+                TAG,
+                "Before logout - User name: "
+                        + sessionManager.getUserName()
+        );
+
+        Log.d(
+                TAG,
                 "Before logout - User email: "
                         + sessionManager.getUserEmail()
         );
 
-        // Logout
+        Log.d(
+                TAG,
+                "Before logout - Role: "
+                        + sessionManager.getRole()
+        );
+
+        Log.d(
+                TAG,
+                "Before logout - Technician ID: "
+                        + sessionManager.getTechnicianId()
+        );
+
+
+        // =====================================================
+        // LOGOUT
+        // =====================================================
+
         sessionManager.logout();
 
-        // Check session after logout
+
+        // =====================================================
+        // AFTER LOGOUT
+        // =====================================================
+
         Log.d(
                 TAG,
                 "After logout - Is logged in: "
@@ -61,8 +96,16 @@ public class LogoutTestActivity extends AppCompatActivity {
 
         Log.d(
                 TAG,
-                "After logout - User phone: "
-                        + sessionManager.getUserPhone()
+                "After logout - Role: "
+                        + sessionManager.getRole()
         );
+
+        Log.d(
+                TAG,
+                "After logout - Technician ID: "
+                        + sessionManager.getTechnicianId()
+        );
+
+        finish();
     }
 }

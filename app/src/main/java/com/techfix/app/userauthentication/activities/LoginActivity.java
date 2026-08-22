@@ -9,222 +9,224 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.techfix.app.MainActivity;
 import com.techfix.app.R;
-import com.techfix.app.userauthentication.database.AuthDatabaseHelper;
+import com.techfix.app.activities.AdminDashboardActivity;
+import com.techfix.app.activities.TechnicianDashboardActivity;
+import com.techfix.app.database.UserDao;
 import com.techfix.app.userauthentication.models.User;
 import com.techfix.app.userauthentication.utils.SessionManager;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity
+        extends AppCompatActivity {
 
-    private EditText etName;
+    private EditText etEmail;
     private EditText etPassword;
 
     private Button btnLogin;
-    private TextView tvRegister;
-    private TextView tvAdminLogin;
 
-    private AuthDatabaseHelper databaseHelper;
+    private TextView tvRegister;
+
+    private UserDao userDao;
+
     private SessionManager sessionManager;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(
+            Bundle savedInstanceState
+    ) {
+
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_login);
+        setContentView(
+                R.layout.activity_login
+        );
 
-        initializeViews();
-
-        databaseHelper =
-                new AuthDatabaseHelper(this);
+        userDao =
+                new UserDao(this);
 
         sessionManager =
                 new SessionManager(this);
 
-        // =====================================================
-        // CUSTOMER LOGIN BUTTON
-        // =====================================================
-
-        btnLogin.setOnClickListener(
-                v -> loginUser()
-        );
-
-        // =====================================================
-        // REGISTER LINK
-        // =====================================================
-
-        tvRegister.setOnClickListener(
-                v -> openRegister()
-        );
-
-        // =====================================================
-        // ADMIN LOGIN LINK
-        // =====================================================
-
-        tvAdminLogin.setOnClickListener(
-                v -> openAdminLogin()
-        );
-    }
-
-    // =========================================================
-    // INITIALIZE VIEWS
-    // =========================================================
-
-    private void initializeViews() {
-
-        etName =
-                findViewById(R.id.etName);
+        etEmail =
+                findViewById(
+                        R.id.etEmail
+                );
 
         etPassword =
-                findViewById(R.id.etPassword);
+                findViewById(
+                        R.id.etPassword
+                );
 
         btnLogin =
-                findViewById(R.id.btnLogin);
+                findViewById(
+                        R.id.btnLogin
+                );
 
         tvRegister =
-                findViewById(R.id.tvRegister);
+                findViewById(
+                        R.id.tvRegister
+                );
 
-        tvAdminLogin =
-                findViewById(R.id.tvAdminLogin);
+        btnLogin.setOnClickListener(
+                view -> login()
+        );
+
+        tvRegister.setOnClickListener(
+                view -> {
+
+                    Intent intent =
+                            new Intent(
+                                    LoginActivity.this,
+                                    RegisterActivity.class
+                            );
+
+                    startActivity(intent);
+                }
+        );
     }
 
-    // =========================================================
-    // CUSTOMER LOGIN
-    // =========================================================
 
-    private void loginUser() {
+    private void login() {
 
-        String name =
-                etName.getText()
+        String email =
+                etEmail
+                        .getText()
                         .toString()
                         .trim();
 
         String password =
-                etPassword.getText()
+                etPassword
+                        .getText()
                         .toString();
 
-        // -----------------------------------------------------
-        // VALIDATE NAME
-        // -----------------------------------------------------
+        if (email.isEmpty()) {
 
-        if (name.isEmpty()) {
-
-            etName.setError(
-                    "Enter your name"
+            etEmail.setError(
+                    "Email is required"
             );
-
-            etName.requestFocus();
 
             return;
         }
-
-        // -----------------------------------------------------
-        // VALIDATE PASSWORD
-        // -----------------------------------------------------
 
         if (password.isEmpty()) {
 
             etPassword.setError(
-                    "Enter your password"
+                    "Password is required"
             );
-
-            etPassword.requestFocus();
 
             return;
         }
 
-        // -----------------------------------------------------
-        // AUTHENTICATE CUSTOMER
-        // -----------------------------------------------------
-
         User user =
-                databaseHelper.authenticateUserByName(
-                        name,
+                userDao.authenticateUser(
+                        email,
                         password
                 );
 
-        // -----------------------------------------------------
-        // LOGIN SUCCESS
-        // -----------------------------------------------------
-
-        if (user != null) {
-
-            // Save login session
-            sessionManager.createLoginSession(user);
+        if (user == null) {
 
             Toast.makeText(
                     this,
-                    "Login successful. Welcome "
-                            + user.getName(),
+                    "Invalid email or password",
                     Toast.LENGTH_SHORT
             ).show();
 
-            // Open main/customer page
-            Intent intent =
-                    new Intent(
-                            LoginActivity.this,
-                            com.techfix.app.MainActivity.class
-                    );
-
-            startActivity(intent);
-
-            // Prevent returning to login
-            finish();
-
-        } else {
-
-            // -------------------------------------------------
-            // LOGIN FAILED
-            // -------------------------------------------------
-
-            Toast.makeText(
-                    this,
-                    "Invalid name or password",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-    }
-
-    // =========================================================
-    // OPEN REGISTER PAGE
-    // =========================================================
-
-    private void openRegister() {
-
-        Intent intent =
-                new Intent(
-                        LoginActivity.this,
-                        RegisterActivity.class
-                );
-
-        startActivity(intent);
-    }
-
-    // =========================================================
-    // OPEN ADMIN LOGIN PAGE
-    // =========================================================
-
-    private void openAdminLogin() {
-
-        Intent intent =
-                new Intent(
-                        LoginActivity.this,
-                        AdminLoginActivity.class
-                );
-
-        startActivity(intent);
-    }
-
-    // =========================================================
-    // DESTROY
-    // =========================================================
-
-    @Override
-    protected void onDestroy() {
-
-        if (databaseHelper != null) {
-            databaseHelper.close();
+            return;
         }
 
-        super.onDestroy();
+        sessionManager.createLoginSession(
+                user
+        );
+
+        routeUser(
+                user
+        );
+    }
+
+
+    private void routeUser(
+            User user
+    ) {
+
+        Intent intent;
+
+        switch (user.getRole()) {
+
+            case User.ROLE_ADMIN:
+
+                intent =
+                        new Intent(
+                                this,
+                                AdminDashboardActivity.class
+                        );
+
+                break;
+
+
+            case User.ROLE_TECHNICIAN:
+
+                if (
+                        user.getTechnicianId() == null
+                ) {
+
+                    Toast.makeText(
+                            this,
+                            "Technician account is not linked",
+                            Toast.LENGTH_LONG
+                    ).show();
+
+                    sessionManager.logout();
+
+                    return;
+                }
+
+                intent =
+                        new Intent(
+                                this,
+                                TechnicianDashboardActivity.class
+                        );
+
+                intent.putExtra(
+                        TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
+                        user.getTechnicianId()
+                );
+
+                break;
+
+
+            case User.ROLE_CUSTOMER:
+
+                intent =
+                        new Intent(
+                                this,
+                                MainActivity.class
+                        );
+
+                break;
+
+
+            default:
+
+                Toast.makeText(
+                        this,
+                        "Unknown user role",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                sessionManager.logout();
+
+                return;
+        }
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+        startActivity(intent);
+
+        finish();
     }
 }
