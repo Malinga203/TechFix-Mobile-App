@@ -36,11 +36,29 @@ android {
 }
 
 dependencies {
+
+    // AndroidX
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    // GPS / Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // OpenStreetMap
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    // PayHere Android SDK
+    implementation("com.github.PayHereDevs:payhere-android-sdk:v3.0.18")
+
+    // Gson - required by PayHere SDK
+    implementation("com.google.code.gson:gson:2.8.0")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

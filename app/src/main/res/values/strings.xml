@@ -1,3 +1,37 @@
 <resources>
     <string name="app_name">TechFix</string>
+
+    <string name="services_title">Repair Services</string>
+    <string name="spare_parts_title">Spare Parts</string>
+    <string name="book_repair_title">Book a Repair</string>
+
+    <string name="btn_book_now">Book Now</string>
+    <string name="btn_confirm_booking">Confirm Booking</string>
+    <string name="btn_add">Add</string>
+
+    <string name="hint_device_model">Device Model (e.g. iPhone 13)</string>
+    <string name="hint_issue_description">Describe the issue</string>
+    <string name="hint_select_date">Select Date</string>
+    <string name="hint_select_time">Select Time</string>
+    <string name="hint_select_branch">Select Branch</string>
+    <string name="hint_add_spare_part">Add Spare Part (optional)</string>
+
+    <string name="label_service">Service</string>
+    <string name="label_estimated_price">Estimated Price</string>
+    <string name="label_duration">Duration</string>
+    <string name="label_stock">In Stock</string>
+    <string name="label_out_of_stock">Out of Stock</string>
+    <string name="label_compatible_with">Compatible with</string>
+    <string name="label_booking_summary">Booking Summary</string>
+    <string name="label_selected_part">Spare part:</string>
+    <string name="label_tap_to_remove">(tap to remove)</string>
+
+    <string name="msg_booking_success">Booking confirmed! We will contact you shortly.</string>
+    <string name="msg_booking_failed">Something went wrong. Please try again.</string>
+    <string name="msg_select_all_fields">Please fill in all required fields</string>
+    <string name="msg_slot_full">This time slot is fully booked. Please pick another.</string>
+    <string name="msg_no_services">No services available right now.</string>
+    <string name="msg_no_parts">No spare parts available right now.</string>
+
+    <string name="payhere_merchant_id">1237646</string>
 </resources>

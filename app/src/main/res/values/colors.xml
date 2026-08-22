@@ -1,44 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
-    <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
 
-    <!-- TechFix brand -->
-    <color name="techfix_primary">#2962FF</color>
-    <color name="techfix_primary_dark">#1746C7</color>
-    <color name="techfix_primary_light">#EDF3FF</color>
+    <color name="techfix_accent">#FFFF6F00</color>
 
-    <color name="techfix_accent">#00A884</color>
-    <color name="techfix_accent_light">#E9F8F4</color>
+    <color name="status_pending">#FFF57C00</color>
+    <color name="status_in_progress">#FF1976D2</color>
+    <color name="status_completed">#FF388E3C</color>
 
-    <!-- Surfaces -->
-    <color name="techfix_background">#F4F6FA</color>
-    <color name="techfix_surface">#FFFFFF</color>
-    <color name="techfix_surface_alt">#F8FAFD</color>
+    <color name="techfix_background">#F8F3EF</color>
+    <color name="techfix_surface">#FFFDFC</color>
 
-    <!-- Text -->
-    <color name="techfix_text_primary">#172033</color>
-    <color name="techfix_text_secondary">#657084</color>
-    <color name="techfix_text_soft">#929BAD</color>
+    <color name="techfix_primary">#955754</color>
+    <color name="techfix_primary_dark">#74413F</color>
+    <color name="techfix_primary_light">#E7C4BF</color>
 
-    <!-- Lines -->
-    <color name="techfix_border">#E2E7EF</color>
-    <color name="techfix_divider">#ECF0F5</color>
+    <color name="techfix_gold">#D7A259</color>
+    <color name="techfix_gold_light">#F3E3C8</color>
 
-    <!-- Status -->
-    <color name="status_blue">#2457D6</color>
-    <color name="status_blue_bg">#EAF1FF</color>
+    <color name="techfix_olive">#85835A</color>
+    <color name="techfix_olive_light">#E5E3D2</color>
 
-    <color name="status_green">#087F5B</color>
-    <color name="status_green_bg">#E8F8F1</color>
+    <color name="techfix_text_primary">#2E2926</color>
+    <color name="techfix_text_secondary">#746964</color>
 
-    <color name="status_orange">#B55B0A</color>
-    <color name="status_orange_bg">#FFF2E3</color>
+    <color name="techfix_border">#E5D8D1</color>
+    <color name="techfix_divider">#EEE4DE</color>
 
-    <color name="status_purple">#6846C7</color>
-    <color name="status_purple_bg">#F0EBFF</color>
+    <color name="techfix_success">#6D7950</color>
+    <color name="techfix_success_background">#E7E8D9</color>
 
-    <color name="progress_track">#E8EDF5</color>
-
+    <color name="techfix_danger">#B64C4C</color>
+    <color name="techfix_danger_background">#F5DEDC</color>
 </resources>
