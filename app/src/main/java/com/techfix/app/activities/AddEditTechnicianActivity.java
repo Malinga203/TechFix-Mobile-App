@@ -170,12 +170,11 @@ public class AddEditTechnicianActivity extends AppCompatActivity {
 
         List<String> specializations =
                 Arrays.asList(
-                        "Mobile Repair",
-                        "Laptop Repair",
-                        "Desktop Repair",
-                        "Tablet Repair",
-                        "Hardware Repair",
-                        "Software Repair"
+                        "Screen",
+                        "Battery",
+                        "Diagnostics",
+                        "Hardware",
+                        "Software"
                 );
 
         ArrayAdapter<String> adapter =

@@ -1,7 +1,8 @@
 package com.techfix.app.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
-import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -12,7 +13,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -20,11 +27,13 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import com.techfix.app.R;
 import com.techfix.app.database.AppointmentDAO;
-import com.techfix.app.database.BranchDao;
 import com.techfix.app.database.ServiceDAO;
 import com.techfix.app.models.Appointment;
 import com.techfix.app.models.Branch;
 import com.techfix.app.models.RepairService;
+import com.techfix.app.services.BranchAssignmentService;
+
+import android.content.Intent;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,74 +41,103 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class BookRepairActivity extends AppCompatActivity {
+public class BookRepairActivity
+        extends AppCompatActivity {
 
     public static final String EXTRA_SERVICE_ID =
             "extra_service_id";
 
     private static final String[] TIME_SLOTS = {
-            "09:00 AM", "10:00 AM", "11:00 AM",
-            "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM"
+            "09:00 AM",
+            "10:00 AM",
+            "11:00 AM",
+            "01:00 PM",
+            "02:00 PM",
+            "03:00 PM",
+            "04:00 PM"
     };
+
+    private static final int MAX_BOOKINGS_PER_SLOT =
+            2;
 
     private TextInputLayout tilService;
     private TextInputLayout tilDeviceModel;
     private TextInputLayout tilIssueDescription;
     private TextInputLayout tilDate;
     private TextInputLayout tilTime;
-    private TextInputLayout tilBranch;
+
     private AutoCompleteTextView actvService;
     private AutoCompleteTextView actvTime;
-    private AutoCompleteTextView actvBranch;
+
     private TextInputEditText etDeviceModel;
     private TextInputEditText etIssueDescription;
     private TextInputEditText etDate;
+
     private TextView tvSelectedPart;
     private TextView tvSummaryPrice;
+
     private Button btnBrowseParts;
     private Button btnConfirmBooking;
 
     private ServiceDAO serviceDAO;
-    private BranchDao branchDAO;
     private AppointmentDAO appointmentDAO;
 
+    private BranchAssignmentService branchAssignmentService;
+
+    private FusedLocationProviderClient fusedLocationClient;
+
     private List<RepairService> services;
-    private List<Branch> branches;
 
     private RepairService selectedService;
+
     private Branch selectedBranch;
+
     private String selectedTime;
 
     private int selectedPartId = -1;
+
     private double selectedPartPrice = 0.0;
+
     private String selectedPartName;
 
     private final Calendar calendar =
             Calendar.getInstance();
+
+
+    // =========================================================
+    // SPARE PART RESULT
+    // =========================================================
 
     private final ActivityResultLauncher<Intent> sparePartLauncher =
             registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
 
-                        if (result.getResultCode() == RESULT_OK &&
-                                result.getData() != null) {
+                        if (
+                                result.getResultCode() == RESULT_OK &&
+                                        result.getData() != null
+                        ) {
 
-                            Intent data = result.getData();
+                            Intent data =
+                                    result.getData();
 
                             selectedPartId =
                                     data.getIntExtra(
-                                            SparePartActivity.EXTRA_SELECTED_PART, -1
+                                            SparePartActivity.EXTRA_SELECTED_PART,
+                                            -1
                                     );
 
                             selectedPartName =
                                     data.getStringExtra(
-                                            SparePartActivity.EXTRA_SELECTED_PART + "_name"
+                                            SparePartActivity.EXTRA_SELECTED_PART
+                                                    + "_name"
                                     );
 
                             selectedPartPrice =
                                     data.getDoubleExtra(
-                                            SparePartActivity.EXTRA_SELECTED_PART + "_price", 0.0
+                                            SparePartActivity.EXTRA_SELECTED_PART
+                                                    + "_price",
+                                            0.0
                                     );
 
                             updateSelectedPartView();
@@ -109,36 +147,85 @@ public class BookRepairActivity extends AppCompatActivity {
                     }
             );
 
+
+    // =========================================================
+    // LOCATION PERMISSION
+    // =========================================================
+
+    private final ActivityResultLauncher<String>
+            locationPermissionLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+
+                        if (isGranted) {
+
+                            getLocationAndAssignBranch();
+
+                        } else {
+
+                            Toast.makeText(
+                                    this,
+                                    "Location permission is required to assign the nearest branch",
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        }
+                    }
+            );
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_book_repair);
+    protected void onCreate(
+            Bundle savedInstanceState
+    ) {
+
+        super.onCreate(
+                savedInstanceState
+        );
+
+        setContentView(
+                R.layout.activity_book_repair
+        );
 
         MaterialToolbar toolbar =
-                findViewById(R.id.toolbar_book_repair);
+                findViewById(
+                        R.id.toolbar_book_repair
+                );
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(
+                toolbar
+        );
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+            getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(
+                            true
+                    );
         }
 
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(
+                view -> finish()
+        );
 
         serviceDAO =
                 new ServiceDAO(this);
 
-        branchDAO =
-                new BranchDao(this);
-
         appointmentDAO =
                 new AppointmentDAO(this);
+
+        branchAssignmentService =
+                new BranchAssignmentService(this);
+
+        fusedLocationClient =
+                LocationServices
+                        .getFusedLocationProviderClient(
+                                this
+                        );
 
         bindViews();
 
         loadServices();
-
-        loadBranches();
 
         setupTimeSlots();
 
@@ -146,67 +233,104 @@ public class BookRepairActivity extends AppCompatActivity {
 
         preselectServiceFromIntent();
 
-        btnBrowseParts.setOnClickListener(v ->
-                sparePartLauncher.launch(
-                        new Intent(this, SparePartActivity.class)
-                )
+        btnBrowseParts.setOnClickListener(
+                view ->
+                        sparePartLauncher.launch(
+                                new Intent(
+                                        this,
+                                        SparePartActivity.class
+                                )
+                        )
         );
 
-        btnConfirmBooking.setOnClickListener(v ->
-                confirmBooking()
+        btnConfirmBooking.setOnClickListener(
+                view ->
+                        startBranchAssignment()
         );
     }
+
+
+    // =========================================================
+    // VIEW BINDING
+    // =========================================================
 
     private void bindViews() {
 
         tilService =
-                findViewById(R.id.til_service);
+                findViewById(
+                        R.id.til_service
+                );
 
         tilDeviceModel =
-                findViewById(R.id.til_device_model);
+                findViewById(
+                        R.id.til_device_model
+                );
 
         tilIssueDescription =
-                findViewById(R.id.til_issue_description);
+                findViewById(
+                        R.id.til_issue_description
+                );
 
         tilDate =
-                findViewById(R.id.til_date);
+                findViewById(
+                        R.id.til_date
+                );
 
         tilTime =
-                findViewById(R.id.til_time);
-
-        tilBranch =
-                findViewById(R.id.til_branch);
+                findViewById(
+                        R.id.til_time
+                );
 
         actvService =
-                findViewById(R.id.actv_service);
+                findViewById(
+                        R.id.actv_service
+                );
 
         actvTime =
-                findViewById(R.id.actv_time);
-
-        actvBranch =
-                findViewById(R.id.actv_branch);
+                findViewById(
+                        R.id.actv_time
+                );
 
         etDeviceModel =
-                findViewById(R.id.et_device_model);
+                findViewById(
+                        R.id.et_device_model
+                );
 
         etIssueDescription =
-                findViewById(R.id.et_issue_description);
+                findViewById(
+                        R.id.et_issue_description
+                );
 
         etDate =
-                findViewById(R.id.et_date);
+                findViewById(
+                        R.id.et_date
+                );
 
         tvSelectedPart =
-                findViewById(R.id.tv_selected_part);
+                findViewById(
+                        R.id.tv_selected_part
+                );
 
         tvSummaryPrice =
-                findViewById(R.id.tv_summary_price);
+                findViewById(
+                        R.id.tv_summary_price
+                );
 
         btnBrowseParts =
-                findViewById(R.id.btn_browse_parts);
+                findViewById(
+                        R.id.btn_browse_parts
+                );
 
         btnConfirmBooking =
-                findViewById(R.id.btn_confirm_booking);
+                findViewById(
+                        R.id.btn_confirm_booking
+                );
     }
+
+
+    // =========================================================
+    // SERVICES
+    // =========================================================
 
     private void loadServices() {
 
@@ -217,7 +341,10 @@ public class BookRepairActivity extends AppCompatActivity {
                 new ArrayList<>();
 
         for (RepairService service : services) {
-            serviceNames.add(service.getServiceName());
+
+            serviceNames.add(
+                    service.getServiceName()
+            );
         }
 
         ArrayAdapter<String> adapter =
@@ -227,42 +354,31 @@ public class BookRepairActivity extends AppCompatActivity {
                         serviceNames
                 );
 
-        actvService.setAdapter(adapter);
+        actvService.setAdapter(
+                adapter
+        );
 
-        actvService.setOnItemClickListener((parent, view, position, id) -> {
+        actvService.setOnItemClickListener(
+                (parent, view, position, id) -> {
 
-            selectedService =
-                    services.get(position);
+                    selectedService =
+                            services.get(
+                                    position
+                            );
 
-            updateSummary();
-        });
-    }
+                    tilService.setError(
+                            null
+                    );
 
-    private void loadBranches() {
-
-        branches =
-                branchDAO.getAllBranches();
-
-        List<String> branchNames =
-                new ArrayList<>();
-
-        for (Branch branch : branches) {
-            branchNames.add(branch.getBranchName());
-        }
-
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        branchNames
-                );
-
-        actvBranch.setAdapter(adapter);
-
-        actvBranch.setOnItemClickListener((parent, view, position, id) ->
-                selectedBranch = branches.get(position)
+                    updateSummary();
+                }
         );
     }
+
+
+    // =========================================================
+    // TIME SLOTS
+    // =========================================================
 
     private void setupTimeSlots() {
 
@@ -273,63 +389,112 @@ public class BookRepairActivity extends AppCompatActivity {
                         TIME_SLOTS
                 );
 
-        actvTime.setAdapter(adapter);
+        actvTime.setAdapter(
+                adapter
+        );
 
-        actvTime.setOnItemClickListener((parent, view, position, id) ->
-                selectedTime = TIME_SLOTS[position]
+        actvTime.setOnItemClickListener(
+                (parent, view, position, id) -> {
+
+                    selectedTime =
+                            TIME_SLOTS[position];
+
+                    tilTime.setError(
+                            null
+                    );
+                }
         );
     }
 
+
+    // =========================================================
+    // DATE
+    // =========================================================
+
     private void setupDatePicker() {
 
-        etDate.setOnClickListener(v -> {
+        etDate.setOnClickListener(
+                view -> {
 
-            int year =
-                    calendar.get(Calendar.YEAR);
+                    int year =
+                            calendar.get(
+                                    Calendar.YEAR
+                            );
 
-            int month =
-                    calendar.get(Calendar.MONTH);
+                    int month =
+                            calendar.get(
+                                    Calendar.MONTH
+                            );
 
-            int day =
-                    calendar.get(Calendar.DAY_OF_MONTH);
+                    int day =
+                            calendar.get(
+                                    Calendar.DAY_OF_MONTH
+                            );
 
-            DatePickerDialog dialog =
-                    new DatePickerDialog(
-                            this,
-                            (view, selectedYear, selectedMonth, selectedDay) -> {
+                    DatePickerDialog dialog =
+                            new DatePickerDialog(
+                                    this,
+                                    (
+                                            datePicker,
+                                            selectedYear,
+                                            selectedMonth,
+                                            selectedDay
+                                    ) -> {
 
-                                Calendar picked =
-                                        Calendar.getInstance();
+                                        Calendar picked =
+                                                Calendar
+                                                        .getInstance();
 
-                                picked.set(
-                                        selectedYear,
-                                        selectedMonth,
-                                        selectedDay
-                                );
+                                        picked.set(
+                                                selectedYear,
+                                                selectedMonth,
+                                                selectedDay
+                                        );
 
-                                SimpleDateFormat format =
-                                        new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                                        SimpleDateFormat format =
+                                                new SimpleDateFormat(
+                                                        "yyyy-MM-dd",
+                                                        Locale.US
+                                                );
 
-                                etDate.setText(format.format(picked.getTime()));
+                                        etDate.setText(
+                                                format.format(
+                                                        picked.getTime()
+                                                )
+                                        );
 
-                                tilDate.setError(null);
+                                        tilDate.setError(
+                                                null
+                                        );
+                                    },
+                                    year,
+                                    month,
+                                    day
+                            );
 
-                            },
-                            year,
-                            month,
-                            day
-                    );
+                    dialog.getDatePicker()
+                            .setMinDate(
+                                    System.currentTimeMillis()
+                            );
 
-            dialog.getDatePicker().setMinDate(System.currentTimeMillis());
-
-            dialog.show();
-        });
+                    dialog.show();
+                }
+        );
     }
+
+
+    // =========================================================
+    // PRESELECT SERVICE
+    // =========================================================
 
     private void preselectServiceFromIntent() {
 
         int serviceId =
-                getIntent().getIntExtra(EXTRA_SERVICE_ID, -1);
+                getIntent()
+                        .getIntExtra(
+                                EXTRA_SERVICE_ID,
+                                -1
+                        );
 
         if (serviceId == -1) {
             return;
@@ -337,12 +502,21 @@ public class BookRepairActivity extends AppCompatActivity {
 
         for (int i = 0; i < services.size(); i++) {
 
-            if (services.get(i).getServiceId() == serviceId) {
+            if (
+                    services.get(i)
+                            .getServiceId()
+                            ==
+                            serviceId
+            ) {
 
                 selectedService =
                         services.get(i);
 
-                actvService.setText(selectedService.getServiceName(), false);
+                actvService.setText(
+                        selectedService
+                                .getServiceName(),
+                        false
+                );
 
                 updateSummary();
 
@@ -351,60 +525,101 @@ public class BookRepairActivity extends AppCompatActivity {
         }
     }
 
+
+    // =========================================================
+    // SELECTED PART
+    // =========================================================
+
     private void updateSelectedPartView() {
 
         if (selectedPartId == -1) {
 
-            tvSelectedPart.setVisibility(View.GONE);
+            tvSelectedPart.setVisibility(
+                    View.GONE
+            );
 
-            tvSelectedPart.setOnClickListener(null);
+            tvSelectedPart.setOnClickListener(
+                    null
+            );
 
             return;
         }
 
-        tvSelectedPart.setVisibility(View.VISIBLE);
-
-        tvSelectedPart.setText(
-                getString(R.string.label_selected_part) + " " +
-                        selectedPartName +
-                        String.format(Locale.US, " (+$%.2f)", selectedPartPrice) + " " +
-                        getString(R.string.label_tap_to_remove)
+        tvSelectedPart.setVisibility(
+                View.VISIBLE
         );
 
-        tvSelectedPart.setOnClickListener(v -> {
+        tvSelectedPart.setText(
+                "Selected Part: " +
+                        selectedPartName +
+                        String.format(
+                                Locale.US,
+                                " (+$%.2f)",
+                                selectedPartPrice
+                        ) +
+                        "\nTap to remove"
+        );
 
-            selectedPartId = -1;
+        tvSelectedPart.setOnClickListener(
+                view -> {
 
-            selectedPartName = null;
+                    selectedPartId =
+                            -1;
 
-            selectedPartPrice = 0.0;
+                    selectedPartName =
+                            null;
 
-            updateSelectedPartView();
+                    selectedPartPrice =
+                            0.0;
 
-            updateSummary();
-        });
+                    updateSelectedPartView();
+
+                    updateSummary();
+                }
+        );
     }
+
+
+    // =========================================================
+    // PRICE SUMMARY
+    // =========================================================
 
     private void updateSummary() {
 
         if (selectedService == null) {
 
             tvSummaryPrice.setText(
-                    getString(R.string.label_estimated_price) + ": -"
+                    "Estimated Price: -"
             );
 
             return;
         }
 
         double total =
-                selectedService.getPrice() +
-                        (selectedPartId != -1 ? selectedPartPrice : 0.0);
+                selectedService.getPrice()
+                        +
+                        (
+                                selectedPartId != -1
+                                        ?
+                                        selectedPartPrice
+                                        :
+                                        0.0
+                        );
 
         tvSummaryPrice.setText(
-                getString(R.string.label_estimated_price) + ": " +
-                        String.format(Locale.US, "$%.2f", total)
+                "Estimated Price: " +
+                        String.format(
+                                Locale.US,
+                                "$%.2f",
+                                total
+                        )
         );
     }
+
+
+    // =========================================================
+    // INPUT VALIDATION
+    // =========================================================
 
     private boolean validateInputs() {
 
@@ -413,74 +628,321 @@ public class BookRepairActivity extends AppCompatActivity {
 
         if (selectedService == null) {
 
-            tilService.setError(getString(R.string.msg_select_all_fields));
+            tilService.setError(
+                    "Select a repair service"
+            );
 
-            valid = false;
+            valid =
+                    false;
+
+        } else {
+
+            tilService.setError(
+                    null
+            );
         }
 
-        if (etDeviceModel.getText() == null ||
-                etDeviceModel.getText().toString().trim().isEmpty()) {
 
-            tilDeviceModel.setError(getString(R.string.msg_select_all_fields));
+        if (
+                etDeviceModel.getText() == null ||
+                        etDeviceModel
+                                .getText()
+                                .toString()
+                                .trim()
+                                .isEmpty()
+        ) {
 
-            valid = false;
+            tilDeviceModel.setError(
+                    "Enter the device model"
+            );
+
+            valid =
+                    false;
+
+        } else {
+
+            tilDeviceModel.setError(
+                    null
+            );
         }
 
-        if (etIssueDescription.getText() == null ||
-                etIssueDescription.getText().toString().trim().isEmpty()) {
 
-            tilIssueDescription.setError(getString(R.string.msg_select_all_fields));
+        if (
+                etIssueDescription.getText() == null ||
+                        etIssueDescription
+                                .getText()
+                                .toString()
+                                .trim()
+                                .isEmpty()
+        ) {
 
-            valid = false;
+            tilIssueDescription.setError(
+                    "Describe the issue"
+            );
+
+            valid =
+                    false;
+
+        } else {
+
+            tilIssueDescription.setError(
+                    null
+            );
         }
 
-        if (etDate.getText() == null ||
-                etDate.getText().toString().trim().isEmpty()) {
 
-            tilDate.setError(getString(R.string.msg_select_all_fields));
+        if (
+                etDate.getText() == null ||
+                        etDate
+                                .getText()
+                                .toString()
+                                .trim()
+                                .isEmpty()
+        ) {
 
-            valid = false;
+            tilDate.setError(
+                    "Select appointment date"
+            );
+
+            valid =
+                    false;
+
+        } else {
+
+            tilDate.setError(
+                    null
+            );
         }
+
 
         if (selectedTime == null) {
 
-            tilTime.setError(getString(R.string.msg_select_all_fields));
+            tilTime.setError(
+                    "Select appointment time"
+            );
 
-            valid = false;
+            valid =
+                    false;
+
+        } else {
+
+            tilTime.setError(
+                    null
+            );
         }
 
-        if (selectedBranch == null) {
-
-            tilBranch.setError(getString(R.string.msg_select_all_fields));
-
-            valid = false;
-        }
 
         return valid;
     }
 
-    private static final int MAX_BOOKINGS_PER_SLOT =
-            2;
 
-    private void confirmBooking() {
+    // =========================================================
+    // START BRANCH ASSIGNMENT
+    // =========================================================
+
+    private void startBranchAssignment() {
 
         if (!validateInputs()) {
             return;
         }
 
-        int slotBookings =
-                appointmentDAO.getAppointmentCountForSlot(
-                        etDate.getText().toString().trim(),
-                        selectedTime
+        if (
+                ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                        ==
+                        PackageManager.PERMISSION_GRANTED
+        ) {
+
+            getLocationAndAssignBranch();
+
+        } else {
+
+            locationPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            );
+        }
+    }
+
+
+    // =========================================================
+    // GET GPS + FIND BRANCH
+    // =========================================================
+
+    private void getLocationAndAssignBranch() {
+
+        if (
+                ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                        !=
+                        PackageManager.PERMISSION_GRANTED
+        ) {
+
+            return;
+        }
+
+        fusedLocationClient
+                .getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        null
+                )
+                .addOnSuccessListener(
+                        location -> {
+
+                            if (location == null) {
+
+                                Toast.makeText(
+                                        this,
+                                        "Unable to detect your current location",
+                                        Toast.LENGTH_LONG
+                                ).show();
+
+                                return;
+                            }
+
+                            String requiredSpecialization =
+                                    selectedService
+                                            .getCategory();
+
+                            Integer requiredPartId =
+                                    selectedPartId != -1
+                                            ?
+                                            selectedPartId
+                                            :
+                                            null;
+
+                            selectedBranch =
+                                    branchAssignmentService
+                                            .findNearestSuitableBranch(
+                                                    location.getLatitude(),
+                                                    location.getLongitude(),
+                                                    requiredSpecialization,
+                                                    requiredPartId
+                                            );
+
+                            if (selectedBranch == null) {
+
+                                Toast.makeText(
+                                        this,
+                                        "No branch currently has the required technician and spare part",
+                                        Toast.LENGTH_LONG
+                                ).show();
+
+                                return;
+                            }
+
+                            float distance =
+                                    branchAssignmentService
+                                            .getDistanceToBranch(
+                                                    location.getLatitude(),
+                                                    location.getLongitude(),
+                                                    selectedBranch
+                                            );
+
+                            showAssignedBranchDialog(
+                                    distance
+                            );
+                        }
+                )
+                .addOnFailureListener(
+                        error -> {
+
+                            Toast.makeText(
+                                    this,
+                                    "Failed to retrieve your location",
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        }
                 );
+    }
 
-        if (slotBookings >= MAX_BOOKINGS_PER_SLOT) {
 
-            tilTime.setError(getString(R.string.msg_slot_full));
+    // =========================================================
+    // BRANCH CONFIRMATION
+    // =========================================================
+
+    private void showAssignedBranchDialog(
+            float distance
+    ) {
+
+        String message =
+                "Nearest suitable branch:\n\n" +
+                        selectedBranch
+                                .getBranchName() +
+                        "\n" +
+                        selectedBranch
+                                .getAddress() +
+                        "\n\nDistance: " +
+                        String.format(
+                                Locale.getDefault(),
+                                "%.2f km",
+                                distance
+                        ) +
+                        "\n\nThis branch has the required technician" +
+                        (
+                                selectedPartId != -1
+                                        ?
+                                        " and selected spare part."
+                                        :
+                                        "."
+                        );
+
+        new AlertDialog.Builder(this)
+                .setTitle(
+                        "Branch Assigned"
+                )
+                .setMessage(
+                        message
+                )
+                .setPositiveButton(
+                        "Continue",
+                        (
+                                dialog,
+                                which
+                        ) ->
+                                confirmBooking()
+                )
+                .setNegativeButton(
+                        "Cancel",
+                        null
+                )
+                .show();
+    }
+
+
+    // =========================================================
+    // SAVE APPOINTMENT
+    // =========================================================
+
+    private void confirmBooking() {
+
+        int slotBookings =
+                appointmentDAO
+                        .getAppointmentCountForSlot(
+                                etDate
+                                        .getText()
+                                        .toString()
+                                        .trim(),
+
+                                selectedTime
+                        );
+
+        if (
+                slotBookings
+                        >=
+                        MAX_BOOKINGS_PER_SLOT
+        ) {
+
+            tilTime.setError(
+                    "This time slot is full"
+            );
 
             Toast.makeText(
                     this,
-                    R.string.msg_slot_full,
+                    "This time slot is full. Please choose another time.",
                     Toast.LENGTH_LONG
             ).show();
 
@@ -490,27 +952,54 @@ public class BookRepairActivity extends AppCompatActivity {
         Appointment appointment =
                 new Appointment(
                         1,
-                        selectedService.getServiceId(),
-                        selectedPartId != -1 ? selectedPartId : null,
-                        selectedBranch.getBranchId(),
-                        etDeviceModel.getText().toString().trim(),
-                        etIssueDescription.getText().toString().trim(),
-                        etDate.getText().toString().trim(),
+
+                        selectedService
+                                .getServiceId(),
+
+                        selectedPartId != -1
+                                ?
+                                selectedPartId
+                                :
+                                null,
+
+                        selectedBranch
+                                .getBranchId(),
+
+                        etDeviceModel
+                                .getText()
+                                .toString()
+                                .trim(),
+
+                        etIssueDescription
+                                .getText()
+                                .toString()
+                                .trim(),
+
+                        etDate
+                                .getText()
+                                .toString()
+                                .trim(),
+
                         selectedTime
                 );
 
         long insertedId =
-                appointmentDAO.insertAppointment(appointment);
+                appointmentDAO
+                        .insertAppointment(
+                                appointment
+                        );
 
         if (insertedId > 0) {
 
             Toast.makeText(
                     this,
-                    R.string.msg_booking_success,
+                    "Repair appointment booked successfully",
                     Toast.LENGTH_LONG
             ).show();
 
-            setResult(RESULT_OK);
+            setResult(
+                    RESULT_OK
+            );
 
             finish();
 
@@ -518,7 +1007,7 @@ public class BookRepairActivity extends AppCompatActivity {
 
             Toast.makeText(
                     this,
-                    R.string.msg_booking_failed,
+                    "Failed to book appointment",
                     Toast.LENGTH_SHORT
             ).show();
         }
