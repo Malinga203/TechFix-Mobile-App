@@ -202,6 +202,12 @@ public class BookRepairActivity extends AppCompatActivity {
                         } else {
 
                             deletePendingCameraFile();
+
+                            Toast.makeText(
+                                    this,
+                                    "Photo capture cancelled",
+                                    Toast.LENGTH_SHORT
+                            ).show();
                         }
                     }
             );
@@ -215,6 +221,28 @@ public class BookRepairActivity extends AppCompatActivity {
 
                         if (uri != null) {
                             handleGalleryResult(uri);
+                        }
+                    }
+            );
+
+
+    // Camera runtime permission result
+    private final ActivityResultLauncher<String> cameraPermissionLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+
+                        if (isGranted) {
+
+                            launchCamera();
+
+                        } else {
+
+                            Toast.makeText(
+                                    this,
+                                    "Camera permission is required to take a device photo",
+                                    Toast.LENGTH_LONG
+                            ).show();
                         }
                     }
             );
@@ -1044,6 +1072,26 @@ public class BookRepairActivity extends AppCompatActivity {
 
     private void openCamera() {
 
+        // CAMERA is declared in AndroidManifest.xml, so Android 6+
+        // requires runtime permission before ACTION_IMAGE_CAPTURE starts.
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED) {
+
+            launchCamera();
+
+        } else {
+
+            cameraPermissionLauncher.launch(
+                    Manifest.permission.CAMERA
+            );
+        }
+    }
+
+
+    private void launchCamera() {
+
         try {
 
             deletePendingCameraFile();
@@ -1059,20 +1107,35 @@ public class BookRepairActivity extends AppCompatActivity {
                             pendingCameraFile
                     );
 
+            if (pendingCameraUri == null) {
+
+                deletePendingCameraFile();
+
+                Toast.makeText(
+                        this,
+                        "Unable to prepare camera image",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
             cameraLauncher.launch(
                     pendingCameraUri
             );
 
-        } catch (IOException exception) {
+        } catch (Exception exception) {
+
+            deletePendingCameraFile();
 
             Toast.makeText(
                     this,
-                    "Unable to create image file",
-                    Toast.LENGTH_SHORT
+                    "Unable to open camera: "
+                            + exception.getMessage(),
+                    Toast.LENGTH_LONG
             ).show();
         }
     }
-
 
     private void handleCameraResult() {
 
