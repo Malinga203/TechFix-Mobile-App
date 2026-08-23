@@ -13,6 +13,9 @@
         android:orientation="vertical"
         android:paddingBottom="32dp">
 
+        <!-- =========================
+             TOP PURPLE HEADER
+             ========================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,6 +26,7 @@
             android:paddingEnd="28dp"
             android:paddingBottom="40dp">
 
+            <!-- TechFix Badge -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,6 +40,7 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
+            <!-- Welcome Title -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -45,15 +50,25 @@
                 android:textSize="31sp"
                 android:textStyle="bold" />
 
+            <!-- Description - ONE LINE -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:ellipsize="none"
+                android:gravity="start"
+                android:maxLines="1"
+                android:singleLine="true"
                 android:text="Sign in to book repairs, track progress and manage payments."
                 android:textColor="#DFFFFFFF"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
+
         </LinearLayout>
 
+
+        <!-- =========================
+             LOGIN CARD
+             ========================= -->
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.TechFix.Card"
             android:layout_width="match_parent"
@@ -68,6 +83,7 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
+                <!-- Email Label -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -76,6 +92,7 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
+                <!-- Email Input -->
                 <EditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
@@ -92,6 +109,8 @@
                     android:textColorHint="@color/techfix_text_soft"
                     android:textSize="15sp" />
 
+
+                <!-- Password Label -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -101,6 +120,8 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
+
+                <!-- Password Input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/passwordInputLayout"
                     android:layout_width="match_parent"
@@ -127,8 +148,11 @@
                         android:textColor="@color/techfix_text_primary"
                         android:textColorHint="@color/techfix_text_soft"
                         android:textSize="15sp" />
+
                 </com.google.android.material.textfield.TextInputLayout>
 
+
+                <!-- Login Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogin"
                     style="@style/Widget.TechFix.Button.Primary"
@@ -137,6 +161,8 @@
                     android:layout_marginTop="24dp"
                     android:text="Login" />
 
+
+                <!-- Login Information -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -145,9 +171,15 @@
                     android:text="Customer, technician and administrator accounts use the same login."
                     android:textColor="@color/techfix_text_secondary"
                     android:textSize="12sp" />
+
             </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
 
+
+        <!-- =========================
+             REGISTER
+             ========================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -173,6 +205,9 @@
                 android:textColor="@color/techfix_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+
         </LinearLayout>
+
     </LinearLayout>
+
 </ScrollView>
