@@ -16,7 +16,10 @@
         android:paddingTop="32dp"
         android:paddingBottom="32dp">
 
-        <!-- Header -->
+        <!-- =========================
+             HEADER
+             ========================= -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,25 +29,48 @@
             android:textStyle="bold"
             android:letterSpacing="0.08" />
 
+
+        <!-- =========================
+             PAGE TITLE
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:gravity="start"
             android:text="Create your account"
             android:textColor="@color/techfix_text_primary"
             android:textSize="28sp"
             android:textStyle="bold" />
 
+
+        <!-- =========================
+             DESCRIPTION
+             Same left/right alignment
+             as "Create your account"
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:gravity="start"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:includeFontPadding="true"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:ellipsize="none"
             android:text="Join TechFix and manage your services with ease."
             android:textColor="@color/techfix_text_secondary"
-            android:textSize="15sp"
-            android:lineSpacingExtra="3dp" />
+            android:textSize="13sp" />
 
-        <!-- Name -->
+
+        <!-- =========================
+             NAME
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,12 +88,16 @@
             android:background="@drawable/bg_input"
             android:hint="Enter your full name"
             android:inputType="textPersonName"
+            android:singleLine="true"
             android:textColor="@color/techfix_text_primary"
             android:textColorHint="@color/techfix_text_soft"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:textSize="16sp" />
 
-        <!-- Email -->
+
+        <!-- =========================
+             EMAIL
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,12 +115,16 @@
             android:background="@drawable/bg_input"
             android:hint="you@example.com"
             android:inputType="textEmailAddress"
+            android:singleLine="true"
             android:textColor="@color/techfix_text_primary"
             android:textColorHint="@color/techfix_text_soft"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:textSize="16sp" />
 
-        <!-- Phone -->
+
+        <!-- =========================
+             PHONE
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -108,12 +142,16 @@
             android:background="@drawable/bg_input"
             android:hint="Enter your phone number"
             android:inputType="phone"
+            android:singleLine="true"
             android:textColor="@color/techfix_text_primary"
             android:textColorHint="@color/techfix_text_soft"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:textSize="16sp" />
 
-        <!-- Password -->
+
+        <!-- =========================
+             PASSWORD
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -131,12 +169,16 @@
             android:background="@drawable/bg_input"
             android:hint="Create a password"
             android:inputType="textPassword"
+            android:singleLine="true"
             android:textColor="@color/techfix_text_primary"
             android:textColorHint="@color/techfix_text_soft"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:textSize="16sp" />
 
-        <!-- Confirm password -->
+
+        <!-- =========================
+             CONFIRM PASSWORD
+             ========================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -154,26 +196,34 @@
             android:background="@drawable/bg_input"
             android:hint="Re-enter your password"
             android:inputType="textPassword"
+            android:singleLine="true"
             android:textColor="@color/techfix_text_primary"
             android:textColorHint="@color/techfix_text_soft"
-            android:textSize="16sp"
-            android:singleLine="true" />
+            android:textSize="16sp" />
 
-        <!-- Register -->
+
+        <!-- =========================
+             REGISTER BUTTON
+             ========================= -->
+
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="28dp"
             android:background="@drawable/bg_button_primary"
+            android:elevation="2dp"
             android:text="Create Account"
+            android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:elevation="2dp" />
+            android:textStyle="bold" />
 
-        <!-- Back -->
+
+        <!-- =========================
+             BACK TO LOGIN
+             ========================= -->
+
         <Button
             android:id="@+id/btnBackToLogin"
             android:layout_width="match_parent"
@@ -181,10 +231,10 @@
             android:layout_marginTop="12dp"
             android:background="@android:color/transparent"
             android:text="Back to Login"
+            android:textAllCaps="false"
             android:textColor="@color/techfix_primary"
             android:textSize="15sp"
-            android:textStyle="bold"
-            android:textAllCaps="false" />
+            android:textStyle="bold" />
 
     </LinearLayout>
 
