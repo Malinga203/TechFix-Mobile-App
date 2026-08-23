@@ -7,13 +7,13 @@
     android:orientation="vertical"
     android:padding="28dp"
     android:gravity="center_horizontal"
-    android:background="#F6F8FC">
+    android:background="@color/techfix_background">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TECHFIX"
-        android:textColor="#2563EB"
+        android:textColor="@color/techfix_primary"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_marginTop="40dp" />
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Admin Login"
-        android:textColor="#111827"
+        android:textColor="@color/techfix_text_primary"
         android:textSize="28sp"
         android:textStyle="bold"
         android:layout_marginTop="40dp" />
@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="Back to Customer Login"
-        android:textColor="#2563EB"
+        android:textColor="@color/techfix_primary"
         android:textSize="15sp"
         android:textStyle="bold"
         android:clickable="true"

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.TechFix.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:minHeight">54dp</item>
+        <item name="backgroundTint">@color/status_blue</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <style name="Widget.TechFix.Button.Yellow" parent="Widget.Material3.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:minHeight">54dp</item>
+        <item name="backgroundTint">@color/techfix_accent</item>
+        <item name="android:textColor">@color/techfix_text_primary</item>
+        <item name="iconTint">@color/techfix_text_primary</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <style name="Widget.TechFix.Button.Outline" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="backgroundTint">@color/techfix_surface</item>
+        <item name="android:textColor">@color/techfix_primary</item>
+        <item name="strokeColor">@color/techfix_border</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">15dp</item>
+    </style>
+
+    <style name="Widget.TechFix.QuickActionButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">8dp</item>
+        <item name="backgroundTint">@color/techfix_surface</item>
+        <item name="android:textColor">@color/techfix_text_primary</item>
+        <item name="strokeColor">@color/techfix_border</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="iconTint">@color/techfix_primary</item>
+        <item name="iconPadding">6dp</item>
+        <item name="iconGravity">top</item>
+        <item name="iconSize">28dp</item>
+    </style>
+
+    <style name="Widget.TechFix.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/techfix_surface</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/techfix_border</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+</resources>

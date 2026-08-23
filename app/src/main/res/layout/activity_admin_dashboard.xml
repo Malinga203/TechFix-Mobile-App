@@ -1,127 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/techfix_background">
+    android:background="@color/techfix_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingBottom="32dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TechFix Admin"
-            android:textColor="@color/techfix_primary"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Manage repair operations"
-            android:textColor="@color/techfix_text_secondary"
-            android:textSize="15sp" />
-
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            app:cardBackgroundColor="@color/techfix_surface"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="1dp"
-            app:strokeColor="@color/techfix_border"
-            app:strokeWidth="1dp">
+            android:background="@drawable/bg_header_gradient"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="30dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_yellow_pill"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:text="ADMIN"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="TechFix Admin"
+                android:textColor="@color/white"
+                android:textSize="29sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Manage branches, staff, repairs, services and inventory."
+                android:textColor="#DFFFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="20dp"
+            android:text="Operations"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="112dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="16dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageBranches"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Branches"
+                app:icon="@drawable/ic_branch_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageTechnicians"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Technicians"
+                app:icon="@drawable/ic_technician_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageRepairs"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Repairs"
+                app:icon="@drawable/ic_services_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnApproveRepairSamples"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Approvals"
+                app:icon="@drawable/ic_approve_24" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="20dp"
+            android:text="Catalog &amp; inventory"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.TechFix.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Administration"
-                    android:textColor="@color/techfix_text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/btnManageBranches"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="18dp"
-                    android:text="Manage Branches"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/btnManageTechnicians"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Manage Technicians"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/btnManageRepairs"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Manage Repairs"
-                    android:textAllCaps="false" />
-
-                <Button
-                    android:id="@+id/btnApproveRepairSamples"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Approve Repair Samples"
-                    android:textAllCaps="false" />
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnManageServices"
+                    style="@style/Widget.TechFix.Button.Outline"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="52dp"
+                    android:gravity="start|center_vertical"
                     android:text="Manage Services"
-                    android:textAllCaps="false" />
+                    app:icon="@drawable/ic_services_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnManageSpareParts"
+                    style="@style/Widget.TechFix.Button.Outline"
                     android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="start|center_vertical"
                     android:text="Manage Spare Parts"
-                    android:textAllCaps="false" />
+                    app:icon="@drawable/ic_parts_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnManageBranchInventory"
+                    style="@style/Widget.TechFix.Button.Yellow"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Manage Branch Inventory"
-                    android:textAllCaps="false" />
-
+                    android:layout_marginTop="10dp"
+                    android:text="Branch Inventory"
+                    app:icon="@drawable/ic_inventory_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp" />
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAdminLogout"
+            style="@style/Widget.TechFix.Button.Outline"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="28dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="20dp"
             android:text="Logout"
-            android:textAllCaps="false" />
-
+            android:textColor="@color/techfix_danger"
+            app:icon="@drawable/ic_logout_24"
+            app:iconTint="@color/techfix_danger" />
     </LinearLayout>
-
 </ScrollView>

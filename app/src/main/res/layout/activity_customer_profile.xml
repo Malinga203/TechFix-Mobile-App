@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F8FC">
+    android:background="@color/techfix_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="‹  Back"
-            android:textColor="#2563EB"
+            android:textColor="@color/techfix_primary"
             android:textSize="16sp"
             android:textStyle="bold"
             android:clickable="true"
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:text="My Profile"
-            android:textColor="#111827"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="Manage your personal information"
-            android:textColor="#6B7280"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="15sp" />
 
         <TextView
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:text="Name"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textStyle="bold" />
 
         <EditText
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Email"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textStyle="bold" />
 
         <EditText
@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Phone"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textStyle="bold" />
 
         <EditText

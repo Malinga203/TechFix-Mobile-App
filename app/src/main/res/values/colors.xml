@@ -1,56 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <resources>
 
-    <!-- Main theme -->
-    <color name="techfix_primary">#6A147D</color>
-    <color name="techfix_primary_dark">#4F0C60</color>
-    <color name="techfix_primary_light">#EAD7F0</color>
+    <!-- =========================================================
+         BASIC COLORS
+         ========================================================= -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
-    <color name="techfix_background">#FCEBFF</color>
-    <color name="techfix_surface">#FFFFFF</color>
-    <color name="techfix_surface_alt">#F8F2FA</color>
 
-    <!-- Text -->
-    <color name="techfix_text_primary">#211827</color>
-    <color name="techfix_text_secondary">#716675</color>
-    <color name="techfix_text_soft">#AAA0AD</color>
+    <!-- =========================================================
+         TECHFIX MAIN PALETTE
+         Deep Purple + Bright Purple + Yellow + White
+         ========================================================= -->
 
-    <!-- Inputs -->
-    <color name="techfix_input">#FAF5FB</color>
-    <color name="techfix_border">#E6D9E9</color>
-    <color name="techfix_divider">#E6DDE8</color>
+    <!-- Main Deep Purple -->
+    <color name="techfix_primary">#480058</color>
+    <color name="techfix_primary_dark">#32003D</color>
 
-    <!-- Accent -->
-    <color name="techfix_accent">#F7A928</color>
-    <color name="techfix_orange">#F7A928</color>
-    <color name="techfix_gold">#D9A62E</color>
-    <color name="techfix_gold_light">#FFF2CC</color>
+    <!-- Light backgrounds/tints for Deep Purple -->
+    <color name="techfix_primary_light">#F0DDF4</color>
+    <color name="techfix_primary_soft">#F8F1FA</color>
 
-    <!-- Status -->
+
+    <!-- Bright Purple -->
+    <color name="techfix_secondary">#BE4AFF</color>
+    <color name="techfix_secondary_dark">#9E2DE0</color>
+    <color name="techfix_secondary_light">#F0D8FF</color>
+    <color name="techfix_secondary_soft">#F8EEFF</color>
+
+
+    <!-- Yellow Accent -->
+    <color name="techfix_accent">#FFC928</color>
+    <color name="techfix_accent_dark">#D9A900</color>
+    <color name="techfix_accent_light">#FFF5C7</color>
+
+
+    <!-- =========================================================
+         COMPATIBILITY COLORS
+         Existing XML names are preserved so logic/layout references
+         will not break.
+         ========================================================= -->
+
+    <color name="techfix_gold">#FFC928</color>
+    <color name="techfix_gold_light">#FFF5C7</color>
+
+    <!-- Existing olive references now use Bright Purple -->
+    <color name="techfix_olive">#BE4AFF</color>
+    <color name="techfix_olive_light">#F0D8FF</color>
+
+
+    <!-- =========================================================
+         BACKGROUND / SURFACE
+         ========================================================= -->
+
+    <color name="techfix_background">#FAF7FC</color>
+    <color name="techfix_surface">#FFFFFFFF</color>
+    <color name="techfix_surface_alt">#F8F1FA</color>
+
+    <!-- Additional purple surface -->
+    <color name="techfix_surface_purple">#F8EEFF</color>
+
+
+    <!-- =========================================================
+         TEXT COLORS
+         ========================================================= -->
+
+    <color name="techfix_text_primary">#241427</color>
+    <color name="techfix_text_secondary">#756579</color>
+    <color name="techfix_text_soft">#A596A9</color>
+
+    <!-- Text used over Purple -->
+    <color name="techfix_text_on_primary">#FFFFFFFF</color>
+
+    <!-- Text used over Yellow -->
+    <color name="techfix_text_on_accent">#2A1930</color>
+
+
+    <!-- =========================================================
+         BORDER / DIVIDER
+         ========================================================= -->
+
+    <color name="techfix_border">#E9DFEC</color>
+    <color name="techfix_divider">#F0E8F2</color>
+
+    <!-- Purple highlighted border -->
+    <color name="techfix_border_primary">#D9B2E2</color>
+    <color name="techfix_border_secondary">#E2B5FF</color>
+
+
+    <!-- =========================================================
+         SEMANTIC COLORS
+         Repair / Payment / Appointment states
+         ========================================================= -->
+
+    <!-- SUCCESS -->
     <color name="techfix_success">#2E8B57</color>
-    <color name="techfix_success_background">#E7F6EC</color>
-    <color name="techfix_danger">#D9534F</color>
-    <color name="techfix_olive">#7A8450</color>
+    <color name="techfix_success_background">#E7F6EE</color>
 
-    <!-- Progress -->
-    <color name="progress_track">#E8DCEB</color>
+    <!-- ERROR / DANGER -->
+    <color name="techfix_danger">#D84C5A</color>
+    <color name="techfix_danger_background">#FCEAEC</color>
 
-    <!-- Common -->
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
 
-    <!-- Repair status -->
+    <!-- =========================================================
+         STATUS COLORS
+         ========================================================= -->
+
+    <!-- Pending -->
+    <color name="status_pending">#C28A00</color>
+
+    <!-- In Progress = Bright Purple -->
+    <color name="status_in_progress">#BE4AFF</color>
+
+    <!-- Completed -->
+    <color name="status_completed">#2E8B57</color>
+
+
+    <!-- ORANGE / YELLOW STATUS -->
+    <color name="status_orange">#C28A00</color>
+    <color name="status_orange_bg">#FFF5C7</color>
+
+
+    <!-- PURPLE STATUS -->
+    <color name="status_purple">#BE4AFF</color>
+    <color name="status_purple_bg">#F0D8FF</color>
+
+
+    <!-- Existing blue compatibility now mapped to Deep Purple -->
+    <color name="status_blue">#480058</color>
+    <color name="status_blue_bg">#F0DDF4</color>
+
+
+    <!-- GREEN STATUS -->
     <color name="status_green">#2E8B57</color>
-    <color name="status_green_bg">#E7F6EC</color>
+    <color name="status_green_bg">#E7F6EE</color>
 
-    <color name="status_purple">#6A147D</color>
-    <color name="status_purple_bg">#F0E5F5</color>
 
-    <color name="status_orange">#D98200</color>
-    <color name="status_orange_bg">#FFF1D9</color>
+    <!-- =========================================================
+         PROGRESS
+         ========================================================= -->
 
-    <color name="status_blue">#2878B5</color>
-    <color name="status_blue_bg">#E5F2FB</color>
+    <color name="progress_track">#EEE5F1</color>
+    <color name="progress_active">#BE4AFF</color>
+
+
+    <!-- =========================================================
+         EXTRA UI COLORS
+         ========================================================= -->
+
+    <!-- Icons -->
+    <color name="techfix_icon_primary">#480058</color>
+    <color name="techfix_icon_secondary">#BE4AFF</color>
+    <color name="techfix_icon_inactive">#A596A9</color>
+
+    <!-- Navigation -->
+    <color name="techfix_nav_selected">#480058</color>
+    <color name="techfix_nav_unselected">#A596A9</color>
+
+    <!-- Notification / Attention -->
+    <color name="techfix_notification">#FFC928</color>
 
 </resources>

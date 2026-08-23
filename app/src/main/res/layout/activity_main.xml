@@ -1,105 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/techfix_background">
+    android:background="@color/techfix_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_header_gradient"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="28dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_yellow_pill"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:text="CUSTOMER"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvWelcome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Welcome back 👋"
+                android:textColor="@color/white"
+                android:textSize="29sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Book, track and manage your device repairs in one place."
+                android:textColor="#DFFFFFFF"
+                android:textSize="14sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                app:cardBackgroundColor="#1FFFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#33FFFFFF"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Need a repair? Browse services and book an appointment."
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_yellow_pill"
+                        android:paddingStart="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="7dp"
+                        android:text="Start"
+                        android:textColor="@color/techfix_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tvWelcome"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Welcome to TechFix"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="20dp"
+            android:text="Quick actions"
             android:textColor="@color/techfix_text_primary"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginTop="24dp" />
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="112dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="16dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnServices"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Services"
+                app:icon="@drawable/ic_services_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMyAppointments"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Appointments"
+                app:icon="@drawable/ic_calendar_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRepairTracking"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Track Repair"
+                app:icon="@drawable/ic_track_24" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPayments"
+                style="@style/Widget.TechFix.QuickActionButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="Payments"
+                app:icon="@drawable/ic_payment_24" />
+        </LinearLayout>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="What would you like to do?"
-            android:textColor="@color/techfix_text_secondary"
-            android:textSize="15sp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="20dp"
+            android:text="Manage your account"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-
-        <Button
-            android:id="@+id/btnServices"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.TechFix.Card"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:text="Repair Services"
-            android:textAllCaps="false" />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="20dp">
 
-        <Button
-            android:id="@+id/btnMyAppointments"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="My Appointments"
-            android:textAllCaps="false" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRepairHistory"
+                    style="@style/Widget.TechFix.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:gravity="start|center_vertical"
+                    android:text="Repair History"
+                    app:icon="@drawable/ic_history_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp" />
 
-        <Button
-            android:id="@+id/btnRepairTracking"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="Track Repairs"
-            android:textAllCaps="false" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSampleRepairs"
+                    style="@style/Widget.TechFix.Button.Outline"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="start|center_vertical"
+                    android:text="Sample Repairs"
+                    app:icon="@drawable/ic_gallery_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp" />
 
-        <Button
-            android:id="@+id/btnPayments"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="Payments"
-            android:textAllCaps="false" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSeeProfile"
+                    style="@style/Widget.TechFix.Button.Yellow"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="10dp"
+                    android:text="My Profile"
+                    app:icon="@drawable/ic_profile_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-
-        <Button
-            android:id="@+id/btnRepairHistory"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="Repair History"
-            android:textAllCaps="false" />
-
-
-        <Button
-            android:id="@+id/btnSeeProfile"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="My Profile"
-            android:textAllCaps="false" />
-
-
-        <Button
-            android:id="@+id/btnSampleRepairs"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:text="View Sample Repairs"
-            android:textAllCaps="false" />
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
+            style="@style/Widget.TechFix.Button.Outline"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginBottom="24dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="20dp"
             android:text="Logout"
-            android:textAllCaps="false" />
+            android:textColor="@color/techfix_danger"
+            app:icon="@drawable/ic_logout_24"
+            app:iconTint="@color/techfix_danger" />
 
     </LinearLayout>
-
 </ScrollView>

@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TECHFIX"
-            android:textColor="#2563EB"
+            android:textColor="@color/techfix_primary"
             android:textSize="30sp"
             android:textStyle="bold"
             android:letterSpacing="0.08" />
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="Create your account"
-            android:textColor="#111827"
+            android:textColor="@color/techfix_text_primary"
             android:textSize="28sp"
             android:textStyle="bold" />
 
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Join TechFix and manage your services with ease."
-            android:textColor="#6B7280"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="15sp"
             android:lineSpacingExtra="3dp" />
 
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:text="Full name"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -62,8 +62,8 @@
             android:background="@drawable/bg_input"
             android:hint="Enter your full name"
             android:inputType="textPersonName"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
             android:textSize="16sp"
             android:singleLine="true" />
 
@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Email address"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -85,8 +85,8 @@
             android:background="@drawable/bg_input"
             android:hint="you@example.com"
             android:inputType="textEmailAddress"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
             android:textSize="16sp"
             android:singleLine="true" />
 
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Phone number"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -108,8 +108,8 @@
             android:background="@drawable/bg_input"
             android:hint="Enter your phone number"
             android:inputType="phone"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
             android:textSize="16sp"
             android:singleLine="true" />
 
@@ -119,7 +119,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Password"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -131,8 +131,8 @@
             android:background="@drawable/bg_input"
             android:hint="Create a password"
             android:inputType="textPassword"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
             android:textSize="16sp"
             android:singleLine="true" />
 
@@ -142,7 +142,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Confirm password"
-            android:textColor="#374151"
+            android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -154,8 +154,8 @@
             android:background="@drawable/bg_input"
             android:hint="Re-enter your password"
             android:inputType="textPassword"
-            android:textColor="#111827"
-            android:textColorHint="#9CA3AF"
+            android:textColor="@color/techfix_text_primary"
+            android:textColorHint="@color/techfix_text_soft"
             android:textSize="16sp"
             android:singleLine="true" />
 
@@ -181,7 +181,7 @@
             android:layout_marginTop="12dp"
             android:background="@android:color/transparent"
             android:text="Back to Login"
-            android:textColor="#2563EB"
+            android:textColor="@color/techfix_primary"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textAllCaps="false" />
