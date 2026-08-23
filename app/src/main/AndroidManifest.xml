@@ -2,16 +2,32 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- PERMISSIONS -->
+    <!-- =========================================================
+         PERMISSIONS
+         ========================================================= -->
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
+    <uses-permission
+        android:name="android.permission.CAMERA" />
+
+
+    <!-- Camera hardware is optional -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+
+
+    <!-- =========================================================
+         APPLICATION
+         ========================================================= -->
 
     <application
         android:allowBackup="true"
@@ -23,218 +39,280 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name=".activities.PaymentSuccessActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.BranchInventoryActivity"
-            android:exported="false" /> <!-- ================================================= -->
-        <!-- SPARE PART MANAGEMENT -->
-        <!-- ================================================= -->
-        <activity
-            android:name=".activities.AddEditSparePartActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.SparePartManagementActivity"
-            android:exported="false" /> <!-- ================================================= -->
-        <!-- SERVICE MANAGEMENT -->
-        <!-- ================================================= -->
-        <activity
-            android:name=".activities.AddEditServiceActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.ServiceManagementActivity"
-            android:exported="false" /> <!-- ================================================= -->
-        <!-- CUSTOMER PAYMENTS -->
-        <!-- ================================================= -->
-        <activity
-            android:name=".activities.CustomerPaymentsActivity"
-            android:exported="false" /> <!-- ================================================= -->
 
-        <!-- MAIN APPLICATION -->
+
+        <!-- =====================================================
+             SPLASH SCREEN
+             First Activity when application opens
+             ===================================================== -->
 
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.TechFix.Splash">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+
             </intent-filter>
 
         </activity>
 
-        <!-- USER AUTHENTICATION -->
+
+        <!-- =====================================================
+             MAIN / CUSTOMER DASHBOARD
+             ===================================================== -->
 
         <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TechFix" />
+
+
+        <!-- =====================================================
+             USER AUTHENTICATION
+             ===================================================== -->
+
+        <!--
+            Separate Login theme is used so Android does not show
+            a black/default window while activity_login is loading.
+        -->
+        <activity
             android:name=".userauthentication.activities.LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.TechFix.Login" />
+
 
         <activity
             android:name=".userauthentication.activities.RegisterActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".userauthentication.activities.AdminLoginActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".userauthentication.activities.CustomerProfileActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".userauthentication.activities.ChangePasswordActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".userauthentication.activities.SessionTestActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".userauthentication.activities.LogoutTestActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".userauthentication.activities.AuthDatabaseTestActivity"
             android:exported="false" />
 
-        <!-- SPARE PART MANAGEMENT -->
 
-        <activity
-            android:name=".activities.AddEditSparePartActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.SparePartManagementActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.BranchInventoryActivity"
-            android:exported="false" />
-
-        <!-- SERVICE MANAGEMENT -->
-
-        <activity
-            android:name=".activities.AddEditServiceActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.ServiceManagementActivity"
-            android:exported="false" />
-
-        <!-- CUSTOMER PAYMENTS -->
-
-        <activity
-            android:name=".activities.CustomerPaymentsActivity"
-            android:exported="false" />
-
-        <!-- CUSTOMER APPOINTMENTS -->
+        <!-- =====================================================
+             CUSTOMER APPOINTMENTS
+             ===================================================== -->
 
         <activity
             android:name=".activities.MyAppointmentsActivity"
             android:exported="false" />
 
-        <!-- ADMIN -->
 
-        <activity
-            android:name=".activities.AdminDashboardActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.AdminSampleApprovalActivity"
-            android:exported="false" />
-
-        <!-- TECHNICIAN -->
-
-        <activity
-            android:name=".activities.TechnicianDashboardActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.TechnicianVerifyAppointmentActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.TechnicianRepairsActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.TechnicianRepairDetailsActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.TechnicianRepairMediaActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.TechnicianProfileActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.AddEditTechnicianActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.TechnicianActivity"
-            android:exported="false" />
-
-        <!-- PAYMENT -->
-
-        <activity
-            android:name=".activities.PaymentActivity"
-            android:exported="false" />
-
-        <!-- SERVICES / BOOKING -->
+        <!-- =====================================================
+             SERVICES / BOOKING
+             ===================================================== -->
 
         <activity
             android:name=".activities.ServiceListActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".activities.BookRepairActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".activities.SparePartActivity"
             android:exported="false" />
 
-        <!-- CUSTOMER REPAIR -->
+
+        <!-- =====================================================
+             CUSTOMER PAYMENTS
+             ===================================================== -->
+
+        <activity
+            android:name=".activities.CustomerPaymentsActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.PaymentActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.PaymentSuccessActivity"
+            android:exported="false" />
+
+
+        <!-- =====================================================
+             CUSTOMER REPAIR
+             ===================================================== -->
 
         <activity
             android:name=".activities.RepairTrackingActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".activities.RepairHistoryActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".activities.RepairDetailsActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".activities.SampleRepairsActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".activities.RepairProgressActivity"
             android:exported="false" />
 
-        <!-- BRANCH / MAP -->
+
+        <!-- =====================================================
+             ADMIN
+             ===================================================== -->
+
+        <activity
+            android:name=".activities.AdminDashboardActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.AdminSampleApprovalActivity"
+            android:exported="false" />
+
+
+        <!-- =====================================================
+             SERVICE MANAGEMENT
+             ===================================================== -->
+
+        <activity
+            android:name=".activities.AddEditServiceActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.ServiceManagementActivity"
+            android:exported="false" />
+
+
+        <!-- =====================================================
+             SPARE PART MANAGEMENT
+             ===================================================== -->
+
+        <activity
+            android:name=".activities.AddEditSparePartActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.SparePartManagementActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.BranchInventoryActivity"
+            android:exported="false" />
+
+
+        <!-- =====================================================
+             TECHNICIAN
+             ===================================================== -->
+
+        <activity
+            android:name=".activities.TechnicianDashboardActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.TechnicianVerifyAppointmentActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.TechnicianRepairsActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.TechnicianRepairDetailsActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.TechnicianRepairMediaActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.TechnicianProfileActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.AddEditTechnicianActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".activities.TechnicianActivity"
+            android:exported="false" />
+
+
+        <!-- =====================================================
+             BRANCH / MAP
+             ===================================================== -->
 
         <activity
             android:name=".activities.MapPickerActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".activities.AddEditBranchActivity"
             android:exported="false" />
+
 
         <activity
             android:name=".activities.BranchActivity"
             android:exported="false" />
 
-        <!-- FILE PROVIDER -->
+
+        <!-- =====================================================
+             FILE PROVIDER
+             Required for Camera / Gallery image sharing
+             ===================================================== -->
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -247,6 +325,7 @@
                 android:resource="@xml/file_paths" />
 
         </provider>
+
 
     </application>
 

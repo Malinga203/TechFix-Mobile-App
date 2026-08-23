@@ -17,8 +17,7 @@ import com.techfix.app.database.UserDao;
 import com.techfix.app.userauthentication.models.User;
 import com.techfix.app.userauthentication.utils.SessionManager;
 
-public class LoginActivity
-        extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail;
     private EditText etPassword;
@@ -33,14 +32,28 @@ public class LoginActivity
 
 
     @Override
-    protected void onCreate(
-            Bundle savedInstanceState
-    ) {
+    protected void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(
-                savedInstanceState
+        super.onCreate(savedInstanceState);
+
+
+        // =====================================================
+        // IMPORTANT
+        //
+        // Attach Login UI immediately.
+        //
+        // Splash -> Login transition eke blank / black waiting
+        // time eka adu karanna setContentView() first.
+        // =====================================================
+
+        setContentView(
+                R.layout.activity_login
         );
 
+
+        // =====================================================
+        // SESSION MANAGER
+        // =====================================================
 
         sessionManager =
                 new SessionManager(
@@ -50,7 +63,7 @@ public class LoginActivity
 
         /*
          * If there is already a valid session,
-         * do not show the login screen again.
+         * route to the correct dashboard.
          */
         if (sessionManager.isLoggedIn()) {
 
@@ -60,16 +73,19 @@ public class LoginActivity
         }
 
 
-        setContentView(
-                R.layout.activity_login
-        );
-
+        // =====================================================
+        // DATABASE
+        // =====================================================
 
         userDao =
                 new UserDao(
                         this
                 );
 
+
+        // =====================================================
+        // VIEWS
+        // =====================================================
 
         etEmail =
                 findViewById(
@@ -95,11 +111,19 @@ public class LoginActivity
                 );
 
 
+        // =====================================================
+        // LOGIN BUTTON
+        // =====================================================
+
         btnLogin.setOnClickListener(
                 view ->
                         login()
         );
 
+
+        // =====================================================
+        // REGISTER
+        // =====================================================
 
         tvRegister.setOnClickListener(
                 view -> {
@@ -447,8 +471,9 @@ public class LoginActivity
         } else {
 
             /*
-             * Invalid/corrupted session.
+             * Invalid / corrupted session.
              */
+
             sessionManager.logout();
 
             showLoginAgain();

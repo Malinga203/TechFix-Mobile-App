@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style
+        name="Theme.TechFix.Splash"
+        parent="Theme.Material3.Light.NoActionBar">
+
+        <item name="android:windowSplashScreenBackground">
+            #25002D
+        </item>
+
+        <!-- Hide Android 12 automatic icon -->
+        <item name="android:windowSplashScreenAnimatedIcon">
+            @drawable/splash_transparent_icon
+        </item>
+
+        <item name="android:windowSplashScreenIconBackgroundColor">
+            #25002D
+        </item>
+
+        <item name="android:windowSplashScreenAnimationDuration">
+            0
+        </item>
+
+        <item name="android:windowBackground">
+            #25002D
+        </item>
+
+        <item name="android:statusBarColor">
+            #25002D
+        </item>
+
+        <item name="android:navigationBarColor">
+            #25002D
+        </item>
+
+        <item name="android:windowLightStatusBar">
+            false
+        </item>
+
+        <item name="android:windowLightNavigationBar">
+            false
+        </item>
+
+    </style>
+
+</resources>
