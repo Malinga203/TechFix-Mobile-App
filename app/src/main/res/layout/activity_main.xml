@@ -13,6 +13,9 @@
         android:orientation="vertical"
         android:paddingBottom="32dp">
 
+        <!-- =========================
+             CUSTOMER HEADER
+             ========================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,6 +98,11 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
+        <!-- =========================
+             QUICK ACTIONS
+             Changed from 4 narrow columns to a responsive 2 x 2 grid.
+             IDs remain exactly the same, so Java logic is unchanged.
+             ========================= -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -108,54 +116,80 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="112dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="14dp"
             android:layout_marginEnd="16dp"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnServices"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Services"
-                app:icon="@drawable/ic_services_24" />
+            <!-- Row 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="104dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMyAppointments"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Appointments"
-                app:icon="@drawable/ic_calendar_24" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnServices"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Services"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_services_24" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRepairTracking"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Track Repair"
-                app:icon="@drawable/ic_track_24" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMyAppointments"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Appointments"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_calendar_24" />
+            </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPayments"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Payments"
-                app:icon="@drawable/ic_payment_24" />
+            <!-- Row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="104dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRepairTracking"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Track Repair"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_track_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPayments"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Payments"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_payment_24" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- =========================
+             ACCOUNT
+             ========================= -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
