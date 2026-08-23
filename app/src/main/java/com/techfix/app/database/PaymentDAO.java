@@ -215,4 +215,49 @@ public class PaymentDAO {
 
         return payment;
     }
+
+    public int updatePaymentSuccess(
+            String orderId,
+            String paymentReference,
+            String paymentDate
+    ) {
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getWritableDatabase();
+
+
+        ContentValues values =
+                new ContentValues();
+
+
+        values.put(
+                DatabaseHelper.COLUMN_PAYMENT_STATUS,
+                "SUCCESS"
+        );
+
+
+        values.put(
+                DatabaseHelper.COLUMN_PAYMENT_REFERENCE,
+                paymentReference
+        );
+
+
+        values.put(
+                DatabaseHelper.COLUMN_PAYMENT_DATE,
+                paymentDate
+        );
+
+
+        return db.update(
+                DatabaseHelper.TABLE_PAYMENT,
+                values,
+                DatabaseHelper.COLUMN_PAYMENT_ORDER_ID
+                        +
+                        " = ?",
+                new String[]{
+                        orderId
+                }
+        );
+    }
 }

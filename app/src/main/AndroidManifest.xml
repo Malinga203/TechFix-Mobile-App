@@ -23,6 +23,33 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activities.PaymentSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.BranchInventoryActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- SPARE PART MANAGEMENT -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.AddEditSparePartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SparePartManagementActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- SERVICE MANAGEMENT -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.AddEditServiceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ServiceManagementActivity"
+            android:exported="false" /> <!-- ================================================= -->
+        <!-- CUSTOMER PAYMENTS -->
+        <!-- ================================================= -->
+        <activity
+            android:name=".activities.CustomerPaymentsActivity"
+            android:exported="false" /> <!-- ================================================= -->
 
         <!-- MAIN APPLICATION -->
 

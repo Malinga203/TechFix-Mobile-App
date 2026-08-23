@@ -1127,14 +1127,16 @@ public class PaymentActivity extends AppCompatActivity {
         Log.d(
                 TAG,
                 "Order = "
-                        + orderId
+                        +
+                        orderId
         );
 
 
         Log.d(
                 TAG,
                 "Reference = "
-                        + paymentReference
+                        +
+                        paymentReference
         );
 
 
@@ -1145,14 +1147,22 @@ public class PaymentActivity extends AppCompatActivity {
 
 
         // =====================================================
+        // SUCCESS DATE
+        // =====================================================
+
+        String paymentSuccessDate =
+                getCurrentTimestamp();
+
+
+        // =====================================================
         // PAYMENT -> SUCCESS
         // =====================================================
 
         int paymentRows =
-                paymentDAO.updatePaymentStatus(
+                paymentDAO.updatePaymentSuccess(
                         orderId,
-                        "SUCCESS",
-                        paymentReference
+                        paymentReference,
+                        paymentSuccessDate
                 );
 
 
@@ -1183,11 +1193,10 @@ public class PaymentActivity extends AppCompatActivity {
             /*
              * IMPORTANT:
              *
-             * Payment stays SUCCESS.
-             *
-             * We do NOT change a successful payment back
-             * to FAILED just because the local repair
-             * database update failed.
+             * Payment itself already succeeded.
+             * Never turn a genuine SUCCESS payment
+             * into FAILED because of a local repair
+             * database problem.
              */
 
             Log.e(
@@ -1213,12 +1222,18 @@ public class PaymentActivity extends AppCompatActivity {
             );
 
 
+            /*
+             * Don't open the normal success screen here
+             * because local repair completion was not
+             * successfully finalized.
+             */
+
             return;
         }
 
 
         // =====================================================
-        // SUCCESS UI
+        // PAYMENT SCREEN STATUS
         // =====================================================
 
         txtPaymentStatus.setText(
@@ -1231,15 +1246,8 @@ public class PaymentActivity extends AppCompatActivity {
         );
 
 
-        Toast.makeText(
-                this,
-                "Payment successful. Repair completed.",
-                Toast.LENGTH_LONG
-        ).show();
-
-
         // =====================================================
-        // RETURN RESULT
+        // RESULT FOR PREVIOUS ACTIVITY
         // =====================================================
 
         Intent resultIntent =
@@ -1275,6 +1283,62 @@ public class PaymentActivity extends AppCompatActivity {
                 resultIntent
         );
 
+
+        // =====================================================
+        // OPEN SUCCESS ACTIVITY
+        // =====================================================
+
+        Intent successIntent =
+                new Intent(
+                        PaymentActivity.this,
+                        PaymentSuccessActivity.class
+                );
+
+
+        successIntent.putExtra(
+                PaymentSuccessActivity.EXTRA_APPOINTMENT_ID,
+                appointmentId
+        );
+
+
+        successIntent.putExtra(
+                PaymentSuccessActivity.EXTRA_REPAIR_ID,
+                repairId
+        );
+
+
+        successIntent.putExtra(
+                PaymentSuccessActivity.EXTRA_ORDER_ID,
+                orderId
+        );
+
+
+        successIntent.putExtra(
+                PaymentSuccessActivity.EXTRA_PAYMENT_REFERENCE,
+                paymentReference
+        );
+
+
+        successIntent.putExtra(
+                PaymentSuccessActivity.EXTRA_AMOUNT,
+                amount
+        );
+
+
+        successIntent.putExtra(
+                PaymentSuccessActivity.EXTRA_PAYMENT_DATE,
+                paymentSuccessDate
+        );
+
+
+        startActivity(
+                successIntent
+        );
+
+
+        // =====================================================
+        // CLOSE PAYMENT SCREEN
+        // =====================================================
 
         finish();
     }
