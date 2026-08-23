@@ -21,10 +21,11 @@
         <ImageView
             android:id="@+id/imgApprovalSample"
             android:layout_width="match_parent"
-            android:layout_height="190dp"
+            android:layout_height="210dp"
             android:background="@color/techfix_primary_light"
-            android:contentDescription="Repair sample"
-            android:scaleType="centerCrop" />
+            android:contentDescription="Repair media image"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_camera" />
 
         <TextView
             android:id="@+id/tvApprovalTitle"
@@ -41,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Repair result"
+            android:text="Repair photo description"
             android:textColor="@color/techfix_text_secondary"
             android:textSize="13sp" />
 
@@ -50,9 +51,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            android:text="Repair R-001"
+            android:text="Repair R-001 • Repairing • Technician #1"
             android:textColor="@color/techfix_text_soft"
             android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/tvApprovalSampleStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:text="Repair Media • Not selected as a sample"
+            android:textColor="@color/techfix_primary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,21 +73,18 @@
 
             <Button
                 android:id="@+id/btnApproveSample"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginEnd="5dp"
-                android:layout_weight="1"
-                android:text="Approve"
+                android:text="Approve as Sample"
                 android:textAllCaps="false" />
 
             <Button
                 android:id="@+id/btnRejectSample"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:text="Reject"
-                android:textAllCaps="false" />
+                android:text="Remove Sample"
+                android:textAllCaps="false"
+                android:visibility="gone" />
 
         </LinearLayout>
 

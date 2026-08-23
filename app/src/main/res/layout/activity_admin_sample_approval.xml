@@ -14,7 +14,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/techfix_surface"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:title="Sample Approval"
+        app:title="Repair Media Samples"
         app:titleTextColor="@color/techfix_text_primary" />
 
     <LinearLayout
@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pending Repair Samples"
+            android:text="Repair Media"
             android:textColor="@color/techfix_text_primary"
             android:textSize="21sp"
             android:textStyle="bold" />
@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Approved samples will become visible on the customer dashboard."
+            android:text="Review technician repair photos and choose which pictures should be visible to customers as sample repairs."
             android:textColor="@color/techfix_text_secondary"
             android:textSize="12sp" />
 
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:gravity="center"
-            android:text="No samples waiting for approval"
+            android:text="No repair media has been uploaded yet"
             android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:visibility="gone" />

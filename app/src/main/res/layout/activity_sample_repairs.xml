@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="These repair samples were submitted by technicians and approved by TechFix administration."
+            android:text="These repair photos were selected by TechFix administration as sample repairs."
             android:textColor="@color/techfix_text_secondary"
             android:textSize="13sp" />
 
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:gravity="center"
-            android:text="No approved repair samples yet"
+            android:text="No sample repair pictures are available yet"
             android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp"
             android:visibility="gone" />

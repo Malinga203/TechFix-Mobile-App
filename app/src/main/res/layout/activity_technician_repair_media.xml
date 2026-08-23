@@ -39,25 +39,25 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Photo Purpose"
+                android:layout_marginTop="18dp"
+                android:text="Upload Repair Photo"
                 android:textColor="@color/techfix_text_primary"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <Spinner
-                android:id="@+id/spinnerMediaType"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_search"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Upload a photo of the phone at its current repair stage. The administrator can later choose suitable photos as public samples."
+                android:textColor="@color/techfix_text_secondary"
+                android:textSize="12sp" />
 
             <EditText
                 android:id="@+id/edtMediaCaption"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:background="@drawable/bg_search"
                 android:hint="Add a short note"
                 android:paddingStart="14dp"
@@ -93,8 +93,6 @@
 
             </LinearLayout>
 
-
-            <!-- Selected Repair Photo Preview -->
             <ImageView
                 android:id="@+id/imgSelectedRepairMedia"
                 android:layout_width="match_parent"
@@ -105,25 +103,14 @@
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
-
-            <!-- Submit Selected Photo -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmitRepairMedia"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="14dp"
                 android:enabled="false"
-                android:text="Submit Progress Photo"
+                android:text="Upload Repair Photo"
                 android:textAllCaps="false" />
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Progress photos are shared with the customer. Sample repair photos require admin approval."
-                android:textColor="@color/techfix_text_secondary"
-                android:textSize="12sp" />
 
             <TextView
                 android:layout_width="match_parent"

@@ -24,18 +24,25 @@ public class RepairMediaAdapter
     private final List<RepairMedia> items =
             new ArrayList<>();
 
+
     public void setItems(
             List<RepairMedia> newItems
     ) {
 
         items.clear();
 
+
         if (newItems != null) {
-            items.addAll(newItems);
+
+            items.addAll(
+                    newItems
+            );
         }
+
 
         notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override
@@ -55,10 +62,12 @@ public class RepairMediaAdapter
                                 false
                         );
 
+
         return new MediaViewHolder(
                 view
         );
     }
+
 
     @Override
     public void onBindViewHolder(
@@ -67,12 +76,16 @@ public class RepairMediaAdapter
     ) {
 
         RepairMedia media =
-                items.get(position);
+                items.get(
+                        position
+                );
+
 
         showImage(
                 holder.imgMedia,
                 media.getImageUri()
         );
+
 
         if (media.isSample()) {
 
@@ -83,6 +96,7 @@ public class RepairMediaAdapter
                             ? "Repair Sample"
                             : media.getDeviceName();
 
+
             String service =
                     TextUtils.isEmpty(
                             media.getServiceName()
@@ -90,46 +104,58 @@ public class RepairMediaAdapter
                             ? ""
                             : media.getServiceName();
 
+
             holder.tvTitle.setText(
                     service.isEmpty()
+
                             ? device
-                            : device + " • " + service
+
+                            : device +
+                            " • " +
+                            service
             );
 
+
             holder.chipType.setText(
-                    RepairMedia.APPROVAL_APPROVED.equals(
-                            media.getApprovalStatus()
-                    )
-                            ? "Approved Sample"
-                            : media.getApprovalStatus()
+                    "Public Sample"
             );
+
 
         } else {
 
             holder.tvTitle.setText(
-                    media.getReadableStage()
-                            + " Update"
+                    media.getReadableStage() +
+                            " Update"
             );
 
+
             holder.chipType.setText(
-                    "Progress"
+                    "Repair Photo"
             );
         }
+
 
         String caption =
                 media.getCaption();
 
+
         holder.tvCaption.setText(
-                TextUtils.isEmpty(caption)
+                TextUtils.isEmpty(
+                        caption
+                )
                         ? "No additional note"
                         : caption
         );
 
+
         String technician =
                 media.getTechnicianId() > 0
+
                         ? "Technician #" +
                         media.getTechnicianId()
+
                         : "Technician";
+
 
         String created =
                 TextUtils.isEmpty(
@@ -139,28 +165,43 @@ public class RepairMediaAdapter
                         : " • " +
                         media.getCreatedAt();
 
+
         holder.tvMeta.setText(
-                technician + created
+                technician +
+                        created
         );
     }
+
 
     private void showImage(
             ImageView imageView,
             String uriValue
     ) {
 
-        imageView.setImageURI(null);
+        imageView.setImageURI(
+                null
+        );
+
+
         imageView.setScaleType(
                 ImageView.ScaleType.CENTER_INSIDE
         );
+
 
         imageView.setImageResource(
                 android.R.drawable.ic_menu_camera
         );
 
-        if (TextUtils.isEmpty(uriValue)) {
+
+        if (
+                TextUtils.isEmpty(
+                        uriValue
+                )
+        ) {
+
             return;
         }
+
 
         try {
 
@@ -168,17 +209,22 @@ public class RepairMediaAdapter
                     ImageView.ScaleType.CENTER_CROP
             );
 
+
             imageView.setImageURI(
                     Uri.parse(
                             uriValue
                     )
             );
 
-        } catch (Exception ignored) {
+
+        } catch (
+                Exception ignored
+        ) {
 
             imageView.setScaleType(
                     ImageView.ScaleType.CENTER_INSIDE
             );
+
 
             imageView.setImageResource(
                     android.R.drawable.ic_menu_camera
@@ -186,45 +232,62 @@ public class RepairMediaAdapter
         }
     }
 
+
     @Override
     public int getItemCount() {
+
         return items.size();
     }
+
 
     static class MediaViewHolder
             extends RecyclerView.ViewHolder {
 
         ImageView imgMedia;
+
+
         TextView tvTitle;
+
         TextView tvCaption;
+
         TextView tvMeta;
+
+
         Chip chipType;
+
 
         MediaViewHolder(
                 @NonNull View itemView
         ) {
 
-            super(itemView);
+            super(
+                    itemView
+            );
+
 
             imgMedia =
                     itemView.findViewById(
                             R.id.imgMedia
                     );
 
+
             tvTitle =
                     itemView.findViewById(
                             R.id.tvMediaTitle
                     );
+
 
             tvCaption =
                     itemView.findViewById(
                             R.id.tvMediaCaption
                     );
 
+
             tvMeta =
                     itemView.findViewById(
                             R.id.tvMediaMeta
                     );
+
 
             chipType =
                     itemView.findViewById(

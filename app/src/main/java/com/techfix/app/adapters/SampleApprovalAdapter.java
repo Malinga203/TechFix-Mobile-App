@@ -17,29 +17,39 @@ import com.techfix.app.models.RepairMedia;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SampleApprovalAdapter
         extends RecyclerView.Adapter<SampleApprovalAdapter.SampleViewHolder> {
 
-    public interface OnApprovalActionListener {
+    public interface OnSampleActionListener {
 
-        void onApprove(RepairMedia media);
+        void onSetAsSample(
+                RepairMedia media
+        );
 
-        void onReject(RepairMedia media);
+
+        void onRemoveSample(
+                RepairMedia media
+        );
     }
+
 
     private final List<RepairMedia> items =
             new ArrayList<>();
 
-    private final OnApprovalActionListener listener;
+
+    private final OnSampleActionListener listener;
+
 
     public SampleApprovalAdapter(
-            OnApprovalActionListener listener
+            OnSampleActionListener listener
     ) {
 
         this.listener =
                 listener;
     }
+
 
     public void setItems(
             List<RepairMedia> newItems
@@ -47,12 +57,18 @@ public class SampleApprovalAdapter
 
         items.clear();
 
+
         if (newItems != null) {
-            items.addAll(newItems);
+
+            items.addAll(
+                    newItems
+            );
         }
+
 
         notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override
@@ -72,10 +88,12 @@ public class SampleApprovalAdapter
                                 false
                         );
 
+
         return new SampleViewHolder(
                 view
         );
     }
+
 
     @Override
     public void onBindViewHolder(
@@ -84,26 +102,43 @@ public class SampleApprovalAdapter
     ) {
 
         RepairMedia media =
-                items.get(position);
+                items.get(
+                        position
+                );
 
-        holder.imgSample.setImageURI(null);
 
-        if (!TextUtils.isEmpty(
+        showImage(
+                holder.imgSample,
                 media.getImageUri()
-        )) {
+        );
 
-            holder.imgSample.setImageURI(
-                    Uri.parse(
-                            media.getImageUri()
-                    )
-            );
-        }
+
+        String device =
+                TextUtils.isEmpty(
+                        media.getDeviceName()
+                )
+                        ? "Repair"
+                        : media.getDeviceName();
+
+
+        String service =
+                TextUtils.isEmpty(
+                        media.getServiceName()
+                )
+                        ? ""
+                        : media.getServiceName();
+
 
         holder.tvTitle.setText(
-                media.getDeviceName()
-                        + " • "
-                        + media.getServiceName()
+                service.isEmpty()
+
+                        ? device
+
+                        : device +
+                        " • " +
+                        service
         );
+
 
         holder.tvCaption.setText(
                 TextUtils.isEmpty(
@@ -113,78 +148,243 @@ public class SampleApprovalAdapter
                         : media.getCaption()
         );
 
-        holder.tvMeta.setText(
-                "Repair R-" +
-                        String.format(
-                                "%03d",
-                                media.getRepairId()
-                        ) +
-                        " • Technician #" +
+
+        String stage =
+                TextUtils.isEmpty(
+                        media.getRepairStage()
+                )
+                        ? "Repair Update"
+                        : media.getReadableStage();
+
+
+        String technician =
+                media.getTechnicianId() > 0
+
+                        ? "Technician #" +
                         media.getTechnicianId()
+
+                        : "Technician";
+
+
+        holder.tvMeta.setText(
+                String.format(
+
+                        Locale.getDefault(),
+
+                        "Repair R-%03d • %s • %s",
+
+                        media.getRepairId(),
+                        stage,
+                        technician
+                )
         );
 
-        holder.btnApprove.setOnClickListener(
-                view ->
-                        listener.onApprove(
-                                media
-                        )
-        );
 
-        holder.btnReject.setOnClickListener(
-                view ->
-                        listener.onReject(
-                                media
-                        )
-        );
+        if (media.isSample()) {
+
+            holder.tvSampleStatus.setText(
+                    "Public Sample • Visible to customers"
+            );
+
+
+            holder.btnApprove.setVisibility(
+                    View.GONE
+            );
+
+
+            holder.btnReject.setVisibility(
+                    View.VISIBLE
+            );
+
+
+            holder.btnReject.setText(
+                    "Remove Sample"
+            );
+
+
+        } else {
+
+            holder.tvSampleStatus.setText(
+                    "Repair Media • Not selected as a sample"
+            );
+
+
+            holder.btnApprove.setVisibility(
+                    View.VISIBLE
+            );
+
+
+            holder.btnReject.setVisibility(
+                    View.GONE
+            );
+
+
+            holder.btnApprove.setText(
+                    "Approve as Sample"
+            );
+        }
+
+
+        holder.btnApprove
+                .setOnClickListener(
+                        view -> {
+
+                            if (listener != null) {
+
+                                listener.onSetAsSample(
+                                        media
+                                );
+                            }
+                        }
+                );
+
+
+        holder.btnReject
+                .setOnClickListener(
+                        view -> {
+
+                            if (listener != null) {
+
+                                listener.onRemoveSample(
+                                        media
+                                );
+                            }
+                        }
+                );
     }
+
+
+    private void showImage(
+            ImageView imageView,
+            String uriValue
+    ) {
+
+        imageView.setImageURI(
+                null
+        );
+
+
+        imageView.setScaleType(
+                ImageView.ScaleType.CENTER_INSIDE
+        );
+
+
+        imageView.setImageResource(
+                android.R.drawable.ic_menu_camera
+        );
+
+
+        if (
+                TextUtils.isEmpty(
+                        uriValue
+                )
+        ) {
+
+            return;
+        }
+
+
+        try {
+
+            imageView.setScaleType(
+                    ImageView.ScaleType.CENTER_CROP
+            );
+
+
+            imageView.setImageURI(
+                    Uri.parse(
+                            uriValue
+                    )
+            );
+
+
+        } catch (
+                Exception ignored
+        ) {
+
+            imageView.setScaleType(
+                    ImageView.ScaleType.CENTER_INSIDE
+            );
+
+
+            imageView.setImageResource(
+                    android.R.drawable.ic_menu_camera
+            );
+        }
+    }
+
 
     @Override
     public int getItemCount() {
+
         return items.size();
     }
+
 
     static class SampleViewHolder
             extends RecyclerView.ViewHolder {
 
         ImageView imgSample;
 
+
         TextView tvTitle;
+
         TextView tvCaption;
+
         TextView tvMeta;
 
+        TextView tvSampleStatus;
+
+
         Button btnApprove;
+
         Button btnReject;
+
 
         SampleViewHolder(
                 @NonNull View itemView
         ) {
 
-            super(itemView);
+            super(
+                    itemView
+            );
+
 
             imgSample =
                     itemView.findViewById(
                             R.id.imgApprovalSample
                     );
 
+
             tvTitle =
                     itemView.findViewById(
                             R.id.tvApprovalTitle
                     );
+
 
             tvCaption =
                     itemView.findViewById(
                             R.id.tvApprovalCaption
                     );
 
+
             tvMeta =
                     itemView.findViewById(
                             R.id.tvApprovalMeta
                     );
 
+
+            tvSampleStatus =
+                    itemView.findViewById(
+                            R.id.tvApprovalSampleStatus
+                    );
+
+
             btnApprove =
                     itemView.findViewById(
                             R.id.btnApproveSample
                     );
+
 
             btnReject =
                     itemView.findViewById(

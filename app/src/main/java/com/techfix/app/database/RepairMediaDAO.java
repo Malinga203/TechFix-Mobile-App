@@ -22,9 +22,13 @@ public class RepairMediaDAO {
     private static final String DISPLAY_SERVICE =
             "repair_service_name";
 
+
     private final DatabaseHelper databaseHelper;
 
-    public RepairMediaDAO(Context context) {
+
+    public RepairMediaDAO(
+            Context context
+    ) {
 
         databaseHelper =
                 new DatabaseHelper(
@@ -32,37 +36,44 @@ public class RepairMediaDAO {
                 );
     }
 
+
+    // =========================================================
+    // INSERT REPAIR MEDIA
+    // =========================================================
+
     public long insertMedia(
             RepairMedia media
     ) {
 
-        if (media == null
-                || media.getRepairId() <= 0
-                || TextUtils.isEmpty(media.getImageUri())
-                || !isValidType(media.getMediaType())) {
+        if (
+                media == null ||
+                        media.getRepairId() <= 0 ||
+                        TextUtils.isEmpty(
+                                media.getImageUri()
+                        )
+        ) {
 
             return -1;
         }
 
+
         String now =
                 getCurrentTimestamp();
 
-        String approvalStatus =
-                RepairMedia.TYPE_SAMPLE.equals(
-                        media.getMediaType()
-                )
-                        ? RepairMedia.APPROVAL_PENDING
-                        : RepairMedia.APPROVAL_APPROVED;
 
         ContentValues values =
                 new ContentValues();
+
 
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_REPAIR_ID,
                 media.getRepairId()
         );
 
-        if (media.getTechnicianId() > 0) {
+
+        if (
+                media.getTechnicianId() > 0
+        ) {
 
             values.put(
                     DatabaseHelper.COLUMN_MEDIA_TECHNICIAN_ID,
@@ -76,10 +87,14 @@ public class RepairMediaDAO {
             );
         }
 
+
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_IMAGE_URI,
-                media.getImageUri().trim()
+                media
+                        .getImageUri()
+                        .trim()
         );
+
 
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_CAPTION,
@@ -88,10 +103,18 @@ public class RepairMediaDAO {
                 )
         );
 
+
+        /*
+         * NEW WORKFLOW
+         *
+         * Technician uploads are simply repair photos.
+         * Technician no longer decides if the photo is a sample.
+         */
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_TYPE,
-                media.getMediaType()
+                RepairMedia.TYPE_PROGRESS
         );
+
 
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_REPAIR_STAGE,
@@ -100,18 +123,41 @@ public class RepairMediaDAO {
                 )
         );
 
+
+        /*
+         * Keep the old column valid.
+         *
+         * Public visibility no longer depends on this column.
+         */
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_APPROVAL_STATUS,
-                approvalStatus
+                RepairMedia.APPROVAL_APPROVED
         );
+
 
         values.put(
                 DatabaseHelper.COLUMN_MEDIA_CREATED_AT,
                 now
         );
 
+
+        values.putNull(
+                DatabaseHelper.COLUMN_MEDIA_APPROVED_AT
+        );
+
+
+        /*
+         * Every repair photo starts as NOT a sample.
+         */
+        values.put(
+                DatabaseHelper.COLUMN_MEDIA_IS_SAMPLE,
+                0
+        );
+
+
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
+
 
         return db.insert(
                 DatabaseHelper.TABLE_REPAIR_MEDIA,
@@ -120,124 +166,171 @@ public class RepairMediaDAO {
         );
     }
 
+
+    // =========================================================
+    // CUSTOMER / REPAIR PROGRESS
+    // =========================================================
+
     public List<RepairMedia> getProgressImagesForRepair(
             long repairId
     ) {
 
         if (repairId <= 0) {
+
             return new ArrayList<>();
         }
+
 
         String where =
                 "m." +
                         DatabaseHelper.COLUMN_MEDIA_REPAIR_ID +
-                        " = ? AND m." +
-                        DatabaseHelper.COLUMN_MEDIA_TYPE +
                         " = ?";
 
-        String[] args = {
-                String.valueOf(repairId),
-                RepairMedia.TYPE_PROGRESS
-        };
 
         return queryMedia(
                 where,
-                args
+                new String[]{
+                        String.valueOf(
+                                repairId
+                        )
+                }
         );
     }
 
-    public List<RepairMedia> getApprovedSampleImages() {
 
-        String where =
-                "m." +
-                        DatabaseHelper.COLUMN_MEDIA_TYPE +
-                        " = ? AND m." +
-                        DatabaseHelper.COLUMN_MEDIA_APPROVAL_STATUS +
-                        " = ?";
-
-        String[] args = {
-                RepairMedia.TYPE_SAMPLE,
-                RepairMedia.APPROVAL_APPROVED
-        };
-
-        return queryMedia(
-                where,
-                args
-        );
-    }
-
-    public List<RepairMedia> getPendingSampleImages() {
-
-        String where =
-                "m." +
-                        DatabaseHelper.COLUMN_MEDIA_TYPE +
-                        " = ? AND m." +
-                        DatabaseHelper.COLUMN_MEDIA_APPROVAL_STATUS +
-                        " = ?";
-
-        String[] args = {
-                RepairMedia.TYPE_SAMPLE,
-                RepairMedia.APPROVAL_PENDING
-        };
-
-        return queryMedia(
-                where,
-                args
-        );
-    }
+    // =========================================================
+    // ALL MEDIA FOR ONE REPAIR
+    // =========================================================
 
     public List<RepairMedia> getMediaForRepair(
             long repairId
     ) {
 
         if (repairId <= 0) {
+
             return new ArrayList<>();
         }
+
 
         String where =
                 "m." +
                         DatabaseHelper.COLUMN_MEDIA_REPAIR_ID +
                         " = ?";
 
+
         return queryMedia(
                 where,
                 new String[]{
-                        String.valueOf(repairId)
+                        String.valueOf(
+                                repairId
+                        )
                 }
         );
     }
 
-    public boolean updateSampleApproval(
+
+    // =========================================================
+    // ADMIN - ALL REPAIR MEDIA
+    // =========================================================
+
+    public List<RepairMedia>
+    getAllRepairMediaForAdmin() {
+
+        return queryMedia(
+                "1 = 1",
+                new String[]{}
+        );
+    }
+
+
+    // =========================================================
+    // CUSTOMER - PUBLIC SAMPLE IMAGES
+    // =========================================================
+
+    public List<RepairMedia> getSampleImages() {
+
+        String where =
+                "m." +
+                        DatabaseHelper.COLUMN_MEDIA_IS_SAMPLE +
+                        " = ?";
+
+
+        return queryMedia(
+                where,
+                new String[]{
+                        "1"
+                }
+        );
+    }
+
+
+    /*
+     * Compatibility method.
+     *
+     * Existing code calling this method will now
+     * use is_sample instead of SAMPLE + APPROVED.
+     */
+    public List<RepairMedia>
+    getApprovedSampleImages() {
+
+        return getSampleImages();
+    }
+
+
+    // =========================================================
+    // ADMIN - UPDATE SAMPLE STATUS
+    // =========================================================
+
+    public boolean updateSampleSelection(
             long mediaId,
-            String approvalStatus
+            boolean isSample
     ) {
 
-        if (mediaId <= 0
-                || (!RepairMedia.APPROVAL_APPROVED.equals(
-                approvalStatus
-        )
-                && !RepairMedia.APPROVAL_REJECTED.equals(
-                approvalStatus
-        ))) {
+        if (mediaId <= 0) {
 
             return false;
         }
 
+
         ContentValues values =
                 new ContentValues();
 
-        values.put(
-                DatabaseHelper.COLUMN_MEDIA_APPROVAL_STATUS,
-                approvalStatus
-        );
 
         values.put(
-                DatabaseHelper.COLUMN_MEDIA_APPROVED_AT,
-                getCurrentTimestamp()
+                DatabaseHelper.COLUMN_MEDIA_IS_SAMPLE,
+                isSample
+                        ? 1
+                        : 0
         );
+
+
+        /*
+         * Keep the legacy approval column valid.
+         */
+        values.put(
+                DatabaseHelper.COLUMN_MEDIA_APPROVAL_STATUS,
+                RepairMedia.APPROVAL_APPROVED
+        );
+
+
+        if (isSample) {
+
+            values.put(
+                    DatabaseHelper.COLUMN_MEDIA_APPROVED_AT,
+                    getCurrentTimestamp()
+            );
+
+        } else {
+
+            values.putNull(
+                    DatabaseHelper.COLUMN_MEDIA_APPROVED_AT
+            );
+        }
+
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
+
 
         int rows =
                 db.update(
@@ -245,18 +338,89 @@ public class RepairMediaDAO {
                         values,
 
                         DatabaseHelper.COLUMN_MEDIA_ID +
-                                " = ? AND " +
-                                DatabaseHelper.COLUMN_MEDIA_TYPE +
                                 " = ?",
 
                         new String[]{
-                                String.valueOf(mediaId),
-                                RepairMedia.TYPE_SAMPLE
+                                String.valueOf(
+                                        mediaId
+                                )
                         }
                 );
 
+
         return rows > 0;
     }
+
+
+    // =========================================================
+    // SET AS SAMPLE
+    // =========================================================
+
+    public boolean setAsSample(
+            long mediaId
+    ) {
+
+        return updateSampleSelection(
+                mediaId,
+                true
+        );
+    }
+
+
+    // =========================================================
+    // REMOVE FROM SAMPLES
+    // =========================================================
+
+    public boolean removeFromSamples(
+            long mediaId
+    ) {
+
+        return updateSampleSelection(
+                mediaId,
+                false
+        );
+    }
+
+
+    /*
+     * Compatibility with the old Admin approval code.
+     */
+    public boolean updateSampleApproval(
+            long mediaId,
+            String approvalStatus
+    ) {
+
+        if (
+                RepairMedia.APPROVAL_APPROVED.equals(
+                        approvalStatus
+                )
+        ) {
+
+            return setAsSample(
+                    mediaId
+            );
+        }
+
+
+        if (
+                RepairMedia.APPROVAL_REJECTED.equals(
+                        approvalStatus
+                )
+        ) {
+
+            return removeFromSamples(
+                    mediaId
+            );
+        }
+
+
+        return false;
+    }
+
+
+    // =========================================================
+    // QUERY
+    // =========================================================
 
     private List<RepairMedia> queryMedia(
             String where,
@@ -266,8 +430,10 @@ public class RepairMediaDAO {
         List<RepairMedia> result =
                 new ArrayList<>();
 
+
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
+
 
         String sql =
                 "SELECT m.*, " +
@@ -299,15 +465,19 @@ public class RepairMediaDAO {
                         DatabaseHelper.COLUMN_MEDIA_CREATED_AT +
                         " DESC";
 
+
         Cursor cursor =
                 db.rawQuery(
                         sql,
                         args
                 );
 
+
         try {
 
-            while (cursor.moveToNext()) {
+            while (
+                    cursor.moveToNext()
+            ) {
 
                 result.add(
                         cursorToMedia(
@@ -321,8 +491,14 @@ public class RepairMediaDAO {
             cursor.close();
         }
 
+
         return result;
     }
+
+
+    // =========================================================
+    // CURSOR -> MODEL
+    // =========================================================
 
     private RepairMedia cursorToMedia(
             Cursor cursor
@@ -330,6 +506,7 @@ public class RepairMediaDAO {
 
         RepairMedia media =
                 new RepairMedia();
+
 
         media.setMediaId(
                 cursor.getLong(
@@ -339,6 +516,7 @@ public class RepairMediaDAO {
                 )
         );
 
+
         media.setRepairId(
                 cursor.getLong(
                         cursor.getColumnIndexOrThrow(
@@ -347,10 +525,12 @@ public class RepairMediaDAO {
                 )
         );
 
+
         int technicianIndex =
                 cursor.getColumnIndexOrThrow(
                         DatabaseHelper.COLUMN_MEDIA_TECHNICIAN_ID
                 );
+
 
         media.setTechnicianId(
                 cursor.isNull(
@@ -362,6 +542,7 @@ public class RepairMediaDAO {
                 )
         );
 
+
         media.setImageUri(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -369,6 +550,7 @@ public class RepairMediaDAO {
                         )
                 )
         );
+
 
         media.setCaption(
                 cursor.getString(
@@ -378,6 +560,7 @@ public class RepairMediaDAO {
                 )
         );
 
+
         media.setMediaType(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -385,6 +568,7 @@ public class RepairMediaDAO {
                         )
                 )
         );
+
 
         media.setRepairStage(
                 cursor.getString(
@@ -394,6 +578,7 @@ public class RepairMediaDAO {
                 )
         );
 
+
         media.setApprovalStatus(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -401,6 +586,7 @@ public class RepairMediaDAO {
                         )
                 )
         );
+
 
         media.setCreatedAt(
                 cursor.getString(
@@ -410,6 +596,7 @@ public class RepairMediaDAO {
                 )
         );
 
+
         media.setApprovedAt(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -417,6 +604,19 @@ public class RepairMediaDAO {
                         )
                 )
         );
+
+
+        /*
+         * NEW BOOLEAN FLAG
+         */
+        media.setSample(
+                cursor.getInt(
+                        cursor.getColumnIndexOrThrow(
+                                DatabaseHelper.COLUMN_MEDIA_IS_SAMPLE
+                        )
+                ) == 1
+        );
+
 
         media.setDeviceName(
                 cursor.getString(
@@ -426,6 +626,7 @@ public class RepairMediaDAO {
                 )
         );
 
+
         media.setServiceName(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(
@@ -434,20 +635,14 @@ public class RepairMediaDAO {
                 )
         );
 
+
         return media;
     }
 
-    private boolean isValidType(
-            String mediaType
-    ) {
 
-        return RepairMedia.TYPE_PROGRESS.equals(
-                mediaType
-        )
-                || RepairMedia.TYPE_SAMPLE.equals(
-                mediaType
-        );
-    }
+    // =========================================================
+    // HELPERS
+    // =========================================================
 
     private String safeText(
             String value
@@ -457,6 +652,7 @@ public class RepairMediaDAO {
                 ? ""
                 : value.trim();
     }
+
 
     private String getCurrentTimestamp() {
 
@@ -468,7 +664,9 @@ public class RepairMediaDAO {
         );
     }
 
+
     public void close() {
+
         databaseHelper.close();
     }
 }

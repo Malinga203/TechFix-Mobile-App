@@ -13,7 +13,7 @@ public class DatabaseHelper
             "techfix.db";
 
     private static final int DATABASE_VERSION =
-            11;
+            12;
 
 
     // =========================================================
@@ -319,6 +319,9 @@ public class DatabaseHelper
 
     public static final String COLUMN_MEDIA_APPROVED_AT =
             "approved_at";
+
+    public static final String COLUMN_MEDIA_IS_SAMPLE =
+            "is_sample";
 
 
     // =========================================================
@@ -901,6 +904,9 @@ public class DatabaseHelper
                         COLUMN_MEDIA_APPROVED_AT +
                         " TEXT, " +
 
+                        COLUMN_MEDIA_IS_SAMPLE +
+                        " INTEGER NOT NULL DEFAULT 0, " +
+
                         "FOREIGN KEY(" +
                         COLUMN_MEDIA_REPAIR_ID +
                         ") REFERENCES " +
@@ -1203,6 +1209,7 @@ public class DatabaseHelper
     ) {
 
         if (oldVersion < 9) {
+
             createRepairMediaTable(db);
         }
 
@@ -1222,6 +1229,40 @@ public class DatabaseHelper
                                 " TEXT"
                 );
             }
+        }
+
+        // VERSION 12
+        // ADD is_sample TO repair_media
+
+        if (oldVersion < 12) {
+
+            if (!columnExists(
+                    db,
+                    TABLE_REPAIR_MEDIA,
+                    COLUMN_MEDIA_IS_SAMPLE
+            )) {
+
+                db.execSQL(
+                        "ALTER TABLE " +
+                                TABLE_REPAIR_MEDIA +
+                                " ADD COLUMN " +
+                                COLUMN_MEDIA_IS_SAMPLE +
+                                " INTEGER NOT NULL DEFAULT 0"
+                );
+            }
+
+
+            db.execSQL(
+                    "UPDATE " +
+                            TABLE_REPAIR_MEDIA +
+                            " SET " +
+                            COLUMN_MEDIA_IS_SAMPLE +
+                            " = 1 WHERE " +
+                            COLUMN_MEDIA_TYPE +
+                            " = 'SAMPLE' AND " +
+                            COLUMN_MEDIA_APPROVAL_STATUS +
+                            " = 'APPROVED'"
+            );
         }
     }
 

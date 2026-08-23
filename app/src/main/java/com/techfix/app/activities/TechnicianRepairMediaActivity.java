@@ -8,11 +8,9 @@ import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,57 +46,81 @@ public class TechnicianRepairMediaActivity
     private static final long MAX_IMAGE_SIZE =
             5L * 1024L * 1024L;
 
+
     private RepairDAO repairDAO;
+
     private RepairMediaDAO repairMediaDAO;
+
 
     private Repair repair;
 
+
     private long repairId;
+
     private int technicianId;
 
-    private Spinner spinnerMediaType;
+
     private EditText edtCaption;
+
     private TextView tvRepairInfo;
+
     private RecyclerView recyclerMedia;
 
+
     private ImageView imgSelectedRepairMedia;
+
     private MaterialButton btnSubmitRepairMedia;
+
 
     private RepairMediaAdapter adapter;
 
+
     private File pendingCameraFile;
+
     private Uri pendingCameraUri;
+
 
     private String selectedImageUri;
 
-    private String pendingMediaType =
-            RepairMedia.TYPE_PROGRESS;
 
-    private final ActivityResultLauncher<Uri> cameraLauncher =
+    private final ActivityResultLauncher<Uri>
+            cameraLauncher =
             registerForActivityResult(
-                    new ActivityResultContracts.TakePicture(),
+
+                    new ActivityResultContracts
+                            .TakePicture(),
+
                     success -> {
 
                         if (success) {
 
-                            if (isValidImageFile(
-                                    pendingCameraFile
-                            )) {
+                            if (
+                                    isValidImageFile(
+                                            pendingCameraFile
+                                    )
+                            ) {
 
                                 selectedImageUri =
-                                        pendingCameraUri.toString();
-
-                                imgSelectedRepairMedia.setImageURI(
                                         pendingCameraUri
-                                );
+                                                .toString();
 
-                                imgSelectedRepairMedia.setVisibility(
-                                        android.view.View.VISIBLE
-                                );
 
-                                btnSubmitRepairMedia.setEnabled(
-                                        true
-                                );
+                                imgSelectedRepairMedia
+                                        .setImageURI(
+                                                pendingCameraUri
+                                        );
+
+
+                                imgSelectedRepairMedia
+                                        .setVisibility(
+                                                android.view.View.VISIBLE
+                                        );
+
+
+                                btnSubmitRepairMedia
+                                        .setEnabled(
+                                                true
+                                        );
 
                             } else {
 
@@ -112,18 +134,27 @@ public class TechnicianRepairMediaActivity
                     }
             );
 
-    private final ActivityResultLauncher<String> galleryLauncher =
+
+    private final ActivityResultLauncher<String>
+            galleryLauncher =
             registerForActivityResult(
-                    new ActivityResultContracts.GetContent(),
+
+                    new ActivityResultContracts
+                            .GetContent(),
+
                     uri -> {
 
                         if (uri == null) {
+
                             return;
                         }
 
-                        if (!isValidGalleryImage(
-                                uri
-                        )) {
+
+                        if (
+                                !isValidGalleryImage(
+                                        uri
+                                )
+                        ) {
 
                             Toast.makeText(
                                     this,
@@ -134,6 +165,7 @@ public class TechnicianRepairMediaActivity
                             return;
                         }
 
+
                         try {
 
                             Uri savedUri =
@@ -141,22 +173,33 @@ public class TechnicianRepairMediaActivity
                                             uri
                                     );
 
+
                             selectedImageUri =
-                                    savedUri.toString();
-
-                            imgSelectedRepairMedia.setImageURI(
                                     savedUri
-                            );
+                                            .toString();
 
-                            imgSelectedRepairMedia.setVisibility(
-                                    android.view.View.VISIBLE
-                            );
 
-                            btnSubmitRepairMedia.setEnabled(
-                                    true
-                            );
+                            imgSelectedRepairMedia
+                                    .setImageURI(
+                                            savedUri
+                                    );
 
-                        } catch (IOException exception) {
+
+                            imgSelectedRepairMedia
+                                    .setVisibility(
+                                            android.view.View.VISIBLE
+                                    );
+
+
+                            btnSubmitRepairMedia
+                                    .setEnabled(
+                                            true
+                                    );
+
+
+                        } catch (
+                                IOException exception
+                        ) {
 
                             Toast.makeText(
                                     this,
@@ -167,6 +210,7 @@ public class TechnicianRepairMediaActivity
                     }
             );
 
+
     @Override
     protected void onCreate(
             Bundle savedInstanceState
@@ -176,15 +220,22 @@ public class TechnicianRepairMediaActivity
                 savedInstanceState
         );
 
+
         setContentView(
                 R.layout.activity_technician_repair_media
         );
 
-        SessionManager sessionManager =
-                new SessionManager(this);
 
-        if (!sessionManager.isLoggedIn()
-                || !sessionManager.isTechnician()) {
+        SessionManager sessionManager =
+                new SessionManager(
+                        this
+                );
+
+
+        if (
+                !sessionManager.isLoggedIn() ||
+                        !sessionManager.isTechnician()
+        ) {
 
             Toast.makeText(
                     this,
@@ -192,40 +243,61 @@ public class TechnicianRepairMediaActivity
                     Toast.LENGTH_SHORT
             ).show();
 
+
             finish();
+
             return;
         }
+
 
         technicianId =
-                sessionManager.getTechnicianId();
+                sessionManager
+                        .getTechnicianId();
+
 
         repairId =
-                getIntent().getLongExtra(
-                        EXTRA_REPAIR_ID,
-                        -1
-                );
+                getIntent()
+                        .getLongExtra(
+                                EXTRA_REPAIR_ID,
+                                -1
+                        );
 
-        if (repairId <= 0
-                || technicianId <= 0) {
+
+        if (
+                repairId <= 0 ||
+                        technicianId <= 0
+        ) {
 
             finish();
+
             return;
         }
 
+
         repairDAO =
-                new RepairDAO(this);
-
-        repairMediaDAO =
-                new RepairMediaDAO(this);
-
-        repair =
-                repairDAO.getRepairById(
-                        repairId
+                new RepairDAO(
+                        this
                 );
 
-        if (repair == null
-                || repair.getTechnicianId()
-                != technicianId) {
+
+        repairMediaDAO =
+                new RepairMediaDAO(
+                        this
+                );
+
+
+        repair =
+                repairDAO
+                        .getRepairById(
+                                repairId
+                        );
+
+
+        if (
+                repair == null ||
+                        repair.getTechnicianId()
+                                != technicianId
+        ) {
 
             Toast.makeText(
                     this,
@@ -233,28 +305,39 @@ public class TechnicianRepairMediaActivity
                     Toast.LENGTH_LONG
             ).show();
 
+
             finish();
+
             return;
         }
 
+
         bindViews();
-        setupSpinner();
+
         setupActions();
+
 
         adapter =
                 new RepairMediaAdapter();
 
+
         recyclerMedia.setLayoutManager(
-                new LinearLayoutManager(this)
+                new LinearLayoutManager(
+                        this
+                )
         );
+
 
         recyclerMedia.setAdapter(
                 adapter
         );
 
+
         showRepairInfo();
+
         loadMedia();
     }
+
 
     private void bindViews() {
 
@@ -263,34 +346,35 @@ public class TechnicianRepairMediaActivity
                         R.id.toolbarTechnicianMedia
                 );
 
+
         toolbar.setNavigationOnClickListener(
                 view -> finish()
         );
+
 
         tvRepairInfo =
                 findViewById(
                         R.id.tvTechnicianMediaRepair
                 );
 
-        spinnerMediaType =
-                findViewById(
-                        R.id.spinnerMediaType
-                );
 
         edtCaption =
                 findViewById(
                         R.id.edtMediaCaption
                 );
 
+
         recyclerMedia =
                 findViewById(
                         R.id.recyclerTechnicianMedia
                 );
 
+
         imgSelectedRepairMedia =
                 findViewById(
                         R.id.imgSelectedRepairMedia
                 );
+
 
         btnSubmitRepairMedia =
                 findViewById(
@@ -298,28 +382,6 @@ public class TechnicianRepairMediaActivity
                 );
     }
 
-    private void setupSpinner() {
-
-        String[] options = {
-                "Progress Update",
-                "Sample Repair"
-        };
-
-        ArrayAdapter<String> spinnerAdapter =
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_spinner_item,
-                        options
-                );
-
-        spinnerAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
-        );
-
-        spinnerMediaType.setAdapter(
-                spinnerAdapter
-        );
-    }
 
     private void setupActions() {
 
@@ -328,101 +390,69 @@ public class TechnicianRepairMediaActivity
                         R.id.btnTechnicianMediaCamera
                 );
 
+
         Button btnGallery =
                 findViewById(
                         R.id.btnTechnicianMediaGallery
                 );
 
+
         btnCamera.setOnClickListener(
-                view -> {
-
-                    if (!prepareMediaType()) {
-                        return;
-                    }
-
-                    openCamera();
-                }
+                view -> openCamera()
         );
+
 
         btnGallery.setOnClickListener(
-                view -> {
-
-                    if (!prepareMediaType()) {
-                        return;
-                    }
-
-                    galleryLauncher.launch(
-                            "image/*"
-                    );
-                }
+                view ->
+                        galleryLauncher.launch(
+                                "image/*"
+                        )
         );
 
-        btnSubmitRepairMedia.setOnClickListener(
-                view -> submitRepairMedia()
-        );
+
+        btnSubmitRepairMedia
+                .setOnClickListener(
+                        view ->
+                                submitRepairMedia()
+                );
     }
 
-    private boolean prepareMediaType() {
-
-        pendingMediaType =
-                spinnerMediaType
-                        .getSelectedItemPosition() == 1
-                        ? RepairMedia.TYPE_SAMPLE
-                        : RepairMedia.TYPE_PROGRESS;
-
-        if (RepairMedia.TYPE_SAMPLE.equals(
-                pendingMediaType
-        ) && !repair.isCompleted()) {
-
-            Toast.makeText(
-                    this,
-                    "Sample repair photos can be submitted after the repair is completed",
-                    Toast.LENGTH_LONG
-            ).show();
-
-            return false;
-        }
-
-        if (RepairMedia.TYPE_PROGRESS.equals(
-                pendingMediaType
-        ) && repair.isCompleted()) {
-
-            Toast.makeText(
-                    this,
-                    "This repair is completed. Choose Sample Repair instead.",
-                    Toast.LENGTH_LONG
-            ).show();
-
-            return false;
-        }
-
-        return true;
-    }
 
     private void showRepairInfo() {
 
         tvRepairInfo.setText(
+
                 "R-" +
+
                         String.format(
                                 "%03d",
                                 repair.getRepairId()
                         ) +
+
                         " • " +
+
                         repair.getDeviceName() +
+
                         "\nCurrent stage: " +
+
                         repair.getReadableStatus()
         );
     }
 
+
     private void submitRepairMedia() {
 
         if (repair == null) {
+
             return;
         }
 
-        if (TextUtils.isEmpty(
-                selectedImageUri
-        )) {
+
+        if (
+                TextUtils.isEmpty(
+                        selectedImageUri
+                )
+        ) {
 
             Toast.makeText(
                     this,
@@ -433,67 +463,65 @@ public class TechnicianRepairMediaActivity
             return;
         }
 
+
         String caption =
                 edtCaption
                         .getText()
                         .toString()
                         .trim();
 
-        boolean sampleRepair =
-                spinnerMediaType
-                        .getSelectedItemPosition()
-                        == 1;
-
-        String mediaType =
-                sampleRepair
-                        ? RepairMedia.TYPE_SAMPLE
-                        : RepairMedia.TYPE_PROGRESS;
-
-        if (sampleRepair
-                && !Repair.STATUS_COMPLETED.equals(
-                repair.getStatus()
-        )) {
-
-            Toast.makeText(
-                    this,
-                    "Sample repair photos can be submitted after the repair is completed",
-                    Toast.LENGTH_LONG
-            ).show();
-
-            return;
-        }
 
         RepairMedia media =
                 new RepairMedia();
+
 
         media.setRepairId(
                 repair.getRepairId()
         );
 
+
         media.setTechnicianId(
                 technicianId
         );
+
 
         media.setImageUri(
                 selectedImageUri
         );
 
+
         media.setCaption(
                 caption
         );
 
+
+        /*
+         * Technician only uploads repair media.
+         */
         media.setMediaType(
-                mediaType
+                RepairMedia.TYPE_PROGRESS
         );
+
 
         media.setRepairStage(
                 repair.getStatus()
         );
 
+
+        /*
+         * Only administrator can change this to true.
+         */
+        media.setSample(
+                false
+        );
+
+
         long result =
-                repairMediaDAO.insertMedia(
-                        media
-                );
+                repairMediaDAO
+                        .insertMedia(
+                                media
+                        );
+
 
         if (result <= 0) {
 
@@ -506,40 +534,40 @@ public class TechnicianRepairMediaActivity
             return;
         }
 
-        if (sampleRepair) {
 
-            Toast.makeText(
-                    this,
-                    "Sample photo submitted for admin approval",
-                    Toast.LENGTH_LONG
-            ).show();
+        Toast.makeText(
+                this,
+                "Repair photo uploaded. Admin can select it as a sample.",
+                Toast.LENGTH_LONG
+        ).show();
 
-        } else {
 
-            Toast.makeText(
-                    this,
-                    "Progress photo shared with customer",
-                    Toast.LENGTH_LONG
-            ).show();
-        }
+        selectedImageUri =
+                null;
 
-        selectedImageUri = null;
 
-        imgSelectedRepairMedia.setImageURI(
-                null
-        );
+        imgSelectedRepairMedia
+                .setImageURI(
+                        null
+                );
 
-        imgSelectedRepairMedia.setVisibility(
-                android.view.View.GONE
-        );
+
+        imgSelectedRepairMedia
+                .setVisibility(
+                        android.view.View.GONE
+                );
+
 
         edtCaption.setText(
                 ""
         );
 
-        btnSubmitRepairMedia.setEnabled(
-                false
-        );
+
+        btnSubmitRepairMedia
+                .setEnabled(
+                        false
+                );
+
 
         loadMedia();
     }
@@ -553,10 +581,12 @@ public class TechnicianRepairMediaActivity
                                 repairId
                         );
 
+
         adapter.setItems(
                 items
         );
     }
+
 
     private void openCamera() {
 
@@ -565,19 +595,27 @@ public class TechnicianRepairMediaActivity
             pendingCameraFile =
                     createImageFile();
 
+
             pendingCameraUri =
                     FileProvider.getUriForFile(
+
                             this,
-                            getPackageName()
-                                    + ".fileprovider",
+
+                            getPackageName() +
+                                    ".fileprovider",
+
                             pendingCameraFile
                     );
+
 
             cameraLauncher.launch(
                     pendingCameraUri
             );
 
-        } catch (IOException exception) {
+
+        } catch (
+                IOException exception
+        ) {
 
             Toast.makeText(
                     this,
@@ -587,6 +625,7 @@ public class TechnicianRepairMediaActivity
         }
     }
 
+
     private File createImageFile()
             throws IOException {
 
@@ -595,11 +634,14 @@ public class TechnicianRepairMediaActivity
                         Environment.DIRECTORY_PICTURES
                 );
 
+
         if (pictures == null) {
+
             throw new IOException(
                     "Pictures directory unavailable"
             );
         }
+
 
         File folder =
                 new File(
@@ -607,13 +649,17 @@ public class TechnicianRepairMediaActivity
                         "repair_media"
                 );
 
-        if (!folder.exists()
-                && !folder.mkdirs()) {
+
+        if (
+                !folder.exists() &&
+                        !folder.mkdirs()
+        ) {
 
             throw new IOException(
                     "Unable to create repair media directory"
             );
         }
+
 
         return File.createTempFile(
                 "techfix_media_",
@@ -622,32 +668,40 @@ public class TechnicianRepairMediaActivity
         );
     }
 
+
     private boolean isValidImageFile(
             File file
     ) {
 
-        if (file == null
-                || !file.exists()
-                || file.length() <= 0
-                || file.length() > MAX_IMAGE_SIZE) {
+        if (
+                file == null ||
+                        !file.exists() ||
+                        file.length() <= 0 ||
+                        file.length() > MAX_IMAGE_SIZE
+        ) {
 
             return false;
         }
 
+
         BitmapFactory.Options options =
                 new BitmapFactory.Options();
 
+
         options.inJustDecodeBounds =
                 true;
+
 
         BitmapFactory.decodeFile(
                 file.getAbsolutePath(),
                 options
         );
 
-        return options.outWidth > 0
-                && options.outHeight > 0;
+
+        return options.outWidth > 0 &&
+                options.outHeight > 0;
     }
+
 
     private boolean isValidGalleryImage(
             Uri uri
@@ -659,55 +713,74 @@ public class TechnicianRepairMediaActivity
                                 uri
                         );
 
-        if (TextUtils.isEmpty(mime)
-                || !mime.startsWith(
-                "image/"
-        )) {
+
+        if (
+                TextUtils.isEmpty(
+                        mime
+                ) ||
+                        !mime.startsWith(
+                                "image/"
+                        )
+        ) {
 
             return false;
         }
+
 
         long size =
                 getContentSize(
                         uri
                 );
 
-        return size <= 0
-                || size <= MAX_IMAGE_SIZE;
+
+        return size <= 0 ||
+                size <= MAX_IMAGE_SIZE;
     }
+
 
     private long getContentSize(
             Uri uri
     ) {
 
-        Cursor cursor = null;
+        Cursor cursor =
+                null;
+
 
         try {
 
             cursor =
                     getContentResolver()
                             .query(
+
                                     uri,
+
                                     new String[]{
                                             OpenableColumns.SIZE
                                     },
+
                                     null,
                                     null,
                                     null
                             );
 
-            if (cursor != null
-                    && cursor.moveToFirst()) {
+
+            if (
+                    cursor != null &&
+                            cursor.moveToFirst()
+            ) {
 
                 int index =
                         cursor.getColumnIndex(
                                 OpenableColumns.SIZE
                         );
 
-                if (index >= 0
-                        && !cursor.isNull(
-                        index
-                )) {
+
+                if (
+                        index >= 0 &&
+                                !cursor.isNull(
+                                        index
+                                )
+                ) {
 
                     return cursor.getLong(
                             index
@@ -715,15 +788,19 @@ public class TechnicianRepairMediaActivity
                 }
             }
 
+
         } finally {
 
             if (cursor != null) {
+
                 cursor.close();
             }
         }
 
+
         return -1;
     }
+
 
     private Uri copyGalleryImage(
             Uri sourceUri
@@ -734,9 +811,12 @@ public class TechnicianRepairMediaActivity
                         Environment.DIRECTORY_PICTURES
                 );
 
+
         if (pictures == null) {
+
             throw new IOException();
         }
+
 
         File folder =
                 new File(
@@ -744,27 +824,39 @@ public class TechnicianRepairMediaActivity
                         "repair_media"
                 );
 
-        if (!folder.exists()
-                && !folder.mkdirs()) {
+
+        if (
+                !folder.exists() &&
+                        !folder.mkdirs()
+        ) {
 
             throw new IOException();
         }
+
 
         String extension =
                 getImageExtension(
                         sourceUri
                 );
 
+
         File destination =
                 new File(
+
                         folder,
+
                         "techfix_media_" +
+
                                 System.currentTimeMillis() +
+
                                 "." +
+
                                 extension
                 );
 
+
         try (
+
                 InputStream inputStream =
                         getContentResolver()
                                 .openInputStream(
@@ -775,37 +867,53 @@ public class TechnicianRepairMediaActivity
                         new FileOutputStream(
                                 destination
                         )
+
         ) {
 
+
             if (inputStream == null) {
+
                 throw new IOException();
             }
+
 
             byte[] buffer =
                     new byte[8192];
 
+
             long total =
                     0;
 
+
             int read;
 
+
             while (
-                    (read =
-                            inputStream.read(
-                                    buffer
-                            )) != -1
+                    (
+                            read =
+                                    inputStream.read(
+                                            buffer
+                                    )
+                    ) != -1
             ) {
 
-                total += read;
+                total +=
+                        read;
 
-                if (total > MAX_IMAGE_SIZE) {
+
+                if (
+                        total >
+                                MAX_IMAGE_SIZE
+                ) {
 
                     destination.delete();
+
 
                     throw new IOException(
                             "Image is too large"
                     );
                 }
+
 
                 outputStream.write(
                         buffer,
@@ -815,21 +923,30 @@ public class TechnicianRepairMediaActivity
             }
         }
 
-        if (!isValidImageFile(
-                destination
-        )) {
+
+        if (
+                !isValidImageFile(
+                        destination
+                )
+        ) {
 
             destination.delete();
+
             throw new IOException();
         }
 
+
         return FileProvider.getUriForFile(
+
                 this,
-                getPackageName()
-                        + ".fileprovider",
+
+                getPackageName() +
+                        ".fileprovider",
+
                 destination
         );
     }
+
 
     private String getImageExtension(
             Uri uri
@@ -841,12 +958,14 @@ public class TechnicianRepairMediaActivity
                                 uri
                         );
 
+
         String extension =
                 MimeTypeMap
                         .getSingleton()
                         .getExtensionFromMimeType(
                                 mime
                         );
+
 
         return TextUtils.isEmpty(
                 extension
@@ -855,16 +974,21 @@ public class TechnicianRepairMediaActivity
                 : extension;
     }
 
+
     @Override
     protected void onDestroy() {
 
         super.onDestroy();
 
+
         if (repairDAO != null) {
+
             repairDAO.close();
         }
 
+
         if (repairMediaDAO != null) {
+
             repairMediaDAO.close();
         }
     }
