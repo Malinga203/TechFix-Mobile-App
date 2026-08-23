@@ -13,6 +13,9 @@
         android:orientation="vertical"
         android:paddingBottom="32dp">
 
+        <!-- =========================
+             ADMIN HEADER
+             ========================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,6 +57,11 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
+        <!-- =========================
+             OPERATIONS
+             Changed from 4 narrow columns to a responsive 2 x 2 grid.
+             All button IDs remain unchanged.
+             ========================= -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,54 +75,80 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="112dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="14dp"
             android:layout_marginEnd="16dp"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageBranches"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Branches"
-                app:icon="@drawable/ic_branch_24" />
+            <!-- Row 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="104dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageTechnicians"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Technicians"
-                app:icon="@drawable/ic_technician_24" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageBranches"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Branches"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_branch_24" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnManageRepairs"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Repairs"
-                app:icon="@drawable/ic_services_24" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageTechnicians"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Technicians"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_technician_24" />
+            </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnApproveRepairSamples"
-                style="@style/Widget.TechFix.QuickActionButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:layout_weight="1"
-                android:text="Approvals"
-                app:icon="@drawable/ic_approve_24" />
+            <!-- Row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="104dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnManageRepairs"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Repairs"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_services_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApproveRepairSamples"
+                    style="@style/Widget.TechFix.QuickActionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:text="Approvals"
+                    android:textSize="13sp"
+                    app:icon="@drawable/ic_approve_24" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- =========================
+             CATALOG & INVENTORY
+             ========================= -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
