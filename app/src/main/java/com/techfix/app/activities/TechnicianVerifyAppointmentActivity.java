@@ -1,5 +1,11 @@
 package com.techfix.app.activities;
 
+import androidx.activity.result.ActivityResultLauncher;
+
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.util.regex.Pattern;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -69,6 +75,15 @@ public class TechnicianVerifyAppointmentActivity
     private RepairService verifiedService;
     private Branch verifiedBranch;
 
+    private Button btnScanAppointmentQr;
+
+    private ActivityResultLauncher<ScanOptions>
+            qrScannerLauncher;
+
+    private static final Pattern APPOINTMENT_CODE_PATTERN =
+            Pattern.compile(
+                    "^TF-APT-\\d{6}$"
+            );
     private int technicianId;
 
     @Override
@@ -130,6 +145,13 @@ public class TechnicianVerifyAppointmentActivity
 
         bindViews();
 
+        setupQrScanner();
+
+        btnScanAppointmentQr.setOnClickListener(
+                view ->
+                        startQrScanner()
+        );
+
         btnVerifyAppointmentCode.setOnClickListener(
                 view -> verifyAppointment()
         );
@@ -144,6 +166,11 @@ public class TechnicianVerifyAppointmentActivity
         edtAppointmentCode =
                 findViewById(
                         R.id.edtAppointmentCode
+                );
+
+        btnScanAppointmentQr =
+                findViewById(
+                        R.id.btnScanAppointmentQr
                 );
 
         btnVerifyAppointmentCode =
@@ -233,13 +260,12 @@ public class TechnicianVerifyAppointmentActivity
         verifiedBranch = null;
 
         String code =
-                edtAppointmentCode
-                        .getText()
-                        .toString()
-                        .trim()
-                        .toUpperCase(
-                                Locale.US
-                        );
+                normalizeAppointmentCode(
+                        edtAppointmentCode
+                                .getText()
+                                .toString()
+                );
+
 
         if (code.isEmpty()) {
 
@@ -249,6 +275,30 @@ public class TechnicianVerifyAppointmentActivity
 
             return;
         }
+
+
+        if (
+                !isValidAppointmentCodeFormat(
+                        code
+                )
+        ) {
+
+            edtAppointmentCode.setError(
+                    "Code must look like TF-APT-000001"
+            );
+
+            return;
+        }
+
+
+        edtAppointmentCode.setText(
+                code
+        );
+
+
+        edtAppointmentCode.setSelection(
+                code.length()
+        );
 
         Appointment appointment =
                 appointmentDAO.getAppointmentByCode(
@@ -698,6 +748,163 @@ public class TechnicianVerifyAppointmentActivity
                         null
                 )
                 .show();
+    }
+
+    // =========================================================
+// QR SCANNER SETUP
+// =========================================================
+
+    private void setupQrScanner() {
+
+        qrScannerLauncher =
+                registerForActivityResult(
+
+                        new ScanContract(),
+
+                        result -> {
+
+                            if (
+                                    result == null ||
+                                            result.getContents() == null
+                            ) {
+
+                                Toast.makeText(
+                                        this,
+                                        "QR scan cancelled",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                return;
+                            }
+
+
+                            String scannedText =
+                                    normalizeAppointmentCode(
+                                            result.getContents()
+                                    );
+
+
+                            /*
+                             * We only accept appointment-code QR codes.
+                             *
+                             * Examples accepted:
+                             *
+                             * TF-APT-000001
+                             * TF-APT-000025
+                             *
+                             * URLs and other QR contents are rejected.
+                             */
+                            if (
+                                    !isValidAppointmentCodeFormat(
+                                            scannedText
+                                    )
+                            ) {
+
+                                Toast.makeText(
+                                        this,
+                                        "This QR code does not contain a valid TechFix appointment code",
+                                        Toast.LENGTH_LONG
+                                ).show();
+
+                                return;
+                            }
+
+
+                            edtAppointmentCode.setText(
+                                    scannedText
+                            );
+
+
+                            edtAppointmentCode.setSelection(
+                                    scannedText.length()
+                            );
+
+
+                            /*
+                             * QR scanning and manual entry both
+                             * use the SAME verification method.
+                             */
+                            verifyAppointment();
+                        }
+                );
+    }
+
+
+// =========================================================
+// START QR SCANNER
+// =========================================================
+
+    private void startQrScanner() {
+
+        ScanOptions options =
+                new ScanOptions();
+
+
+        options.setDesiredBarcodeFormats(
+                ScanOptions.QR_CODE
+        );
+
+
+        options.setPrompt(
+                "Scan the customer's TechFix appointment QR"
+        );
+
+
+        options.setBeepEnabled(
+                true
+        );
+
+
+        options.setOrientationLocked(
+                false
+        );
+
+
+        options.setBarcodeImageEnabled(
+                false
+        );
+
+
+        qrScannerLauncher.launch(
+                options
+        );
+    }
+
+
+// =========================================================
+// NORMALIZE CODE
+// =========================================================
+
+    private String normalizeAppointmentCode(
+            String value
+    ) {
+
+        if (value == null) {
+
+            return "";
+        }
+
+
+        return value
+                .trim()
+                .toUpperCase(
+                        Locale.US
+                );
+    }
+
+
+// =========================================================
+// FORMAT VALIDATION
+// =========================================================
+
+    private boolean isValidAppointmentCodeFormat(
+            String code
+    ) {
+
+        return code != null &&
+                APPOINTMENT_CODE_PATTERN
+                        .matcher(code)
+                        .matches();
     }
 
 }

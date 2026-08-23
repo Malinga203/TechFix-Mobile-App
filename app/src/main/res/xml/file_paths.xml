@@ -6,4 +6,8 @@
         name="repair_images"
         path="Pictures/" />
 
+    <cache-path
+        name="shared_qr_codes"
+        path="qr_codes/" />
+
 </paths>

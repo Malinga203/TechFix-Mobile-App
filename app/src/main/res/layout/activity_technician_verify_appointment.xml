@@ -25,9 +25,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Enter the appointment code provided by the customer."
+            android:text="Enter the appointment code or scan the customer's QR code."
             android:textColor="@color/techfix_text_secondary"
             android:textSize="14sp" />
+
+
+        <!-- MANUAL CODE -->
 
         <EditText
             android:id="@+id/edtAppointmentCode"
@@ -38,13 +41,30 @@
             android:inputType="textCapCharacters"
             android:singleLine="true" />
 
+
+        <!-- MANUAL VERIFY -->
+
         <Button
             android:id="@+id/btnVerifyAppointmentCode"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="14dp"
-            android:text="Verify Appointment"
+            android:text="Verify Appointment Code"
             android:textAllCaps="false" />
+
+
+        <!-- QR SCAN -->
+
+        <Button
+            android:id="@+id/btnScanAppointmentQr"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="10dp"
+            android:text="Scan Appointment QR"
+            android:textAllCaps="false" />
+
+
+        <!-- DETAILS -->
 
         <LinearLayout
             android:id="@+id/layoutAppointmentDetails"
@@ -136,7 +156,8 @@
                 android:textSize="15sp" />
 
 
-            <!-- Customer Device Photo -->
+            <!-- CUSTOMER DEVICE PHOTO -->
+
             <TextView
                 android:id="@+id/txtCustomerDevicePhotoLabel"
                 android:layout_width="match_parent"
@@ -168,7 +189,8 @@
                 android:visibility="gone" />
 
 
-            <!-- Accept Repair -->
+            <!-- ACCEPT -->
+
             <Button
                 android:id="@+id/btnAcceptAsRepair"
                 android:layout_width="match_parent"
