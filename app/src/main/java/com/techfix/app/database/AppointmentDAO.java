@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.techfix.app.models.Appointment;
+import com.techfix.app.models.PartSelection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,98 +16,154 @@ public class AppointmentDAO {
 
     private final DatabaseHelper databaseHelper;
 
-    public AppointmentDAO(Context context) {
-
+    public AppointmentDAO(
+            Context context
+    ) {
         databaseHelper =
-                new DatabaseHelper(context);
+                new DatabaseHelper(
+                        context.getApplicationContext()
+                );
     }
 
+    /*
+     * Existing single-appointment insert is kept for
+     * compatibility with the rest of the application.
+     */
     public long insertAppointment(
             Appointment appointment
     ) {
+        return insertAppointmentWithParts(
+                appointment,
+                null
+        );
+    }
+
+    /*
+     * NEW:
+     * Inserts the appointment and all selected spare parts
+     * in one SQLite transaction.
+     */
+    public long insertAppointmentWithParts(
+            Appointment appointment,
+            List<PartSelection> selectedParts
+    ) {
+
+        if (appointment == null) {
+            return -1;
+        }
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
 
-        ContentValues values =
-                new ContentValues();
+        db.beginTransaction();
 
-        values.put(
-                DatabaseHelper.COLUMN_APPOINTMENT_USER_ID,
-                appointment.getUserId()
-        );
+        try {
 
-        values.put(
-                DatabaseHelper.COLUMN_APPOINTMENT_SERVICE_ID,
-                appointment.getServiceId()
-        );
-
-        if (appointment.getPartId() != null) {
+            ContentValues values =
+                    new ContentValues();
 
             values.put(
-                    DatabaseHelper.COLUMN_APPOINTMENT_PART_ID,
-                    appointment.getPartId()
+                    DatabaseHelper.COLUMN_APPOINTMENT_USER_ID,
+                    appointment.getUserId()
             );
-
-        } else {
-
-            values.putNull(
-                    DatabaseHelper.COLUMN_APPOINTMENT_PART_ID
-            );
-        }
-
-        values.put(
-                DatabaseHelper.COLUMN_APPOINTMENT_BRANCH_ID,
-                appointment.getBranchId()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_DEVICE_MODEL,
-                appointment.getDeviceModel()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_ISSUE_DESCRIPTION,
-                appointment.getIssueDescription()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_APPOINTMENT_DATE,
-                appointment.getAppointmentDate()
-        );
-
-        values.put(
-                DatabaseHelper.COLUMN_APPOINTMENT_TIME,
-                appointment.getAppointmentTime()
-        );
-
-        if (
-                appointment.getImageUri() != null
-                        &&
-                        !appointment.getImageUri()
-                                .trim()
-                                .isEmpty()
-        ) {
 
             values.put(
-                    DatabaseHelper.COLUMN_APPOINTMENT_IMAGE_URI,
-                    appointment.getImageUri()
+                    DatabaseHelper.COLUMN_APPOINTMENT_SERVICE_ID,
+                    appointment.getServiceId()
             );
-        }
 
-        values.put(
-                DatabaseHelper.COLUMN_STATUS,
-                appointment.getStatus()
-        );
+            /*
+             * Legacy single-part column is retained so older
+             * installations/data still work. New bookings store
+             * parts in appointment_spare_parts instead.
+             */
+            if (
+                    selectedParts == null
+                            ||
+                            selectedParts.isEmpty()
+            ) {
 
-        long id =
-                db.insert(
-                        DatabaseHelper.TABLE_APPOINTMENT,
-                        null,
-                        values
+                if (appointment.getPartId() != null) {
+
+                    values.put(
+                            DatabaseHelper.COLUMN_APPOINTMENT_PART_ID,
+                            appointment.getPartId()
+                    );
+
+                } else {
+
+                    values.putNull(
+                            DatabaseHelper.COLUMN_APPOINTMENT_PART_ID
+                    );
+                }
+
+            } else {
+
+                values.putNull(
+                        DatabaseHelper.COLUMN_APPOINTMENT_PART_ID
+                );
+            }
+
+            values.put(
+                    DatabaseHelper.COLUMN_APPOINTMENT_BRANCH_ID,
+                    appointment.getBranchId()
+            );
+
+            values.put(
+                    DatabaseHelper.COLUMN_DEVICE_MODEL,
+                    appointment.getDeviceModel()
+            );
+
+            values.put(
+                    DatabaseHelper.COLUMN_ISSUE_DESCRIPTION,
+                    appointment.getIssueDescription()
+            );
+
+            values.put(
+                    DatabaseHelper.COLUMN_APPOINTMENT_DATE,
+                    appointment.getAppointmentDate()
+            );
+
+            values.put(
+                    DatabaseHelper.COLUMN_APPOINTMENT_TIME,
+                    appointment.getAppointmentTime()
+            );
+
+            if (
+                    appointment.getImageUri() != null
+                            &&
+                            !appointment.getImageUri()
+                                    .trim()
+                                    .isEmpty()
+            ) {
+
+                values.put(
+                        DatabaseHelper.COLUMN_APPOINTMENT_IMAGE_URI,
+                        appointment.getImageUri()
                 );
 
-        if (id > 0) {
+            } else {
+
+                values.putNull(
+                        DatabaseHelper.COLUMN_APPOINTMENT_IMAGE_URI
+                );
+            }
+
+            values.put(
+                    DatabaseHelper.COLUMN_STATUS,
+                    appointment.getStatus()
+            );
+
+            long id =
+                    db.insert(
+                            DatabaseHelper.TABLE_APPOINTMENT,
+                            null,
+                            values
+                    );
+
+            if (id <= 0) {
+                return -1;
+            }
 
             String code =
                     String.format(
@@ -123,18 +180,86 @@ public class AppointmentDAO {
                     code
             );
 
-            db.update(
-                    DatabaseHelper.TABLE_APPOINTMENT,
-                    codeValues,
-                    DatabaseHelper.COLUMN_APPOINTMENT_ID +
-                            " = ?",
-                    new String[]{
-                            String.valueOf(id)
-                    }
-            );
-        }
+            int codeUpdated =
+                    db.update(
+                            DatabaseHelper.TABLE_APPOINTMENT,
+                            codeValues,
+                            DatabaseHelper.COLUMN_APPOINTMENT_ID +
+                                    " = ?",
+                            new String[]{
+                                    String.valueOf(
+                                            id
+                                    )
+                            }
+                    );
 
-        return id;
+            if (codeUpdated <= 0) {
+                return -1;
+            }
+
+            if (
+                    selectedParts != null
+                            &&
+                            !selectedParts.isEmpty()
+            ) {
+
+                for (
+                        PartSelection selection
+                        :
+                        selectedParts
+                ) {
+
+                    if (
+                            selection == null
+                                    ||
+                                    selection.getPartId() <= 0
+                                    ||
+                                    selection.getQuantity() <= 0
+                    ) {
+
+                        return -1;
+                    }
+
+                    ContentValues partValues =
+                            new ContentValues();
+
+                    partValues.put(
+                            DatabaseHelper.COLUMN_ASP_APPOINTMENT_ID,
+                            id
+                    );
+
+                    partValues.put(
+                            DatabaseHelper.COLUMN_ASP_PART_ID,
+                            selection.getPartId()
+                    );
+
+                    partValues.put(
+                            DatabaseHelper.COLUMN_ASP_QUANTITY,
+                            selection.getQuantity()
+                    );
+
+                    long partResult =
+                            db.insertWithOnConflict(
+                                    DatabaseHelper.TABLE_APPOINTMENT_SPARE_PART,
+                                    null,
+                                    partValues,
+                                    SQLiteDatabase.CONFLICT_REPLACE
+                            );
+
+                    if (partResult == -1) {
+                        return -1;
+                    }
+                }
+            }
+
+            db.setTransactionSuccessful();
+
+            return id;
+
+        } finally {
+
+            db.endTransaction();
+        }
     }
 
     public Appointment getAppointmentByCode(
@@ -158,20 +283,21 @@ public class AppointmentDAO {
                         null
                 );
 
-        Appointment appointment =
-                null;
+        try {
 
-        if (cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
 
-            appointment =
-                    mapCursorToAppointment(
-                            cursor
-                    );
+                return mapCursorToAppointment(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
         }
 
-        cursor.close();
-
-        return appointment;
+        return null;
     }
 
     public Appointment getAppointmentById(
@@ -197,20 +323,21 @@ public class AppointmentDAO {
                         null
                 );
 
-        Appointment appointment =
-                null;
+        try {
 
-        if (cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
 
-            appointment =
-                    mapCursorToAppointment(
-                            cursor
-                    );
+                return mapCursorToAppointment(
+                        cursor
+                );
+            }
+
+        } finally {
+
+            cursor.close();
         }
 
-        cursor.close();
-
-        return appointment;
+        return null;
     }
 
     public boolean markAppointmentAsAccepted(
@@ -265,12 +392,13 @@ public class AppointmentDAO {
         String selection =
                 DatabaseHelper.COLUMN_APPOINTMENT_USER_ID +
                         " = ? AND " +
-
                         DatabaseHelper.COLUMN_APPOINTMENT_DATE +
                         " >= ?";
 
         String[] selectionArgs = {
-                String.valueOf(userId),
+                String.valueOf(
+                        userId
+                ),
                 today
         };
 
@@ -282,24 +410,27 @@ public class AppointmentDAO {
                         selectionArgs,
                         null,
                         null,
-
                         DatabaseHelper.COLUMN_APPOINTMENT_DATE +
                                 " ASC, " +
-
                                 DatabaseHelper.COLUMN_APPOINTMENT_TIME +
                                 " ASC"
                 );
 
-        while (cursor.moveToNext()) {
+        try {
 
-            appointments.add(
-                    mapCursorToAppointment(
-                            cursor
-                    )
-            );
+            while (cursor.moveToNext()) {
+
+                appointments.add(
+                        mapCursorToAppointment(
+                                cursor
+                        )
+                );
+            }
+
+        } finally {
+
+            cursor.close();
         }
-
-        cursor.close();
 
         return appointments;
     }
@@ -331,17 +462,21 @@ public class AppointmentDAO {
                         null
                 );
 
-        int count = 0;
+        try {
 
-        if (cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
 
-            count =
-                    cursor.getInt(0);
+                return cursor.getInt(
+                        0
+                );
+            }
+
+        } finally {
+
+            cursor.close();
         }
 
-        cursor.close();
-
-        return count;
+        return 0;
     }
 
     private Appointment mapCursorToAppointment(
@@ -376,11 +511,17 @@ public class AppointmentDAO {
         );
 
         int partIndex =
-                cursor.getColumnIndexOrThrow(
+                cursor.getColumnIndex(
                         DatabaseHelper.COLUMN_APPOINTMENT_PART_ID
                 );
 
-        if (!cursor.isNull(partIndex)) {
+        if (
+                partIndex >= 0
+                        &&
+                        !cursor.isNull(
+                                partIndex
+                        )
+        ) {
 
             appointment.setPartId(
                     cursor.getInt(
@@ -398,11 +539,17 @@ public class AppointmentDAO {
         );
 
         int codeIndex =
-                cursor.getColumnIndexOrThrow(
+                cursor.getColumnIndex(
                         DatabaseHelper.COLUMN_APPOINTMENT_CODE
                 );
 
-        if (!cursor.isNull(codeIndex)) {
+        if (
+                codeIndex >= 0
+                        &&
+                        !cursor.isNull(
+                                codeIndex
+                        )
+        ) {
 
             appointment.setAppointmentCode(
                     cursor.getString(
@@ -451,7 +598,9 @@ public class AppointmentDAO {
         if (
                 imageIndex >= 0
                         &&
-                        !cursor.isNull(imageIndex)
+                        !cursor.isNull(
+                                imageIndex
+                        )
         ) {
 
             appointment.setImageUri(
@@ -470,5 +619,9 @@ public class AppointmentDAO {
         );
 
         return appointment;
+    }
+
+    public void close() {
+        databaseHelper.close();
     }
 }

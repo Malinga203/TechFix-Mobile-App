@@ -37,41 +37,69 @@ public class LoginActivity
             Bundle savedInstanceState
     ) {
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(
+                savedInstanceState
+        );
+
+
+        sessionManager =
+                new SessionManager(
+                        this
+                );
+
+
+        /*
+         * If there is already a valid session,
+         * do not show the login screen again.
+         */
+        if (sessionManager.isLoggedIn()) {
+
+            routeExistingSession();
+
+            return;
+        }
+
 
         setContentView(
                 R.layout.activity_login
         );
 
-        userDao =
-                new UserDao(this);
 
-        sessionManager =
-                new SessionManager(this);
+        userDao =
+                new UserDao(
+                        this
+                );
+
 
         etEmail =
                 findViewById(
                         R.id.etEmail
                 );
 
+
         etPassword =
                 findViewById(
                         R.id.etPassword
                 );
+
 
         btnLogin =
                 findViewById(
                         R.id.btnLogin
                 );
 
+
         tvRegister =
                 findViewById(
                         R.id.tvRegister
                 );
 
+
         btnLogin.setOnClickListener(
-                view -> login()
+                view ->
+                        login()
         );
+
 
         tvRegister.setOnClickListener(
                 view -> {
@@ -82,11 +110,17 @@ public class LoginActivity
                                     RegisterActivity.class
                             );
 
-                    startActivity(intent);
+                    startActivity(
+                            intent
+                    );
                 }
         );
     }
 
+
+    // =========================================================
+    // LOGIN
+    // =========================================================
 
     private void login() {
 
@@ -96,10 +130,16 @@ public class LoginActivity
                         .toString()
                         .trim();
 
+
         String password =
                 etPassword
                         .getText()
                         .toString();
+
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
 
         if (email.isEmpty()) {
 
@@ -107,8 +147,11 @@ public class LoginActivity
                     "Email is required"
             );
 
+            etEmail.requestFocus();
+
             return;
         }
+
 
         if (password.isEmpty()) {
 
@@ -116,14 +159,22 @@ public class LoginActivity
                     "Password is required"
             );
 
+            etPassword.requestFocus();
+
             return;
         }
+
+
+        // =====================================================
+        // AUTHENTICATE FROM SQLITE
+        // =====================================================
 
         User user =
                 userDao.authenticateUser(
                         email,
                         password
                 );
+
 
         if (user == null) {
 
@@ -136,9 +187,68 @@ public class LoginActivity
             return;
         }
 
+
+        // =====================================================
+        // VALIDATE ROLE
+        // =====================================================
+
+        String role =
+                user.getRole();
+
+
+        if (
+                role == null ||
+                        role.trim().isEmpty()
+        ) {
+
+            Toast.makeText(
+                    this,
+                    "User account has no role assigned",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+
+        // =====================================================
+        // VALIDATE TECHNICIAN LINK
+        // =====================================================
+
+        if (
+                User.ROLE_TECHNICIAN.equals(
+                        role
+                )
+        ) {
+
+            if (
+                    user.getTechnicianId() == null ||
+                            user.getTechnicianId() <= 0
+            ) {
+
+                Toast.makeText(
+                        this,
+                        "Technician account is not linked to a technician profile",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                return;
+            }
+        }
+
+
+        // =====================================================
+        // SAVE SESSION FOR EVERY ROLE
+        // =====================================================
+
         sessionManager.createLoginSession(
                 user
         );
+
+
+        // =====================================================
+        // ROUTE
+        // =====================================================
 
         routeUser(
                 user
@@ -146,86 +256,245 @@ public class LoginActivity
     }
 
 
+    // =========================================================
+    // ROUTE NEW LOGIN
+    // =========================================================
+
     private void routeUser(
             User user
     ) {
 
         Intent intent;
 
+
         switch (user.getRole()) {
+
+            // =================================================
+            // ADMIN
+            // =================================================
 
             case User.ROLE_ADMIN:
 
                 intent =
                         new Intent(
-                                this,
+                                LoginActivity.this,
                                 AdminDashboardActivity.class
                         );
 
                 break;
 
 
+            // =================================================
+            // TECHNICIAN
+            // =================================================
+
             case User.ROLE_TECHNICIAN:
-
-                if (
-                        user.getTechnicianId() == null
-                ) {
-
-                    Toast.makeText(
-                            this,
-                            "Technician account is not linked",
-                            Toast.LENGTH_LONG
-                    ).show();
-
-                    sessionManager.logout();
-
-                    return;
-                }
 
                 intent =
                         new Intent(
-                                this,
+                                LoginActivity.this,
                                 TechnicianDashboardActivity.class
                         );
 
-                intent.putExtra(
-                        TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
-                        user.getTechnicianId()
-                );
+
+                if (
+                        user.getTechnicianId() != null
+                ) {
+
+                    intent.putExtra(
+                            TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
+                            user.getTechnicianId()
+                    );
+                }
 
                 break;
 
+
+            // =================================================
+            // CUSTOMER
+            // =================================================
 
             case User.ROLE_CUSTOMER:
 
                 intent =
                         new Intent(
-                                this,
+                                LoginActivity.this,
                                 MainActivity.class
                         );
 
                 break;
 
 
+            // =================================================
+            // UNKNOWN
+            // =================================================
+
             default:
 
                 Toast.makeText(
                         this,
-                        "Unknown user role",
-                        Toast.LENGTH_SHORT
+                        "Unknown user role: " +
+                                user.getRole(),
+                        Toast.LENGTH_LONG
                 ).show();
+
 
                 sessionManager.logout();
 
                 return;
         }
 
+
         intent.setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK
         );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
+
+
+        finish();
+    }
+
+
+    // =========================================================
+    // ROUTE EXISTING SESSION
+    // =========================================================
+
+    private void routeExistingSession() {
+
+        String role =
+                sessionManager.getRole();
+
+
+        Intent intent;
+
+
+        // =====================================================
+        // CUSTOMER
+        // =====================================================
+
+        if (
+                User.ROLE_CUSTOMER.equals(
+                        role
+                )
+        ) {
+
+            intent =
+                    new Intent(
+                            LoginActivity.this,
+                            MainActivity.class
+                    );
+
+
+            // =====================================================
+            // ADMIN
+            // =====================================================
+
+        } else if (
+                User.ROLE_ADMIN.equals(
+                        role
+                )
+        ) {
+
+            intent =
+                    new Intent(
+                            LoginActivity.this,
+                            AdminDashboardActivity.class
+                    );
+
+
+            // =====================================================
+            // TECHNICIAN
+            // =====================================================
+
+        } else if (
+                User.ROLE_TECHNICIAN.equals(
+                        role
+                )
+        ) {
+
+            int technicianId =
+                    sessionManager.getTechnicianId();
+
+
+            if (technicianId <= 0) {
+
+                sessionManager.logout();
+
+                showLoginAgain();
+
+                return;
+            }
+
+
+            intent =
+                    new Intent(
+                            LoginActivity.this,
+                            TechnicianDashboardActivity.class
+                    );
+
+
+            intent.putExtra(
+                    TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
+                    technicianId
+            );
+
+
+        } else {
+
+            /*
+             * Invalid/corrupted session.
+             */
+            sessionManager.logout();
+
+            showLoginAgain();
+
+            return;
+        }
+
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+
+        startActivity(
+                intent
+        );
+
+
+        finish();
+    }
+
+
+    // =========================================================
+    // SHOW LOGIN AFTER INVALID SESSION
+    // =========================================================
+
+    private void showLoginAgain() {
+
+        Intent intent =
+                new Intent(
+                        LoginActivity.this,
+                        LoginActivity.class
+                );
+
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+
+        startActivity(
+                intent
+        );
+
 
         finish();
     }

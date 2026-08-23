@@ -3,6 +3,7 @@ package com.techfix.app.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,29 +11,46 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
-
 import com.techfix.app.R;
 import com.techfix.app.adapters.SparePartAdapter;
 import com.techfix.app.database.SparePartDAO;
+import com.techfix.app.models.PartSelection;
 import com.techfix.app.models.SparePart;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class SparePartActivity extends AppCompatActivity
-        implements SparePartAdapter.OnPartAddListener {
+public class SparePartActivity
+        extends AppCompatActivity {
 
-    public static final String EXTRA_SELECTED_PART =
-            "extra_selected_part";
+    public static final String EXTRA_SELECTED_PARTS =
+            "extra_selected_parts";
 
     private RecyclerView recyclerSpareParts;
+
     private TextView tvNoParts;
+    private TextView tvSelectedPartsSummary;
+
+    private Button btnConfirmSelectedParts;
+    private Button btnClearSelectedParts;
 
     private SparePartDAO sparePartDAO;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    private SparePartAdapter adapter;
 
-        super.onCreate(savedInstanceState);
+    private ArrayList<PartSelection> initialSelections =
+            new ArrayList<>();
+
+    @Override
+    protected void onCreate(
+            Bundle savedInstanceState
+    ) {
+
+        super.onCreate(
+                savedInstanceState
+        );
 
         setContentView(
                 R.layout.activity_spare_part
@@ -43,12 +61,20 @@ public class SparePartActivity extends AppCompatActivity
                         R.id.toolbar_spare_parts
                 );
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(
+                toolbar
+        );
 
-        if (getSupportActionBar() != null) {
+        if (
+                getSupportActionBar()
+                        !=
+                        null
+        ) {
 
             getSupportActionBar()
-                    .setDisplayHomeAsUpEnabled(true);
+                    .setDisplayHomeAsUpEnabled(
+                            true
+                    );
         }
 
         toolbar.setNavigationOnClickListener(
@@ -65,20 +91,93 @@ public class SparePartActivity extends AppCompatActivity
                         R.id.tv_no_parts
                 );
 
+        tvSelectedPartsSummary =
+                findViewById(
+                        R.id.tv_selected_parts_summary
+                );
+
+        btnConfirmSelectedParts =
+                findViewById(
+                        R.id.btn_confirm_selected_parts
+                );
+
+        btnClearSelectedParts =
+                findViewById(
+                        R.id.btn_clear_selected_parts
+                );
+
         sparePartDAO =
-                new SparePartDAO(this);
+                new SparePartDAO(
+                        this
+                );
+
+        readInitialSelections();
 
         recyclerSpareParts.setLayoutManager(
-                new LinearLayoutManager(this)
+                new LinearLayoutManager(
+                        this
+                )
         );
 
+        btnConfirmSelectedParts
+                .setOnClickListener(
+                        view ->
+                                returnSelections()
+                );
+
+        btnClearSelectedParts
+                .setOnClickListener(
+                        view -> {
+
+                            if (adapter != null) {
+
+                                adapter.clearSelections();
+                            }
+                        }
+                );
+
         loadSpareParts();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readInitialSelections() {
+
+        Serializable serializable =
+                getIntent()
+                        .getSerializableExtra(
+                                EXTRA_SELECTED_PARTS
+                        );
+
+        if (
+                serializable
+                        instanceof
+                        ArrayList<?>
+        ) {
+
+            ArrayList<?> list =
+                    (ArrayList<?>) serializable;
+
+            for (Object item : list) {
+
+                if (
+                        item
+                                instanceof
+                                PartSelection
+                ) {
+
+                    initialSelections.add(
+                            (PartSelection) item
+                    );
+                }
+            }
+        }
     }
 
     private void loadSpareParts() {
 
         List<SparePart> spareParts =
-                sparePartDAO.getAllSpareParts();
+                sparePartDAO
+                        .getAllSpareParts();
 
         if (spareParts.isEmpty()) {
 
@@ -88,6 +187,18 @@ public class SparePartActivity extends AppCompatActivity
 
             recyclerSpareParts.setVisibility(
                     View.GONE
+            );
+
+            btnConfirmSelectedParts.setEnabled(
+                    false
+            );
+
+            btnClearSelectedParts.setEnabled(
+                    false
+            );
+
+            updateSelectionSummary(
+                    new ArrayList<>()
             );
 
             return;
@@ -101,38 +212,100 @@ public class SparePartActivity extends AppCompatActivity
                 View.VISIBLE
         );
 
-        SparePartAdapter adapter =
+        btnConfirmSelectedParts.setEnabled(
+                true
+        );
+
+        btnClearSelectedParts.setEnabled(
+                true
+        );
+
+        adapter =
                 new SparePartAdapter(
                         spareParts,
-                        this
+                        initialSelections,
+                        this::updateSelectionSummary
                 );
 
         recyclerSpareParts.setAdapter(
                 adapter
         );
+
+        updateSelectionSummary(
+                adapter.getSelectedParts()
+        );
     }
 
-    @Override
-    public void onPartAdd(
-            SparePart sparePart
+    private void updateSelectionSummary(
+            ArrayList<PartSelection> selections
     ) {
+
+        if (
+                selections == null
+                        ||
+                        selections.isEmpty()
+        ) {
+
+            tvSelectedPartsSummary.setText(
+                    "No spare parts selected"
+            );
+
+            btnClearSelectedParts.setEnabled(
+                    false
+            );
+
+            return;
+        }
+
+        int totalUnits =
+                0;
+
+        double totalPrice =
+                0.0;
+
+        for (
+                PartSelection selection
+                :
+                selections
+        ) {
+
+            totalUnits +=
+                    selection.getQuantity();
+
+            totalPrice +=
+                    selection.getTotalPrice();
+        }
+
+        tvSelectedPartsSummary.setText(
+                String.format(
+                        Locale.getDefault(),
+                        "%d different part(s) • %d total unit(s) • LKR %,.2f",
+                        selections.size(),
+                        totalUnits,
+                        totalPrice
+                )
+        );
+
+        btnClearSelectedParts.setEnabled(
+                true
+        );
+    }
+
+    private void returnSelections() {
+
+        ArrayList<PartSelection> selections =
+                adapter == null
+                        ?
+                        new ArrayList<>()
+                        :
+                        adapter.getSelectedParts();
 
         Intent resultIntent =
                 new Intent();
 
         resultIntent.putExtra(
-                EXTRA_SELECTED_PART,
-                sparePart.getPartId()
-        );
-
-        resultIntent.putExtra(
-                EXTRA_SELECTED_PART + "_name",
-                sparePart.getPartName()
-        );
-
-        resultIntent.putExtra(
-                EXTRA_SELECTED_PART + "_price",
-                sparePart.getPrice()
+                EXTRA_SELECTED_PARTS,
+                selections
         );
 
         setResult(
@@ -141,5 +314,16 @@ public class SparePartActivity extends AppCompatActivity
         );
 
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        if (sparePartDAO != null) {
+
+            sparePartDAO.close();
+        }
     }
 }

@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.techfix.app.R;
 import com.techfix.app.database.PaymentDAO;
 import com.techfix.app.database.RepairDAO;
+import com.techfix.app.database.RepairSparePartDAO;
 import com.techfix.app.models.Payment;
 import com.techfix.app.models.Repair;
 
@@ -89,6 +90,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private PaymentDAO paymentDAO;
     private RepairDAO repairDAO;
+    private RepairSparePartDAO repairSparePartDAO;
 
 
     // =========================================================
@@ -214,6 +216,9 @@ public class PaymentActivity extends AppCompatActivity {
 
         repairDAO =
                 new RepairDAO(this);
+
+        repairSparePartDAO =
+                new RepairSparePartDAO(this);
 
 
         // =====================================================
@@ -1048,10 +1053,10 @@ public class PaymentActivity extends AppCompatActivity {
         // =====================================================
 
         boolean repairCompleted =
-                repairDAO.updateRepairStatus(
-                        repairId,
-                        Repair.STATUS_COMPLETED
-                );
+                repairSparePartDAO
+                        .completeRepairAndDeductInventory(
+                                repairId
+                        );
 
 
         if (!repairCompleted) {
@@ -1259,6 +1264,13 @@ public class PaymentActivity extends AppCompatActivity {
         ) {
 
             repairDAO.close();
+        }
+
+        if (
+                repairSparePartDAO != null
+        ) {
+
+            repairSparePartDAO.close();
         }
     }
 }

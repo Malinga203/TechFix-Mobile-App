@@ -13,7 +13,7 @@ public class DatabaseHelper
             "techfix.db";
 
     private static final int DATABASE_VERSION =
-            12;
+            13;
 
 
     // =========================================================
@@ -155,6 +155,40 @@ public class DatabaseHelper
 
 
     // =========================================================
+    // APPOINTMENT SPARE PARTS
+    // =========================================================
+
+    public static final String TABLE_APPOINTMENT_SPARE_PART =
+            "appointment_spare_parts";
+
+    public static final String COLUMN_ASP_APPOINTMENT_ID =
+            "appointment_id";
+
+    public static final String COLUMN_ASP_PART_ID =
+            "part_id";
+
+    public static final String COLUMN_ASP_QUANTITY =
+            "quantity";
+
+
+    // =========================================================
+    // REPAIR SPARE PARTS
+    // =========================================================
+
+    public static final String TABLE_REPAIR_SPARE_PART =
+            "repair_spare_parts";
+
+    public static final String COLUMN_RSP_REPAIR_ID =
+            "repair_id";
+
+    public static final String COLUMN_RSP_PART_ID =
+            "part_id";
+
+    public static final String COLUMN_RSP_QUANTITY =
+            "quantity";
+
+
+    // =========================================================
     // APPOINTMENT
     // =========================================================
 
@@ -282,6 +316,9 @@ public class DatabaseHelper
     public static final String COLUMN_REPAIR_COMPLETED_AT =
             "completed_at";
 
+    public static final String COLUMN_REPAIR_INVENTORY_DEDUCTED =
+            "inventory_deducted";
+
 
     // =========================================================
 // REPAIR MEDIA
@@ -373,9 +410,13 @@ public class DatabaseHelper
 
         createAppointmentTable(db);
 
+        createAppointmentSparePartTable(db);
+
         createPaymentTable(db);
 
         createRepairTable(db);
+
+        createRepairSparePartTable(db);
 
         createRepairMediaTable(db);
 
@@ -726,6 +767,54 @@ public class DatabaseHelper
     }
 
 
+    private void createAppointmentSparePartTable(
+            SQLiteDatabase db
+    ) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " +
+                        TABLE_APPOINTMENT_SPARE_PART +
+                        " (" +
+
+                        COLUMN_ASP_APPOINTMENT_ID +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_ASP_PART_ID +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_ASP_QUANTITY +
+                        " INTEGER NOT NULL DEFAULT 1 CHECK(" +
+                        COLUMN_ASP_QUANTITY +
+                        " > 0), " +
+
+                        "PRIMARY KEY (" +
+                        COLUMN_ASP_APPOINTMENT_ID +
+                        ", " +
+                        COLUMN_ASP_PART_ID +
+                        "), " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_ASP_APPOINTMENT_ID +
+                        ") REFERENCES " +
+                        TABLE_APPOINTMENT +
+                        "(" +
+                        COLUMN_APPOINTMENT_ID +
+                        ") ON DELETE CASCADE, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_ASP_PART_ID +
+                        ") REFERENCES " +
+                        TABLE_SPARE_PART +
+                        "(" +
+                        COLUMN_PART_ID +
+                        ")" +
+
+                        ")";
+
+        db.execSQL(sql);
+    }
+
+
     // =========================================================
     // PAYMENT
     // =========================================================
@@ -835,6 +924,9 @@ public class DatabaseHelper
                         COLUMN_REPAIR_COMPLETED_AT +
                         " TEXT, " +
 
+                        COLUMN_REPAIR_INVENTORY_DEDUCTED +
+                        " INTEGER NOT NULL DEFAULT 0, " +
+
                         "FOREIGN KEY(" +
                         COLUMN_REPAIR_APPOINTMENT_ID +
                         ") REFERENCES " +
@@ -857,6 +949,54 @@ public class DatabaseHelper
                         TABLE_TECHNICIAN +
                         "(" +
                         COLUMN_TECHNICIAN_ID +
+                        ")" +
+
+                        ")";
+
+        db.execSQL(sql);
+    }
+
+
+    private void createRepairSparePartTable(
+            SQLiteDatabase db
+    ) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " +
+                        TABLE_REPAIR_SPARE_PART +
+                        " (" +
+
+                        COLUMN_RSP_REPAIR_ID +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_RSP_PART_ID +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_RSP_QUANTITY +
+                        " INTEGER NOT NULL DEFAULT 1 CHECK(" +
+                        COLUMN_RSP_QUANTITY +
+                        " > 0), " +
+
+                        "PRIMARY KEY (" +
+                        COLUMN_RSP_REPAIR_ID +
+                        ", " +
+                        COLUMN_RSP_PART_ID +
+                        "), " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_RSP_REPAIR_ID +
+                        ") REFERENCES " +
+                        TABLE_REPAIR +
+                        "(" +
+                        COLUMN_REPAIR_ID +
+                        ") ON DELETE CASCADE, " +
+
+                        "FOREIGN KEY(" +
+                        COLUMN_RSP_PART_ID +
+                        ") REFERENCES " +
+                        TABLE_SPARE_PART +
+                        "(" +
+                        COLUMN_PART_ID +
                         ")" +
 
                         ")";
@@ -1210,16 +1350,20 @@ public class DatabaseHelper
 
         if (oldVersion < 9) {
 
-            createRepairMediaTable(db);
+            createRepairMediaTable(
+                    db
+            );
         }
 
         if (oldVersion < 11) {
 
-            if (!columnExists(
-                    db,
-                    TABLE_APPOINTMENT,
-                    COLUMN_APPOINTMENT_IMAGE_URI
-            )) {
+            if (
+                    !columnExists(
+                            db,
+                            TABLE_APPOINTMENT,
+                            COLUMN_APPOINTMENT_IMAGE_URI
+                    )
+            ) {
 
                 db.execSQL(
                         "ALTER TABLE " +
@@ -1231,16 +1375,19 @@ public class DatabaseHelper
             }
         }
 
-        // VERSION 12
-        // ADD is_sample TO repair_media
-
+        /*
+         * Version 12:
+         * admin-selected public repair samples.
+         */
         if (oldVersion < 12) {
 
-            if (!columnExists(
-                    db,
-                    TABLE_REPAIR_MEDIA,
-                    COLUMN_MEDIA_IS_SAMPLE
-            )) {
+            if (
+                    !columnExists(
+                            db,
+                            TABLE_REPAIR_MEDIA,
+                            COLUMN_MEDIA_IS_SAMPLE
+                    )
+            ) {
 
                 db.execSQL(
                         "ALTER TABLE " +
@@ -1251,7 +1398,10 @@ public class DatabaseHelper
                 );
             }
 
-
+            /*
+             * Preserve samples approved with the old
+             * SAMPLE + APPROVED workflow.
+             */
             db.execSQL(
                     "UPDATE " +
                             TABLE_REPAIR_MEDIA +
@@ -1264,7 +1414,108 @@ public class DatabaseHelper
                             " = 'APPROVED'"
             );
         }
+
+        /*
+         * Version 13:
+         * multiple spare parts per appointment and repair.
+         */
+        if (oldVersion < 13) {
+
+            createAppointmentSparePartTable(
+                    db
+            );
+
+            if (
+                    !columnExists(
+                            db,
+                            TABLE_REPAIR,
+                            COLUMN_REPAIR_INVENTORY_DEDUCTED
+                    )
+            ) {
+
+                db.execSQL(
+                        "ALTER TABLE " +
+                                TABLE_REPAIR +
+                                " ADD COLUMN " +
+                                COLUMN_REPAIR_INVENTORY_DEDUCTED +
+                                " INTEGER NOT NULL DEFAULT 0"
+                );
+            }
+
+            createRepairSparePartTable(
+                    db
+            );
+
+            /*
+             * Migrate legacy single-part appointments.
+             * Old part_id becomes quantity 1.
+             */
+            db.execSQL(
+                    "INSERT OR IGNORE INTO " +
+                            TABLE_APPOINTMENT_SPARE_PART +
+                            " (" +
+                            COLUMN_ASP_APPOINTMENT_ID +
+                            ", " +
+                            COLUMN_ASP_PART_ID +
+                            ", " +
+                            COLUMN_ASP_QUANTITY +
+                            ") SELECT " +
+                            COLUMN_APPOINTMENT_ID +
+                            ", " +
+                            COLUMN_APPOINTMENT_PART_ID +
+                            ", 1 FROM " +
+                            TABLE_APPOINTMENT +
+                            " WHERE " +
+                            COLUMN_APPOINTMENT_PART_ID +
+                            " IS NOT NULL"
+            );
+
+            /*
+             * Migrate parts into repairs that were already
+             * created from old single-part appointments.
+             */
+            db.execSQL(
+                    "INSERT OR IGNORE INTO " +
+                            TABLE_REPAIR_SPARE_PART +
+                            " (" +
+                            COLUMN_RSP_REPAIR_ID +
+                            ", " +
+                            COLUMN_RSP_PART_ID +
+                            ", " +
+                            COLUMN_RSP_QUANTITY +
+                            ") SELECT r." +
+                            COLUMN_REPAIR_ID +
+                            ", a." +
+                            COLUMN_APPOINTMENT_PART_ID +
+                            ", 1 FROM " +
+                            TABLE_REPAIR +
+                            " r INNER JOIN " +
+                            TABLE_APPOINTMENT +
+                            " a ON r." +
+                            COLUMN_REPAIR_APPOINTMENT_ID +
+                            " = a." +
+                            COLUMN_APPOINTMENT_ID +
+                            " WHERE a." +
+                            COLUMN_APPOINTMENT_PART_ID +
+                            " IS NOT NULL"
+            );
+
+            /*
+             * Existing completed repairs must not suddenly
+             * reduce inventory after upgrading.
+             */
+            db.execSQL(
+                    "UPDATE " +
+                            TABLE_REPAIR +
+                            " SET " +
+                            COLUMN_REPAIR_INVENTORY_DEDUCTED +
+                            " = 1 WHERE " +
+                            COLUMN_REPAIR_STATUS +
+                            " = 'COMPLETED'"
+            );
+        }
     }
+
 
     private boolean columnExists(
             SQLiteDatabase db,

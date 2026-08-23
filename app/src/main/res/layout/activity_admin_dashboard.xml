@@ -102,6 +102,14 @@
                     android:text="Manage Spare Parts"
                     android:textAllCaps="false" />
 
+                <Button
+                    android:id="@+id/btnManageBranchInventory"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Manage Branch Inventory"
+                    android:textAllCaps="false" />
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>

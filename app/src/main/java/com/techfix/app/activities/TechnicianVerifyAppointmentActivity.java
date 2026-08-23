@@ -17,15 +17,19 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import com.techfix.app.R;
 import com.techfix.app.database.AppointmentDAO;
+import com.techfix.app.database.AppointmentSparePartDAO;
 import com.techfix.app.database.BranchDao;
 import com.techfix.app.database.RepairDAO;
+import com.techfix.app.database.RepairSparePartDAO;
 import com.techfix.app.database.ServiceDAO;
 import com.techfix.app.models.Appointment;
+import com.techfix.app.models.AppointmentSparePart;
 import com.techfix.app.models.Branch;
 import com.techfix.app.models.Repair;
 import com.techfix.app.models.RepairService;
 import com.techfix.app.userauthentication.utils.SessionManager;
 
+import java.util.List;
 import java.util.Locale;
 
 public class TechnicianVerifyAppointmentActivity
@@ -43,6 +47,7 @@ public class TechnicianVerifyAppointmentActivity
     private TextView txtVerifiedCustomer;
     private TextView txtVerifiedDevice;
     private TextView txtVerifiedService;
+    private TextView txtVerifiedParts;
     private TextView txtVerifiedIssue;
     private TextView txtVerifiedDate;
     private TextView txtVerifiedBranch;
@@ -52,7 +57,9 @@ public class TechnicianVerifyAppointmentActivity
     private Button btnViewVerifiedDevicePhoto;
 
     private AppointmentDAO appointmentDAO;
+    private AppointmentSparePartDAO appointmentSparePartDAO;
     private RepairDAO repairDAO;
+    private RepairSparePartDAO repairSparePartDAO;
     private ServiceDAO serviceDAO;
     private BranchDao branchDao;
 
@@ -106,8 +113,14 @@ public class TechnicianVerifyAppointmentActivity
         appointmentDAO =
                 new AppointmentDAO(this);
 
+        appointmentSparePartDAO =
+                new AppointmentSparePartDAO(this);
+
         repairDAO =
                 new RepairDAO(this);
+
+        repairSparePartDAO =
+                new RepairSparePartDAO(this);
 
         serviceDAO =
                 new ServiceDAO(this);
@@ -171,6 +184,11 @@ public class TechnicianVerifyAppointmentActivity
         txtVerifiedService =
                 findViewById(
                         R.id.txtVerifiedService
+                );
+
+        txtVerifiedParts =
+                findViewById(
+                        R.id.txtVerifiedParts
                 );
 
         txtVerifiedIssue =
@@ -326,6 +344,59 @@ public class TechnicianVerifyAppointmentActivity
                                         "Unknown Service"
                         )
         );
+
+        List<AppointmentSparePart> selectedParts =
+                appointmentSparePartDAO
+                        .getPartsForAppointment(
+                                verifiedAppointment.getAppointmentId()
+                        );
+
+        if (selectedParts.isEmpty()) {
+
+            txtVerifiedParts.setText(
+                    "Spare Parts: None selected"
+            );
+
+        } else {
+
+            StringBuilder partsText =
+                    new StringBuilder(
+                            "Spare Parts:\n"
+                    );
+
+            for (
+                    AppointmentSparePart item
+                    :
+                    selectedParts
+            ) {
+
+                partsText.append(
+                        "• "
+                );
+
+                partsText.append(
+                        item.getPartName()
+                );
+
+                partsText.append(
+                        " × "
+                );
+
+                partsText.append(
+                        item.getQuantity()
+                );
+
+                partsText.append(
+                        "\n"
+                );
+            }
+
+            txtVerifiedParts.setText(
+                    partsText
+                            .toString()
+                            .trim()
+            );
+        }
 
         txtVerifiedIssue.setText(
                 "Issue: " +
@@ -487,8 +558,16 @@ public class TechnicianVerifyAppointmentActivity
                     verifiedService.getServiceName()
             );
 
-            repair.setEstimatedCost(
+            double estimatedCost =
                     verifiedService.getPrice()
+                            +
+                            appointmentSparePartDAO
+                                    .getPartsTotalForAppointment(
+                                            verifiedAppointment.getAppointmentId()
+                                    );
+
+            repair.setEstimatedCost(
+                    estimatedCost
             );
 
         } else {
@@ -512,6 +591,24 @@ public class TechnicianVerifyAppointmentActivity
             Toast.makeText(
                     this,
                     "Failed to create repair",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        boolean partsCopied =
+                repairSparePartDAO
+                        .copyAppointmentPartsToRepair(
+                                verifiedAppointment.getAppointmentId(),
+                                repairId
+                        );
+
+        if (!partsCopied) {
+
+            Toast.makeText(
+                    this,
+                    "Repair created, but selected spare parts could not be copied",
                     Toast.LENGTH_LONG
             ).show();
 

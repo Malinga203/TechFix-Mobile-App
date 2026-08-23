@@ -57,6 +57,16 @@
             android:textStyle="bold"
             tools:text="Compatible with: iPhone 12, iPhone 12 Pro" />
 
+        <TextView
+            android:id="@+id/tv_part_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/techfix_gold"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="LKR 25,000.00" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -64,46 +74,64 @@
             android:layout_marginBottom="12dp"
             android:background="@color/techfix_divider" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Required Quantity"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="12sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_part_minus"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="52dp"
+                android:layout_height="48dp"
+                android:text="−"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                app:cornerRadius="12dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Estimated Part Price"
-                    android:textColor="@color/techfix_text_secondary"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tv_part_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textColor="@color/techfix_gold"
-                    android:textSize="19sp"
-                    android:textStyle="bold"
-                    tools:text="$89.99" />
-
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_part_quantity"
+                android:layout_width="64dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_add_to_booking"
-                android:layout_width="wrap_content"
+                android:id="@+id/btn_part_plus"
+                android:layout_width="52dp"
                 android:layout_height="48dp"
-                android:text="Select"
+                android:text="+"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
+                android:textSize="18sp"
                 app:backgroundTint="@color/techfix_primary"
                 app:cornerRadius="12dp" />
+
+            <TextView
+                android:id="@+id/tv_part_selected_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textColor="@color/techfix_success"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Selected • Qty 2"
+                tools:visibility="visible" />
 
         </LinearLayout>
 
@@ -111,7 +139,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Availability will be checked at the nearest suitable branch"
+            android:text="The assigned branch must have enough stock for this quantity."
             android:textColor="@color/techfix_text_secondary"
             android:textSize="11sp" />
 

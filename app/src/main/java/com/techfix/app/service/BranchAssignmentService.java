@@ -7,7 +7,9 @@ import com.techfix.app.database.BranchDao;
 import com.techfix.app.database.SparePartDAO;
 import com.techfix.app.database.TechnicianDao;
 import com.techfix.app.models.Branch;
+import com.techfix.app.models.PartSelection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BranchAssignmentService {
@@ -30,11 +32,19 @@ public class BranchAssignmentService {
                 new SparePartDAO(context);
     }
 
+    /*
+     * NEW MULTI-PART VERSION.
+     *
+     * A branch is suitable only if:
+     * 1. it has an available technician for the service category
+     * 2. it has enough stock for EVERY selected spare part
+     * 3. among suitable branches, it is the closest one
+     */
     public Branch findNearestSuitableBranch(
             double customerLatitude,
             double customerLongitude,
             String requiredSpecialization,
-            Integer requiredPartId
+            List<PartSelection> requiredParts
     ) {
 
         List<Branch> branches =
@@ -59,18 +69,13 @@ public class BranchAssignmentService {
                 continue;
             }
 
-            if (requiredPartId != null) {
-
-                boolean partAvailable =
-                        sparePartDAO
-                                .isPartAvailableAtBranch(
-                                        requiredPartId,
-                                        branch.getBranchId()
-                                );
-
-                if (!partAvailable) {
-                    continue;
-                }
+            if (
+                    !hasEnoughInventory(
+                            branch.getBranchId(),
+                            requiredParts
+                    )
+            ) {
+                continue;
             }
 
             float distance =
@@ -92,6 +97,95 @@ public class BranchAssignmentService {
         }
 
         return nearestSuitableBranch;
+    }
+
+    /*
+     * Kept only for compatibility with older code.
+     * A legacy single part is treated as quantity 1.
+     */
+    public Branch findNearestSuitableBranch(
+            double customerLatitude,
+            double customerLongitude,
+            String requiredSpecialization,
+            Integer requiredPartId
+    ) {
+
+        List<PartSelection> selections =
+                new ArrayList<>();
+
+        if (
+                requiredPartId != null
+                        &&
+                        requiredPartId > 0
+        ) {
+
+            selections.add(
+                    new PartSelection(
+                            requiredPartId,
+                            "",
+                            0.0,
+                            1
+                    )
+            );
+        }
+
+        return findNearestSuitableBranch(
+                customerLatitude,
+                customerLongitude,
+                requiredSpecialization,
+                selections
+        );
+    }
+
+    private boolean hasEnoughInventory(
+            int branchId,
+            List<PartSelection> requiredParts
+    ) {
+
+        if (
+                requiredParts == null
+                        ||
+                        requiredParts.isEmpty()
+        ) {
+
+            return true;
+        }
+
+        for (
+                PartSelection selection
+                :
+                requiredParts
+        ) {
+
+            if (
+                    selection == null
+                            ||
+                            selection.getPartId() <= 0
+                            ||
+                            selection.getQuantity() <= 0
+            ) {
+
+                return false;
+            }
+
+            int availableStock =
+                    sparePartDAO
+                            .getPartStockAtBranch(
+                                    selection.getPartId(),
+                                    branchId
+                            );
+
+            if (
+                    availableStock
+                            <
+                            selection.getQuantity()
+            ) {
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public float calculateDistance(

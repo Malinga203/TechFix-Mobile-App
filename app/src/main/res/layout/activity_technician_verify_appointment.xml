@@ -100,6 +100,15 @@
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/txtVerifiedParts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Spare Parts:"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="15sp" />
+
+            <TextView
                 android:id="@+id/txtVerifiedIssue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

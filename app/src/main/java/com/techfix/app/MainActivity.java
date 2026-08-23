@@ -6,62 +6,151 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.techfix.app.activities.AdminDashboardActivity;
 import com.techfix.app.activities.CustomerPaymentsActivity;
 import com.techfix.app.activities.MyAppointmentsActivity;
 import com.techfix.app.activities.RepairHistoryActivity;
 import com.techfix.app.activities.RepairTrackingActivity;
 import com.techfix.app.activities.SampleRepairsActivity;
 import com.techfix.app.activities.ServiceListActivity;
+import com.techfix.app.activities.TechnicianDashboardActivity;
+import com.techfix.app.userauthentication.activities.CustomerProfileActivity;
 import com.techfix.app.userauthentication.activities.LoginActivity;
 import com.techfix.app.userauthentication.models.User;
 import com.techfix.app.userauthentication.utils.SessionManager;
-import com.techfix.app.userauthentication.activities.CustomerProfileActivity;
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity
+        extends AppCompatActivity {
 
     private SessionManager sessionManager;
 
+
     private Button btnServices;
+
     private Button btnMyAppointments;
+
     private Button btnRepairTracking;
+
     private Button btnRepairHistory;
+
     private Button btnPayments;
+
     private Button btnSampleRepairs;
+
     private Button btnSeeProfile;
+
     private Button btnLogout;
+
 
     @Override
     protected void onCreate(
             Bundle savedInstanceState
     ) {
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(
+                savedInstanceState
+        );
+
 
         sessionManager =
-                new SessionManager(this);
+                new SessionManager(
+                        this
+                );
 
-        if (!sessionManager.isLoggedIn()) {
+
+        // =====================================================
+        // NO LOGIN
+        // =====================================================
+
+        if (
+                !sessionManager.isLoggedIn()
+        ) {
+
             openLogin();
+
             return;
         }
 
-        if (!User.ROLE_CUSTOMER.equals(
-                sessionManager.getRole()
-        )) {
+
+        // =====================================================
+        // MAIN ACTIVITY IS ALSO THE APP LAUNCHER
+        //
+        // Therefore we MUST route ADMIN and TECHNICIAN
+        // instead of logging them out.
+        // =====================================================
+
+        String role =
+                sessionManager.getRole();
+
+
+        // =====================================================
+        // ADMIN SESSION
+        // =====================================================
+
+        if (
+                User.ROLE_ADMIN.equals(
+                        role
+                )
+        ) {
+
+            openAdminDashboard();
+
+            return;
+        }
+
+
+        // =====================================================
+        // TECHNICIAN SESSION
+        // =====================================================
+
+        if (
+                User.ROLE_TECHNICIAN.equals(
+                        role
+                )
+        ) {
+
+            openTechnicianDashboard();
+
+            return;
+        }
+
+
+        // =====================================================
+        // INVALID ROLE
+        // =====================================================
+
+        if (
+                !User.ROLE_CUSTOMER.equals(
+                        role
+                )
+        ) {
 
             sessionManager.logout();
+
             openLogin();
+
             return;
         }
+
+
+        // =====================================================
+        // CUSTOMER DASHBOARD
+        // =====================================================
 
         setContentView(
                 R.layout.activity_main
         );
 
+
         initializeViews();
+
         setupNavigation();
     }
+
+
+    // =========================================================
+    // INITIALIZE CUSTOMER VIEWS
+    // =========================================================
 
     private void initializeViews() {
 
@@ -70,35 +159,42 @@ public class MainActivity extends AppCompatActivity {
                         R.id.btnServices
                 );
 
+
         btnMyAppointments =
                 findViewById(
                         R.id.btnMyAppointments
                 );
+
 
         btnRepairTracking =
                 findViewById(
                         R.id.btnRepairTracking
                 );
 
+
         btnRepairHistory =
                 findViewById(
                         R.id.btnRepairHistory
                 );
+
 
         btnPayments =
                 findViewById(
                         R.id.btnPayments
                 );
 
+
         btnSampleRepairs =
                 findViewById(
                         R.id.btnSampleRepairs
                 );
 
+
         btnSeeProfile =
                 findViewById(
                         R.id.btnSeeProfile
                 );
+
 
         btnLogout =
                 findViewById(
@@ -106,40 +202,65 @@ public class MainActivity extends AppCompatActivity {
                 );
     }
 
+
+    // =========================================================
+    // CUSTOMER NAVIGATION
+    // =========================================================
+
     private void setupNavigation() {
 
         btnServices.setOnClickListener(
-                view -> openServices()
+                view ->
+                        openServices()
         );
+
 
         btnMyAppointments.setOnClickListener(
-                view -> openMyAppointments()
+                view ->
+                        openMyAppointments()
         );
+
 
         btnRepairTracking.setOnClickListener(
-                view -> openRepairTracking()
+                view ->
+                        openRepairTracking()
         );
+
 
         btnRepairHistory.setOnClickListener(
-                view -> openRepairHistory()
+                view ->
+                        openRepairHistory()
         );
+
 
         btnPayments.setOnClickListener(
-                view -> openPayments()
+                view ->
+                        openPayments()
         );
+
 
         btnSampleRepairs.setOnClickListener(
-                view -> openSampleRepairs()
+                view ->
+                        openSampleRepairs()
         );
+
 
         btnSeeProfile.setOnClickListener(
-                view -> openProfile()
+                view ->
+                        openProfile()
         );
 
+
         btnLogout.setOnClickListener(
-                view -> logoutUser()
+                view ->
+                        logoutUser()
         );
     }
+
+
+    // =========================================================
+    // CUSTOMER ACTIVITIES
+    // =========================================================
 
     private void openServices() {
 
@@ -149,8 +270,12 @@ public class MainActivity extends AppCompatActivity {
                         ServiceListActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
+
 
     private void openMyAppointments() {
 
@@ -160,8 +285,12 @@ public class MainActivity extends AppCompatActivity {
                         MyAppointmentsActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
+
 
     private void openRepairTracking() {
 
@@ -171,8 +300,12 @@ public class MainActivity extends AppCompatActivity {
                         RepairTrackingActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
+
 
     private void openRepairHistory() {
 
@@ -182,8 +315,12 @@ public class MainActivity extends AppCompatActivity {
                         RepairHistoryActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
+
 
     private void openPayments() {
 
@@ -193,8 +330,12 @@ public class MainActivity extends AppCompatActivity {
                         CustomerPaymentsActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
+
 
     private void openSampleRepairs() {
 
@@ -204,8 +345,12 @@ public class MainActivity extends AppCompatActivity {
                         SampleRepairsActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
+
 
     private void openProfile() {
 
@@ -215,27 +360,104 @@ public class MainActivity extends AppCompatActivity {
                         CustomerProfileActivity.class
                 );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
     }
 
-    private void logoutUser() {
 
-        sessionManager.logout();
+    // =========================================================
+    // ADMIN ROUTING
+    // =========================================================
+
+    private void openAdminDashboard() {
 
         Intent intent =
                 new Intent(
                         MainActivity.this,
-                        LoginActivity.class
+                        AdminDashboardActivity.class
                 );
+
 
         intent.setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK
         );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
+
+
         finish();
     }
+
+
+    // =========================================================
+    // TECHNICIAN ROUTING
+    // =========================================================
+
+    private void openTechnicianDashboard() {
+
+        int technicianId =
+                sessionManager.getTechnicianId();
+
+
+        if (technicianId <= 0) {
+
+            sessionManager.logout();
+
+            openLogin();
+
+            return;
+        }
+
+
+        Intent intent =
+                new Intent(
+                        MainActivity.this,
+                        TechnicianDashboardActivity.class
+                );
+
+
+        intent.putExtra(
+                TechnicianDashboardActivity.EXTRA_TECHNICIAN_ID,
+                technicianId
+        );
+
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+
+        startActivity(
+                intent
+        );
+
+
+        finish();
+    }
+
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+
+    private void logoutUser() {
+
+        sessionManager.logout();
+
+        openLogin();
+    }
+
+
+    // =========================================================
+    // LOGIN
+    // =========================================================
 
     private void openLogin() {
 
@@ -245,12 +467,18 @@ public class MainActivity extends AppCompatActivity {
                         LoginActivity.class
                 );
 
+
         intent.setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK
         );
 
-        startActivity(intent);
+
+        startActivity(
+                intent
+        );
+
+
         finish();
     }
 }

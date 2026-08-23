@@ -10,6 +10,7 @@ public class SessionManager {
     private static final String PREF_NAME =
             "techfix_session";
 
+
     private static final String KEY_LOGGED_IN =
             "logged_in";
 
@@ -28,55 +29,96 @@ public class SessionManager {
     private static final String KEY_TECHNICIAN_ID =
             "technician_id";
 
+
     private final SharedPreferences preferences;
 
-    private final SharedPreferences.Editor editor;
 
     public SessionManager(
             Context context
     ) {
 
         preferences =
-                context.getSharedPreferences(
-                        PREF_NAME,
-                        Context.MODE_PRIVATE
-                );
-
-        editor =
-                preferences.edit();
+                context.getApplicationContext()
+                        .getSharedPreferences(
+                                PREF_NAME,
+                                Context.MODE_PRIVATE
+                        );
     }
 
+
+    // =========================================================
+    // CREATE SESSION
+    // CUSTOMER / TECHNICIAN / ADMIN
+    // =========================================================
 
     public void createLoginSession(
             User user
     ) {
+
+        if (user == null) {
+
+            return;
+        }
+
+
+        SharedPreferences.Editor editor =
+                preferences.edit();
+
+
+        /*
+         * Clear previous user session first.
+         *
+         * This prevents information from a previous
+         * technician/customer/admin remaining in storage.
+         */
+        editor.clear();
+
 
         editor.putBoolean(
                 KEY_LOGGED_IN,
                 true
         );
 
+
         editor.putInt(
                 KEY_USER_ID,
                 user.getId()
         );
 
+
         editor.putString(
                 KEY_NAME,
-                user.getName()
+                user.getName() == null
+                        ? ""
+                        : user.getName()
         );
+
 
         editor.putString(
                 KEY_EMAIL,
-                user.getEmail()
+                user.getEmail() == null
+                        ? ""
+                        : user.getEmail()
         );
+
 
         editor.putString(
                 KEY_ROLE,
-                user.getRole()
+                user.getRole() == null
+                        ? ""
+                        : user.getRole()
         );
 
-        if (user.getTechnicianId() != null) {
+
+        /*
+         * Only technicians need technician_id.
+         */
+        if (
+                User.ROLE_TECHNICIAN.equals(
+                        user.getRole()
+                ) &&
+                        user.getTechnicianId() != null
+        ) {
 
             editor.putInt(
                     KEY_TECHNICIAN_ID,
@@ -90,9 +132,14 @@ public class SessionManager {
             );
         }
 
+
         editor.apply();
     }
 
+
+    // =========================================================
+    // LOGIN STATUS
+    // =========================================================
 
     public boolean isLoggedIn() {
 
@@ -103,6 +150,10 @@ public class SessionManager {
     }
 
 
+    // =========================================================
+    // USER ID
+    // =========================================================
+
     public int getUserId() {
 
         return preferences.getInt(
@@ -111,6 +162,10 @@ public class SessionManager {
         );
     }
 
+
+    // =========================================================
+    // NAME
+    // =========================================================
 
     public String getUserName() {
 
@@ -121,6 +176,10 @@ public class SessionManager {
     }
 
 
+    // =========================================================
+    // EMAIL
+    // =========================================================
+
     public String getUserEmail() {
 
         return preferences.getString(
@@ -129,6 +188,10 @@ public class SessionManager {
         );
     }
 
+
+    // =========================================================
+    // ROLE
+    // =========================================================
 
     public String getRole() {
 
@@ -139,6 +202,10 @@ public class SessionManager {
     }
 
 
+    // =========================================================
+    // TECHNICIAN ID
+    // =========================================================
+
     public int getTechnicianId() {
 
         return preferences.getInt(
@@ -148,34 +215,65 @@ public class SessionManager {
     }
 
 
+    // =========================================================
+    // CUSTOMER
+    // =========================================================
+
     public boolean isCustomer() {
 
-        return User.ROLE_CUSTOMER.equals(
-                getRole()
-        );
+        return isLoggedIn() &&
+                User.ROLE_CUSTOMER.equals(
+                        getRole()
+                );
     }
 
+
+    // =========================================================
+    // ADMIN
+    // =========================================================
 
     public boolean isAdmin() {
 
-        return User.ROLE_ADMIN.equals(
-                getRole()
-        );
+        return isLoggedIn() &&
+                User.ROLE_ADMIN.equals(
+                        getRole()
+                );
     }
 
+
+    // =========================================================
+    // TECHNICIAN
+    // =========================================================
 
     public boolean isTechnician() {
 
-        return User.ROLE_TECHNICIAN.equals(
-                getRole()
-        );
+        return isLoggedIn() &&
+                User.ROLE_TECHNICIAN.equals(
+                        getRole()
+                );
     }
 
 
+    // =========================================================
+    // VALID TECHNICIAN SESSION
+    // =========================================================
+
+    public boolean hasTechnicianSession() {
+
+        return isTechnician() &&
+                getTechnicianId() > 0;
+    }
+
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+
     public void logout() {
 
-        editor.clear();
-
-        editor.apply();
+        preferences
+                .edit()
+                .clear()
+                .apply();
     }
 }

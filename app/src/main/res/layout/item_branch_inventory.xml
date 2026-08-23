@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="7dp"
+    android:layout_marginBottom="7dp"
+    app:cardBackgroundColor="@color/techfix_surface"
+    app:cardCornerRadius="16dp"
+    app:strokeColor="@color/techfix_border"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+
+        <!-- ================================================= -->
+        <!-- SPARE PART NAME -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:id="@+id/txtInventoryPartName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Samsung S23 Screen"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+
+        <!-- ================================================= -->
+        <!-- COMPATIBLE MODELS -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:id="@+id/txtInventoryCompatibleModels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Compatible: Samsung S23"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="13sp" />
+
+
+        <!-- ================================================= -->
+        <!-- PRICE -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:id="@+id/txtInventoryPartPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="LKR 25,000.00"
+            android:textColor="@color/techfix_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+
+        <!-- ================================================= -->
+        <!-- DIVIDER -->
+        <!-- ================================================= -->
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="14dp"
+            android:background="@color/techfix_border" />
+
+
+        <!-- ================================================= -->
+        <!-- STOCK TITLE -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stock Quantity"
+            android:textColor="@color/techfix_text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+
+        <!-- ================================================= -->
+        <!-- CURRENT DATABASE STOCK -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:id="@+id/txtInventoryCurrentStock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Current Stock: 5"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="12sp" />
+
+
+        <!-- ================================================= -->
+        <!-- MINUS / MANUAL INPUT / PLUS -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+
+            <!-- MINUS -->
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDecreaseInventory"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:minWidth="0dp"
+                android:padding="0dp"
+                android:text="-"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+
+
+            <!-- MANUAL QUANTITY -->
+
+            <EditText
+                android:id="@+id/edtInventoryStock"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:hint="0"
+                android:inputType="number"
+                android:maxLength="6"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:text="0"
+                android:textColor="@color/techfix_text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+
+            <!-- PLUS -->
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnIncreaseInventory"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:minWidth="0dp"
+                android:padding="0dp"
+                android:text="+"
+                android:textAllCaps="false"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- STOCK STATUS -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:id="@+id/txtInventoryStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Available"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="12sp" />
+
+
+        <!-- ================================================= -->
+        <!-- UPDATE BUTTON -->
+        <!-- ================================================= -->
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveInventoryStock"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="14dp"
+            android:text="Update Stock"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

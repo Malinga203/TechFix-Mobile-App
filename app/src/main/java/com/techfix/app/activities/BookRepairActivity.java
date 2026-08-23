@@ -38,6 +38,7 @@ import com.techfix.app.database.AppointmentDAO;
 import com.techfix.app.database.ServiceDAO;
 import com.techfix.app.models.Appointment;
 import com.techfix.app.models.Branch;
+import com.techfix.app.models.PartSelection;
 import com.techfix.app.models.RepairService;
 import com.techfix.app.services.BranchAssignmentService;
 import com.techfix.app.userauthentication.utils.SessionManager;
@@ -46,6 +47,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -119,11 +121,8 @@ public class BookRepairActivity extends AppCompatActivity {
 
     private String selectedTime;
 
-    private int selectedPartId = -1;
-
-    private double selectedPartPrice = 0.0;
-
-    private String selectedPartName;
+    private final ArrayList<PartSelection> selectedParts =
+            new ArrayList<>();
 
     private final Calendar calendar =
             Calendar.getInstance();
@@ -135,32 +134,55 @@ public class BookRepairActivity extends AppCompatActivity {
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
 
-                        if (result.getResultCode() == RESULT_OK
-                                && result.getData() != null) {
+                        if (
+                                result.getResultCode() == RESULT_OK
+                                        &&
+                                        result.getData() != null
+                        ) {
 
                             Intent data =
                                     result.getData();
 
-                            selectedPartId =
-                                    data.getIntExtra(
-                                            SparePartActivity.EXTRA_SELECTED_PART,
-                                            -1
+                            Serializable serializable =
+                                    data.getSerializableExtra(
+                                            SparePartActivity.EXTRA_SELECTED_PARTS
                                     );
 
-                            selectedPartName =
-                                    data.getStringExtra(
-                                            SparePartActivity.EXTRA_SELECTED_PART
-                                                    + "_name"
-                                    );
+                            selectedParts.clear();
 
-                            selectedPartPrice =
-                                    data.getDoubleExtra(
-                                            SparePartActivity.EXTRA_SELECTED_PART
-                                                    + "_price",
-                                            0.0
-                                    );
+                            if (
+                                    serializable
+                                            instanceof
+                                            ArrayList<?>
+                            ) {
+
+                                ArrayList<?> returnedList =
+                                        (ArrayList<?>) serializable;
+
+                                for (Object item : returnedList) {
+
+                                    if (
+                                            item
+                                                    instanceof
+                                                    PartSelection
+                                    ) {
+
+                                        selectedParts.add(
+                                                (PartSelection) item
+                                        );
+                                    }
+                                }
+                            }
+
+                            /*
+                             * If parts change, a branch selected from an
+                             * older inventory check must no longer be used.
+                             */
+                            selectedBranch =
+                                    null;
 
                             updateSelectedPartView();
+
                             updateSummary();
                         }
                     }
@@ -599,7 +621,7 @@ public class BookRepairActivity extends AppCompatActivity {
 
     private void updateSelectedPartView() {
 
-        if (selectedPartId == -1) {
+        if (selectedParts.isEmpty()) {
 
             tvSelectedPart.setVisibility(
                     View.GONE
@@ -616,28 +638,119 @@ public class BookRepairActivity extends AppCompatActivity {
                 View.VISIBLE
         );
 
-        tvSelectedPart.setText(
-                "Selected Part: "
-                        + selectedPartName
-                        + String.format(
-                        Locale.US,
-                        " (+$%.2f)",
-                        selectedPartPrice
+        StringBuilder text =
+                new StringBuilder(
+                        "Selected Spare Parts:\n"
+                );
+
+        double partsTotal =
+                0.0;
+
+        int totalUnits =
+                0;
+
+        for (
+                PartSelection selection
+                :
+                selectedParts
+        ) {
+
+            double lineTotal =
+                    selection.getTotalPrice();
+
+            partsTotal +=
+                    lineTotal;
+
+            totalUnits +=
+                    selection.getQuantity();
+
+            text.append(
+                    "• "
+            );
+
+            text.append(
+                    selection.getPartName()
+            );
+
+            text.append(
+                    " × "
+            );
+
+            text.append(
+                    selection.getQuantity()
+            );
+
+            text.append(
+                    String.format(
+                            Locale.getDefault(),
+                            " = LKR %,.2f",
+                            lineTotal
+                    )
+            );
+
+            text.append(
+                    "\n"
+            );
+        }
+
+        text.append(
+                String.format(
+                        Locale.getDefault(),
+                        "\n%d item type(s), %d unit(s) • Parts total: LKR %,.2f",
+                        selectedParts.size(),
+                        totalUnits,
+                        partsTotal
                 )
-                        + "\nTap to remove"
+        );
+
+        text.append(
+                "\nTap to edit selection"
+        );
+
+        tvSelectedPart.setText(
+                text.toString()
         );
 
         tvSelectedPart.setOnClickListener(
                 view -> {
 
-                    selectedPartId = -1;
-                    selectedPartName = null;
-                    selectedPartPrice = 0.0;
+                    Intent intent =
+                            new Intent(
+                                    this,
+                                    SparePartActivity.class
+                            );
 
-                    updateSelectedPartView();
-                    updateSummary();
+                    intent.putExtra(
+                            SparePartActivity.EXTRA_SELECTED_PARTS,
+                            new ArrayList<>(
+                                    selectedParts
+                            )
+                    );
+
+                    sparePartLauncher.launch(
+                            intent
+                    );
                 }
         );
+    }
+
+
+    private double getSelectedPartsTotal() {
+
+        double total =
+                0.0;
+
+        for (
+                PartSelection selection
+                :
+                selectedParts
+        ) {
+
+            total +=
+                    selection.getTotalPrice();
+        }
+
+        return total;
     }
 
 
@@ -655,19 +768,16 @@ public class BookRepairActivity extends AppCompatActivity {
         double total =
                 selectedService.getPrice()
                         +
-                        (
-                                selectedPartId != -1
-                                        ? selectedPartPrice
-                                        : 0.0
-                        );
+                        getSelectedPartsTotal();
 
         tvSummaryPrice.setText(
                 "Estimated Price: "
-                        + String.format(
-                        Locale.US,
-                        "$%.2f",
-                        total
-                )
+                        +
+                        String.format(
+                                Locale.getDefault(),
+                                "LKR %,.2f",
+                                total
+                        )
         );
     }
 
@@ -830,26 +940,20 @@ public class BookRepairActivity extends AppCompatActivity {
                             String requiredSpecialization =
                                     selectedService
                                             .getCategory();
-
-                            Integer requiredPartId =
-                                    selectedPartId != -1
-                                            ? selectedPartId
-                                            : null;
-
                             selectedBranch =
                                     branchAssignmentService
                                             .findNearestSuitableBranch(
                                                     location.getLatitude(),
                                                     location.getLongitude(),
                                                     requiredSpecialization,
-                                                    requiredPartId
+                                                    selectedParts
                                             );
 
                             if (selectedBranch == null) {
 
                                 Toast.makeText(
                                         this,
-                                        "No branch currently has the required technician and spare part",
+                                        "No branch currently has the required technician and enough stock for all selected spare parts",
                                         Toast.LENGTH_LONG
                                 ).show();
 
@@ -902,8 +1006,8 @@ public class BookRepairActivity extends AppCompatActivity {
                         + "\n\nThis branch has the required technician"
                         +
                         (
-                                selectedPartId != -1
-                                        ? " and selected spare part."
+                                !selectedParts.isEmpty()
+                                        ? " and enough stock for all selected spare parts."
                                         : "."
                         );
 
@@ -1540,10 +1644,7 @@ public class BookRepairActivity extends AppCompatActivity {
 
                         selectedService
                                 .getServiceId(),
-
-                        selectedPartId != -1
-                                ? selectedPartId
-                                : null,
+                        null,
 
                         selectedBranch
                                 .getBranchId(),
@@ -1577,8 +1678,9 @@ public class BookRepairActivity extends AppCompatActivity {
 
         long insertedId =
                 appointmentDAO
-                        .insertAppointment(
-                                appointment
+                        .insertAppointmentWithParts(
+                                appointment,
+                                selectedParts
                         );
 
         if (insertedId > 0) {

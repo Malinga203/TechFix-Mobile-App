@@ -10,27 +10,38 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.techfix.app.R;
+import com.techfix.app.models.PartSelection;
 import com.techfix.app.models.SparePart;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class SparePartAdapter
         extends RecyclerView.Adapter<SparePartAdapter.SparePartViewHolder> {
 
-    public interface OnPartAddListener {
+    public interface OnSelectionChangedListener {
 
-        void onPartAdd(
-                SparePart sparePart
+        void onSelectionChanged(
+                ArrayList<PartSelection> selectedParts
         );
     }
 
+    private static final int MAX_QUANTITY_PER_PART = 99;
+
     private final List<SparePart> sparePartList;
-    private final OnPartAddListener listener;
+
+    private final Map<Integer, Integer> quantityMap =
+            new HashMap<>();
+
+    private final OnSelectionChangedListener listener;
 
     public SparePartAdapter(
             List<SparePart> sparePartList,
-            OnPartAddListener listener
+            List<PartSelection> initialSelections,
+            OnSelectionChangedListener listener
     ) {
 
         this.sparePartList =
@@ -38,6 +49,30 @@ public class SparePartAdapter
 
         this.listener =
                 listener;
+
+        if (initialSelections != null) {
+
+            for (
+                    PartSelection selection
+                    :
+                    initialSelections
+            ) {
+
+                if (
+                        selection != null
+                                &&
+                                selection.getPartId() > 0
+                                &&
+                                selection.getQuantity() > 0
+                ) {
+
+                    quantityMap.put(
+                            selection.getPartId(),
+                            selection.getQuantity()
+                    );
+                }
+            }
+        }
     }
 
     @NonNull
@@ -68,7 +103,9 @@ public class SparePartAdapter
     ) {
 
         SparePart sparePart =
-                sparePartList.get(position);
+                sparePartList.get(
+                        position
+                );
 
         holder.tvPartName.setText(
                 sparePart.getPartName()
@@ -90,19 +127,171 @@ public class SparePartAdapter
 
         holder.tvPartPrice.setText(
                 String.format(
-                        Locale.US,
-                        "$%.2f",
+                        Locale.getDefault(),
+                        "LKR %,.2f",
                         sparePart.getPrice()
                 )
         );
 
-        holder.btnAddToBooking
-                .setOnClickListener(
-                        view ->
-                                listener.onPartAdd(
-                                        sparePart
-                                )
+        int quantity =
+                getQuantity(
+                        sparePart.getPartId()
                 );
+
+        holder.tvQuantity.setText(
+                String.valueOf(
+                        quantity
+                )
+        );
+
+        holder.btnMinus.setEnabled(
+                quantity > 0
+        );
+
+        holder.tvSelectedStatus.setVisibility(
+                quantity > 0
+                        ? View.VISIBLE
+                        : View.GONE
+        );
+
+        holder.tvSelectedStatus.setText(
+                quantity > 0
+                        ?
+                        "Selected • Qty " +
+                                quantity
+                        :
+                        ""
+        );
+
+        holder.btnMinus.setOnClickListener(
+                view ->
+                        changeQuantity(
+                                sparePart,
+                                -1
+                        )
+        );
+
+        holder.btnPlus.setOnClickListener(
+                view ->
+                        changeQuantity(
+                                sparePart,
+                                1
+                        )
+        );
+    }
+
+    private void changeQuantity(
+            SparePart sparePart,
+            int change
+    ) {
+
+        int partId =
+                sparePart.getPartId();
+
+        int current =
+                getQuantity(
+                        partId
+                );
+
+        int updated =
+                current + change;
+
+        if (updated < 0) {
+            updated = 0;
+        }
+
+        if (
+                updated >
+                        MAX_QUANTITY_PER_PART
+        ) {
+
+            updated =
+                    MAX_QUANTITY_PER_PART;
+        }
+
+        if (updated == 0) {
+
+            quantityMap.remove(
+                    partId
+            );
+
+        } else {
+
+            quantityMap.put(
+                    partId,
+                    updated
+            );
+        }
+
+        notifyDataSetChanged();
+
+        notifySelectionChanged();
+    }
+
+    public int getQuantity(
+            int partId
+    ) {
+
+        Integer quantity =
+                quantityMap.get(
+                        partId
+                );
+
+        return quantity == null
+                ? 0
+                : quantity;
+    }
+
+    public ArrayList<PartSelection> getSelectedParts() {
+
+        ArrayList<PartSelection> result =
+                new ArrayList<>();
+
+        for (
+                SparePart sparePart
+                :
+                sparePartList
+        ) {
+
+            int quantity =
+                    getQuantity(
+                            sparePart.getPartId()
+                    );
+
+            if (quantity <= 0) {
+                continue;
+            }
+
+            result.add(
+                    new PartSelection(
+                            sparePart.getPartId(),
+                            sparePart.getPartName(),
+                            sparePart.getPrice(),
+                            quantity
+                    )
+            );
+        }
+
+        return result;
+    }
+
+    public void clearSelections() {
+
+        quantityMap.clear();
+
+        notifyDataSetChanged();
+
+        notifySelectionChanged();
+    }
+
+    private void notifySelectionChanged() {
+
+        if (listener != null) {
+
+            listener.onSelectionChanged(
+                    getSelectedParts()
+            );
+        }
     }
 
     @Override
@@ -118,8 +307,11 @@ public class SparePartAdapter
         final TextView tvPartDescription;
         final TextView tvPartCompatible;
         final TextView tvPartPrice;
+        final TextView tvQuantity;
+        final TextView tvSelectedStatus;
 
-        final Button btnAddToBooking;
+        final Button btnMinus;
+        final Button btnPlus;
 
         SparePartViewHolder(
                 @NonNull View itemView
@@ -147,9 +339,24 @@ public class SparePartAdapter
                             R.id.tv_part_price
                     );
 
-            btnAddToBooking =
+            tvQuantity =
                     itemView.findViewById(
-                            R.id.btn_add_to_booking
+                            R.id.tv_part_quantity
+                    );
+
+            tvSelectedStatus =
+                    itemView.findViewById(
+                            R.id.tv_part_selected_status
+                    );
+
+            btnMinus =
+                    itemView.findViewById(
+                            R.id.btn_part_minus
+                    );
+
+            btnPlus =
+                    itemView.findViewById(
+                            R.id.btn_part_plus
                     );
         }
     }
