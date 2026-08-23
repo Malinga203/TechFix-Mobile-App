@@ -13,7 +13,7 @@ public class DatabaseHelper
             "techfix.db";
 
     private static final int DATABASE_VERSION =
-            13;
+            14;
 
 
     // =========================================================
@@ -93,6 +93,24 @@ public class DatabaseHelper
     public static final String COLUMN_TECHNICIAN_BRANCH_ID =
             "branch_id";
 
+    // =========================================================
+// TECHNICIAN SPECIALIZATIONS
+// =========================================================
+
+    public static final String TABLE_TECHNICIAN_SPECIALIZATION =
+            "technician_specializations";
+
+
+    public static final String COLUMN_TS_TECHNICIAN_ID =
+            "technician_id";
+
+
+    public static final String COLUMN_SPECIALIZATION_TYPE =
+            "specialization_type";
+
+
+    public static final String COLUMN_SPECIALIZATION_CATEGORY =
+            "category";
 
     // =========================================================
     // SERVICE
@@ -118,6 +136,9 @@ public class DatabaseHelper
 
     public static final String COLUMN_CATEGORY =
             "category";
+
+    public static final String COLUMN_SERVICE_TYPE =
+            "service_type";
 
 
     // =========================================================
@@ -400,6 +421,8 @@ public class DatabaseHelper
 
         createTechnicianTable(db);
 
+        createTechnicianSpecializationTable(db);
+
         createUserTable(db);
 
         createServiceTable(db);
@@ -558,6 +581,65 @@ public class DatabaseHelper
         db.execSQL(sql);
     }
 
+    private void createTechnicianSpecializationTable(
+            SQLiteDatabase db
+    ) {
+
+        String sql =
+                "CREATE TABLE IF NOT EXISTS "
+                        +
+                        TABLE_TECHNICIAN_SPECIALIZATION
+                        +
+                        " (" +
+
+                        COLUMN_TS_TECHNICIAN_ID
+                        +
+                        " INTEGER NOT NULL, " +
+
+                        COLUMN_SPECIALIZATION_TYPE
+                        +
+                        " TEXT NOT NULL, " +
+
+                        COLUMN_SPECIALIZATION_CATEGORY
+                        +
+                        " TEXT NOT NULL, " +
+
+                        "PRIMARY KEY ("
+                        +
+                        COLUMN_TS_TECHNICIAN_ID
+                        +
+                        ", "
+                        +
+                        COLUMN_SPECIALIZATION_TYPE
+                        +
+                        ", "
+                        +
+                        COLUMN_SPECIALIZATION_CATEGORY
+                        +
+                        "), " +
+
+                        "FOREIGN KEY("
+                        +
+                        COLUMN_TS_TECHNICIAN_ID
+                        +
+                        ") REFERENCES "
+                        +
+                        TABLE_TECHNICIAN
+                        +
+                        "("
+                        +
+                        COLUMN_TECHNICIAN_ID
+                        +
+                        ") ON DELETE CASCADE" +
+
+                        ")";
+
+
+        db.execSQL(
+                sql
+        );
+    }
+
 
     // =========================================================
     // SERVICE
@@ -568,31 +650,46 @@ public class DatabaseHelper
     ) {
 
         String sql =
-                "CREATE TABLE IF NOT EXISTS " +
-                        TABLE_SERVICE +
+                "CREATE TABLE IF NOT EXISTS "
+                        +
+                        TABLE_SERVICE
+                        +
                         " (" +
 
-                        COLUMN_SERVICE_ID +
+                        COLUMN_SERVICE_ID
+                        +
                         " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 
-                        COLUMN_SERVICE_NAME +
+                        COLUMN_SERVICE_NAME
+                        +
                         " TEXT NOT NULL, " +
 
-                        COLUMN_DESCRIPTION +
+                        COLUMN_DESCRIPTION
+                        +
                         " TEXT NOT NULL, " +
 
-                        COLUMN_PRICE +
+                        COLUMN_PRICE
+                        +
                         " REAL NOT NULL, " +
 
-                        COLUMN_DURATION_MINUTES +
+                        COLUMN_DURATION_MINUTES
+                        +
                         " INTEGER NOT NULL, " +
 
-                        COLUMN_CATEGORY +
+                        COLUMN_SERVICE_TYPE
+                        +
+                        " TEXT NOT NULL DEFAULT 'MOBILE', " +
+
+                        COLUMN_CATEGORY
+                        +
                         " TEXT NOT NULL" +
 
                         ")";
 
-        db.execSQL(sql);
+
+        db.execSQL(
+                sql
+        );
     }
 
 
@@ -1194,41 +1291,71 @@ public class DatabaseHelper
     ) {
 
         db.execSQL(
-                "INSERT INTO " +
-                        TABLE_SERVICE +
+                "INSERT INTO "
+                        +
+                        TABLE_SERVICE
+                        +
                         " (" +
 
-                        COLUMN_SERVICE_NAME + ", " +
-                        COLUMN_DESCRIPTION + ", " +
-                        COLUMN_PRICE + ", " +
-                        COLUMN_DURATION_MINUTES + ", " +
+                        COLUMN_SERVICE_NAME
+                        +
+                        ", " +
+
+                        COLUMN_DESCRIPTION
+                        +
+                        ", " +
+
+                        COLUMN_PRICE
+                        +
+                        ", " +
+
+                        COLUMN_DURATION_MINUTES
+                        +
+                        ", " +
+
+                        COLUMN_SERVICE_TYPE
+                        +
+                        ", " +
+
                         COLUMN_CATEGORY +
 
                         ") VALUES " +
 
-                        "('Screen Replacement'," +
-                        "'Cracked or damaged screen replaced with a genuine display panel.'," +
-                        "49.99,45,'Screen')," +
+                        "('Screen Replacement',"
+                        +
+                        "'Cracked or damaged screen replaced with a genuine display panel.',"
+                        +
+                        "49.99,45,'MOBILE','Screen')," +
 
-                        "('Battery Replacement'," +
-                        "'Worn-out battery replaced with a new certified battery.'," +
-                        "29.99,30,'Battery')," +
+                        "('Battery Replacement',"
+                        +
+                        "'Worn-out battery replaced with a new certified battery.',"
+                        +
+                        "29.99,30,'MOBILE','Battery')," +
 
-                        "('Water Damage Treatment'," +
-                        "'Full diagnostic and corrosion treatment for liquid damage.'," +
-                        "59.99,90,'Diagnostics')," +
+                        "('Water Damage Treatment',"
+                        +
+                        "'Full diagnostic and corrosion treatment for liquid damage.',"
+                        +
+                        "59.99,90,'MOBILE','Water Damage')," +
 
-                        "('Charging Port Repair'," +
-                        "'Faulty or loose charging port cleaned or replaced.'," +
-                        "24.99,40,'Hardware')," +
+                        "('Charging Port Repair',"
+                        +
+                        "'Faulty or loose charging port cleaned or replaced.',"
+                        +
+                        "24.99,40,'MOBILE','Charging Port')," +
 
-                        "('Software Troubleshooting'," +
-                        "'OS reinstall, malware removal and performance tuning.'," +
-                        "19.99,60,'Software')," +
+                        "('Software Troubleshooting',"
+                        +
+                        "'OS reinstall, malware removal and performance tuning.',"
+                        +
+                        "19.99,60,'MOBILE','Software')," +
 
-                        "('Keyboard Replacement'," +
-                        "'Damaged keyboard or unresponsive keys replaced.'," +
-                        "39.99,75,'Hardware')"
+                        "('Keyboard Replacement',"
+                        +
+                        "'Damaged keyboard or unresponsive keys replaced.',"
+                        +
+                        "39.99,75,'COMPUTER','Keyboard')"
         );
     }
 
@@ -1512,6 +1639,164 @@ public class DatabaseHelper
                             " = 1 WHERE " +
                             COLUMN_REPAIR_STATUS +
                             " = 'COMPLETED'"
+            );
+        }
+
+        /*
+         * Version 14:
+         *
+         * - Repair services now have MOBILE / COMPUTER type.
+         * - Technicians can have multiple Mobile and Computer
+         *   specializations.
+         */
+        if (oldVersion < 14) {
+
+            /*
+             * Add service_type to existing service table.
+             */
+            if (
+                    !columnExists(
+                            db,
+                            TABLE_SERVICE,
+                            COLUMN_SERVICE_TYPE
+                    )
+            ) {
+
+                db.execSQL(
+                        "ALTER TABLE "
+                                +
+                                TABLE_SERVICE
+                                +
+                                " ADD COLUMN "
+                                +
+                                COLUMN_SERVICE_TYPE
+                                +
+                                " TEXT NOT NULL DEFAULT 'MOBILE'"
+                );
+            }
+
+
+            /*
+             * Create many-to-many technician specialization table.
+             */
+            createTechnicianSpecializationTable(
+                    db
+            );
+
+
+            /*
+             * Existing services were mostly mobile.
+             */
+            db.execSQL(
+                    "UPDATE "
+                            +
+                            TABLE_SERVICE
+                            +
+                            " SET "
+                            +
+                            COLUMN_SERVICE_TYPE
+                            +
+                            " = 'MOBILE'"
+            );
+
+
+            /*
+             * Keyboard Replacement is a Computer service.
+             */
+            db.execSQL(
+                    "UPDATE "
+                            +
+                            TABLE_SERVICE
+                            +
+                            " SET "
+                            +
+                            COLUMN_SERVICE_TYPE
+                            +
+                            " = 'COMPUTER', "
+                            +
+                            COLUMN_CATEGORY
+                            +
+                            " = 'Keyboard' "
+                            +
+                            "WHERE "
+                            +
+                            COLUMN_SERVICE_NAME
+                            +
+                            " = 'Keyboard Replacement'"
+            );
+
+
+            /*
+             * Make Charging Port category more specific.
+             */
+            db.execSQL(
+                    "UPDATE "
+                            +
+                            TABLE_SERVICE
+                            +
+                            " SET "
+                            +
+                            COLUMN_CATEGORY
+                            +
+                            " = 'Charging Port' "
+                            +
+                            "WHERE "
+                            +
+                            COLUMN_SERVICE_NAME
+                            +
+                            " = 'Charging Port Repair'"
+            );
+
+
+            /*
+             * Migrate each old technician's single specialization
+             * as a Mobile specialization.
+             *
+             * Admin can edit the technician afterwards and select
+             * the correct Mobile/Computer categories.
+             */
+            db.execSQL(
+                    "INSERT OR IGNORE INTO "
+                            +
+                            TABLE_TECHNICIAN_SPECIALIZATION
+                            +
+                            " ("
+                            +
+                            COLUMN_TS_TECHNICIAN_ID
+                            +
+                            ", "
+                            +
+                            COLUMN_SPECIALIZATION_TYPE
+                            +
+                            ", "
+                            +
+                            COLUMN_SPECIALIZATION_CATEGORY
+                            +
+                            ") "
+                            +
+                            "SELECT "
+                            +
+                            COLUMN_TECHNICIAN_ID
+                            +
+                            ", 'MOBILE', "
+                            +
+                            COLUMN_SPECIALIZATION
+                            +
+                            " FROM "
+                            +
+                            TABLE_TECHNICIAN
+                            +
+                            " WHERE "
+                            +
+                            COLUMN_SPECIALIZATION
+                            +
+                            " IS NOT NULL "
+                            +
+                            "AND TRIM("
+                            +
+                            COLUMN_SPECIALIZATION
+                            +
+                            ") <> ''"
             );
         }
     }

@@ -31,9 +31,9 @@
             android:id="@+id/edtTechnicianPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:hint="Phone Number"
-            android:inputType="phone"
-            android:layout_marginTop="12dp" />
+            android:inputType="phone" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -59,44 +59,84 @@
             android:hint="Password"
             android:inputType="textPassword" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Specialization"
-            android:textStyle="bold"
-            android:layout_marginTop="18dp" />
+        <!-- MOBILE SPECIALIZATIONS -->
 
-        <Spinner
-            android:id="@+id/spinnerSpecialization"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Mobile Specializations"
+            android:textColor="@color/techfix_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Select any mobile repair categories this technician can handle"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:id="@+id/layoutMobileSpecializations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp" />
+
+        <!-- COMPUTER SPECIALIZATIONS -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Computer Specializations"
+            android:textColor="@color/techfix_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Select any computer repair categories this technician can handle"
+            android:textColor="@color/techfix_text_secondary"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:id="@+id/layoutComputerSpecializations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
             android:text="Branch"
-            android:textStyle="bold"
-            android:layout_marginTop="18dp" />
+            android:textStyle="bold" />
 
         <Spinner
             android:id="@+id/spinnerBranch"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="56dp" />
 
         <Switch
             android:id="@+id/switchAvailable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Available"
+            android:layout_marginTop="20dp"
             android:checked="true"
-            android:layout_marginTop="20dp" />
+            android:text="Available" />
 
         <Button
             android:id="@+id/btnSaveTechnician"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save Technician"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="24dp"
+            android:text="Save Technician" />
 
     </LinearLayout>
 

@@ -66,14 +66,31 @@
             android:inputType="number"
             android:singleLine="true" />
 
-        <EditText
-            android:id="@+id/edtServiceCategory"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Device Type"
+            android:textColor="@color/techfix_text_primary"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerServiceType"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="56dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:hint="Category"
-            android:inputType="textCapWords"
-            android:singleLine="true" />
+            android:text="Repair Category"
+            android:textColor="@color/techfix_text_primary"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerServiceCategory"
+            android:layout_width="match_parent"
+            android:layout_height="56dp" />
 
         <Button
             android:id="@+id/btnSaveService"

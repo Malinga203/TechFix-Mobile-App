@@ -84,7 +84,12 @@ public class ServiceAdminAdapter
         );
 
         holder.txtCategory.setText(
-                "Category: " +
+                "Type: "
+                        +
+                        service.getServiceType()
+                        +
+                        "  •  Category: "
+                        +
                         service.getCategory()
         );
 

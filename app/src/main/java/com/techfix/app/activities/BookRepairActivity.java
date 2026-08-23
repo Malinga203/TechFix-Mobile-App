@@ -937,15 +937,23 @@ public class BookRepairActivity extends AppCompatActivity {
                                 return;
                             }
 
-                            String requiredSpecialization =
+                            String requiredServiceType =
+                                    selectedService
+                                            .getServiceType();
+
+
+                            String requiredCategory =
                                     selectedService
                                             .getCategory();
+
+
                             selectedBranch =
                                     branchAssignmentService
                                             .findNearestSuitableBranch(
                                                     location.getLatitude(),
                                                     location.getLongitude(),
-                                                    requiredSpecialization,
+                                                    requiredServiceType,
+                                                    requiredCategory,
                                                     selectedParts
                                             );
 

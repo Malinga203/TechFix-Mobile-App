@@ -15,59 +15,87 @@ import java.util.List;
 public class BranchAssignmentService {
 
     private final BranchDao branchDao;
+
     private final TechnicianDao technicianDao;
+
     private final SparePartDAO sparePartDAO;
+
 
     public BranchAssignmentService(
             Context context
     ) {
 
         branchDao =
-                new BranchDao(context);
+                new BranchDao(
+                        context
+                );
+
 
         technicianDao =
-                new TechnicianDao(context);
+                new TechnicianDao(
+                        context
+                );
+
 
         sparePartDAO =
-                new SparePartDAO(context);
+                new SparePartDAO(
+                        context
+                );
     }
 
+
     /*
-     * NEW MULTI-PART VERSION.
+     * NEW VERSION.
      *
-     * A branch is suitable only if:
-     * 1. it has an available technician for the service category
-     * 2. it has enough stock for EVERY selected spare part
-     * 3. among suitable branches, it is the closest one
+     * Branch must have:
+     *
+     * 1. Technician with matching device type
+     * 2. Technician with matching repair category
+     * 3. Technician must be available
+     * 4. Technician must belong to the branch
+     * 5. Branch must contain required spare parts
+     * 6. Closest suitable branch is selected
      */
     public Branch findNearestSuitableBranch(
             double customerLatitude,
             double customerLongitude,
-            String requiredSpecialization,
+            String serviceType,
+            String requiredCategory,
             List<PartSelection> requiredParts
     ) {
 
         List<Branch> branches =
                 branchDao.getAllBranches();
 
+
         Branch nearestSuitableBranch =
                 null;
+
 
         float shortestDistance =
                 Float.MAX_VALUE;
 
-        for (Branch branch : branches) {
+
+        for (
+                Branch branch
+                :
+                branches
+        ) {
 
             boolean technicianAvailable =
                     technicianDao
                             .isTechnicianAvailable(
                                     branch.getBranchId(),
-                                    requiredSpecialization
+                                    serviceType,
+                                    requiredCategory
                             );
 
+
             if (!technicianAvailable) {
+
                 continue;
             }
+
 
             if (
                     !hasEnoughInventory(
@@ -75,8 +103,10 @@ public class BranchAssignmentService {
                             requiredParts
                     )
             ) {
+
                 continue;
             }
+
 
             float distance =
                     calculateDistance(
@@ -85,6 +115,85 @@ public class BranchAssignmentService {
                             branch.getLatitude(),
                             branch.getLongitude()
                     );
+
+
+            if (distance < shortestDistance) {
+
+                shortestDistance =
+                        distance;
+
+
+                nearestSuitableBranch =
+                        branch;
+            }
+        }
+
+
+        return nearestSuitableBranch;
+    }
+
+
+    /*
+     * Compatibility method for any older code.
+     */
+    public Branch findNearestSuitableBranch(
+            double customerLatitude,
+            double customerLongitude,
+            String requiredCategory,
+            List<PartSelection> requiredParts
+    ) {
+
+        List<Branch> branches =
+                branchDao.getAllBranches();
+
+
+        Branch nearestSuitableBranch =
+                null;
+
+
+        float shortestDistance =
+                Float.MAX_VALUE;
+
+
+        for (
+                Branch branch
+                :
+                branches
+        ) {
+
+            boolean technicianAvailable =
+                    technicianDao
+                            .isTechnicianAvailable(
+                                    branch.getBranchId(),
+                                    requiredCategory
+                            );
+
+
+            if (!technicianAvailable) {
+
+                continue;
+            }
+
+
+            if (
+                    !hasEnoughInventory(
+                            branch.getBranchId(),
+                            requiredParts
+                    )
+            ) {
+
+                continue;
+            }
+
+
+            float distance =
+                    calculateDistance(
+                            customerLatitude,
+                            customerLongitude,
+                            branch.getLatitude(),
+                            branch.getLongitude()
+                    );
+
 
             if (distance < shortestDistance) {
 
@@ -96,22 +205,24 @@ public class BranchAssignmentService {
             }
         }
 
+
         return nearestSuitableBranch;
     }
 
+
     /*
-     * Kept only for compatibility with older code.
-     * A legacy single part is treated as quantity 1.
+     * Existing single part compatibility.
      */
     public Branch findNearestSuitableBranch(
             double customerLatitude,
             double customerLongitude,
-            String requiredSpecialization,
+            String requiredCategory,
             Integer requiredPartId
     ) {
 
         List<PartSelection> selections =
                 new ArrayList<>();
+
 
         if (
                 requiredPartId != null
@@ -129,13 +240,15 @@ public class BranchAssignmentService {
             );
         }
 
+
         return findNearestSuitableBranch(
                 customerLatitude,
                 customerLongitude,
-                requiredSpecialization,
+                requiredCategory,
                 selections
         );
     }
+
 
     private boolean hasEnoughInventory(
             int branchId,
@@ -151,6 +264,7 @@ public class BranchAssignmentService {
             return true;
         }
 
+
         for (
                 PartSelection selection
                 :
@@ -160,13 +274,18 @@ public class BranchAssignmentService {
             if (
                     selection == null
                             ||
-                            selection.getPartId() <= 0
+                            selection.getPartId()
+                                    <=
+                                    0
                             ||
-                            selection.getQuantity() <= 0
+                            selection.getQuantity()
+                                    <=
+                                    0
             ) {
 
                 return false;
             }
+
 
             int availableStock =
                     sparePartDAO
@@ -174,6 +293,7 @@ public class BranchAssignmentService {
                                     selection.getPartId(),
                                     branchId
                             );
+
 
             if (
                     availableStock
@@ -185,8 +305,10 @@ public class BranchAssignmentService {
             }
         }
 
+
         return true;
     }
+
 
     public float calculateDistance(
             double customerLatitude,
@@ -198,6 +320,7 @@ public class BranchAssignmentService {
         float[] results =
                 new float[1];
 
+
         Location.distanceBetween(
                 customerLatitude,
                 customerLongitude,
@@ -206,8 +329,12 @@ public class BranchAssignmentService {
                 results
         );
 
-        return results[0] / 1000f;
+
+        return results[0]
+                /
+                1000f;
     }
+
 
     public float getDistanceToBranch(
             double customerLatitude,
