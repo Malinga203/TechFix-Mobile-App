@@ -23,9 +23,11 @@
         android:theme="@style/Theme.TechFix"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".activities.BranchInventoryActivity"
+            android:name=".activities.PaymentSuccessActivity"
             android:exported="false" />
-        <!-- ================================================= -->
+        <activity
+            android:name=".activities.BranchInventoryActivity"
+            android:exported="false" /> <!-- ================================================= -->
         <!-- SPARE PART MANAGEMENT -->
         <!-- ================================================= -->
         <activity
